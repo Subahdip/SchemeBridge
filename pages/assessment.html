@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eligibility Assessment — SchemeBridge</title>
+  <meta name="description"
+    content="Enter your financial requirements to evaluate eligible government welfare loan schemes.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            background: '#070b14',
+            card: '#0d1424',
+            border: 'rgba(255, 255, 255, 0.08)',
+            navy: {
+              700: '#1e293b',
+              800: '#0f172a',
+              900: '#0b1120',
+              950: '#070b14',
+            },
+            aurora: {
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+            sunset: {
+              500: '#f97316',
+              600: '#ea580c',
+            },
+            muted: {
+              DEFAULT: '#1e293b',
+              foreground: '#94a3b8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      background-color: #070b14;
+      color: #f8fafc;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Remove horizontal scroll */
+    html, body {
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+
+    /* Main content */
+    main {
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
+    }
+
+    /* Sidebar */
+    aside {
+      position: fixed;
+      left: 0;
+      top: 4rem;
+      height: calc(100vh - 4rem);
+      overflow-y: auto;
+      overflow-x: hidden;
+      width: 16rem;
+    }
+
+    /* Main content should account for sidebar */
+    @media (min-width: 1024px) {
+      main.lg\:ml-64 {
+        margin-left: 16rem;
+        width: calc(100% - 16rem);
+      }
+    }
+
+    /* Mobile: full width */
+    @media (max-width: 1023px) {
+      main {
+        margin-left: 0;
+        width: 100%;
+      }
+      
+      aside {
+        display: none; /* Hide sidebar on mobile */
+      }
+    }
+
+    /* Container */
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    /* Form sections */
+    section, div[class*="bg-navy"] {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    /* Inputs */
+    input, select, textarea {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .glow-mesh {
+      background-image: radial-gradient(circle at 0% 0%, hsla(246, 80%, 60%, 0.12) 0px, transparent 50%),
+        radial-gradient(circle at 100% 0%, hsla(174, 90%, 50%, 0.10) 0px, transparent 50%),
+        radial-gradient(circle at 50% 100%, hsla(280, 80%, 60%, 0.08) 0px, transparent 50%);
+    }
+
+    .glass-card {
+      background: rgba(13, 20, 36, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* Smooth transition for conditional fields */
+    #educationCategoryContainer,
+    #businessTypeContainer,
+    #personalReasonContainer,
+    #otherPurposeContainer {
+      transition: all 0.3s ease-in-out;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { 
+        opacity: 0; 
+        transform: translateY(-10px); 
+      }
+      to { 
+        opacity: 1; 
+        transform: translateY(0); 
+      }
+    }
+
+    /* Hide utility */
+    .hidden {
+      display: none !important;
+    }
+  </style>
+  <!-- Route Auth Protection -->
+  <script>
+    (function() {
+      const user = sessionStorage.getItem('user');
+      if (!user) {
+        window.location.href = '/login';
+      }
+    })();
+  </script>
+</head>
+
+<body
+  class="h-screen flex flex-col bg-[#070b14] overflow-hidden text-slate-100 antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- ========================================================================= -->
+  <!-- 1. NAVBAR (Sticky Top, Locked across viewports) -->
+  <!-- ========================================================================= -->
+  <nav class="bg-navy-950/95 border-b border-navy-800 sticky top-0 z-50 backdrop-blur-md w-full h-16 shrink-0">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2 group">
+          <span class="text-2xl font-bold bg-gradient-to-r from-aurora-400 to-teal-400 bg-clip-text text-transparent group-hover:brightness-110 transition-all">
+            SchemeBridge
+          </span>
+          <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-aurora-500/10 text-aurora-300 border border-aurora-500/20 hidden sm:inline-block">
+            SIH AI
+          </span>
+        </a>
+        
+        <!-- Navigation Links (Desktop) -->
+        <div class="hidden md:flex items-center gap-6">
+          <a href="/" class="text-slate-300 hover:text-aurora-400 transition-colors">Home</a>
+          <a href="/assessment" class="text-aurora-400 font-semibold transition-colors">Assessment</a>
+          <a href="/matched-scheme" class="text-slate-300 hover:text-aurora-400 transition-colors">Scheme</a>
+          <a href="/emi-calculator" class="text-slate-300 hover:text-aurora-400 transition-colors">EMI</a>
+          <a href="/partner-network" class="text-slate-300 hover:text-aurora-400 transition-colors">Partners</a>
+          <a href="/my-applications" class="text-slate-300 hover:text-aurora-400 transition-colors">
+            My Applications
+          </a>
+        </div>
+        
+        <!-- CTA Button & Mobile Toggle -->
+        <div class="flex items-center gap-3">
+          <button onclick="window.location.href='/assessment'" 
+                  class="bg-gradient-to-r from-aurora-600 to-teal-600 hover:from-aurora-700 hover:to-teal-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-aurora-500/20 text-xs sm:text-sm cursor-pointer">
+            Start Assessment
+          </button>
+
+          <!-- Mobile Hamburger Button -->
+          <button onclick="toggleMobileNav()" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-aurora-400 hover:bg-navy-800 transition-colors">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobileNavDrawer" class="hidden md:hidden border-t border-navy-800 bg-navy-950/98 p-4 space-y-2">
+      <a href="/" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Home</a>
+      <a href="/assessment" class="block py-2 px-3 rounded-lg text-aurora-400 font-semibold bg-navy-900 text-sm">Assessment</a>
+      <a href="/matched-scheme" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Scheme</a>
+      <a href="/emi-calculator" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">EMI</a>
+      <a href="/partner-network" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Partners</a>
+      <a href="/my-applications" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">My Applications</a>
+    </div>
+  </nav>
+
+  <!-- Body Wrapper below Navbar -->
+  <div class="flex-1 flex overflow-hidden w-full relative">
+
+    <!-- Left Sidebar: Stays firmly sticky and visible -->
+    <aside class="w-64 shrink-0 h-full overflow-y-auto border-r border-navy-800 p-6 hidden md:flex flex-col justify-between bg-navy-900 z-30">
+      <div>
+        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+          <span class="text-xl">📑</span>
+          Assessment Sections
+        </h3>
+        
+        <nav class="space-y-2">
+          <a href="#basic-info" class="section-link block px-4 py-3 rounded-lg text-sm font-medium transition-all hover:bg-aurora-900/30 hover:text-aurora-400 text-muted-foreground">
+            <span class="flex items-center gap-2">
+              <span class="text-lg">💰</span>
+              Basic Financial Info
+            </span>
+          </a>
+          
+          <a href="#loan-purpose" class="section-link block px-4 py-3 rounded-lg text-sm font-medium transition-all hover:bg-aurora-900/30 hover:text-aurora-400 text-muted-foreground">
+            <span class="flex items-center gap-2">
+              <span class="text-lg">🎯</span>
+              Loan Purpose & Scale
+            </span>
+          </a>
+          
+          <a href="#financial-liabilities" class="section-link block px-4 py-3 rounded-lg text-sm font-medium transition-all hover:bg-aurora-900/30 hover:text-aurora-400 text-muted-foreground">
+            <span class="flex items-center gap-2">
+              <span class="text-lg">💡</span>
+              Financial Liabilities
+            </span>
+          </a>
+          
+          <a href="#professional-details" class="section-link block px-4 py-3 rounded-lg text-sm font-medium transition-all hover:bg-aurora-900/30 hover:text-aurora-400 text-muted-foreground">
+            <span class="flex items-center gap-2">
+              <span class="text-lg">🏢</span>
+              Professional Details
+            </span>
+          </a>
+          
+          <a href="#loan-demographics" class="section-link block px-4 py-3 rounded-lg text-sm font-medium transition-all hover:bg-aurora-900/30 hover:text-aurora-400 text-muted-foreground">
+            <span class="flex items-center gap-2">
+              <span class="text-lg">📌</span>
+              Loan Demographics
+            </span>
+          </a>
+          
+          <a href="#credit-score" class="section-link block px-4 py-3 rounded-lg text-sm font-medium transition-all hover:bg-aurora-900/30 hover:text-aurora-400 text-muted-foreground">
+            <span class="flex items-center gap-2">
+              <span class="text-lg">📊</span>
+              Credit Profile
+            </span>
+          </a>
+        </nav>
+      </div>
+      
+      <!-- Progress Indicator -->
+      <div class="mt-8 p-4 bg-navy-800 border border-navy-700 rounded-lg">
+        <p class="text-white text-sm font-medium mb-2">Form Progress</p>
+        <div class="w-full bg-navy-700 rounded-full h-2">
+          <div id="progressBar" class="bg-gradient-to-r from-red-600 to-orange-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <p id="progressText" class="text-muted-foreground text-xs mt-2">0% Complete (0/15 fields)</p>
+      </div>
+    </aside>
+
+    <!-- Main Assessment Area: The sole scrolling container -->
+    <main id="mainScrollContainer" class="flex-1 h-full overflow-y-auto px-4 sm:px-8 py-8 flex flex-col items-center">
+      <!-- Mobile Section Selector (only visible on mobile) -->
+      <div class="md:hidden w-full max-w-4xl mb-4 sticky top-0 z-20 bg-navy-900 border border-navy-800 rounded-xl p-3 shadow-md">
+        <select id="mobileSectionSelector" class="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2 text-white text-sm">
+          <option value="">Jump to section...</option>
+          <option value="#basic-info">💰 Basic Financial Info</option>
+          <option value="#loan-purpose">🎯 Loan Purpose & Scale</option>
+          <option value="#financial-liabilities">💡 Financial Liabilities</option>
+          <option value="#professional-details">🏢 Professional Details</option>
+          <option value="#loan-demographics">📌 Loan Demographics</option>
+          <option value="#credit-score">📊 Credit Profile</option>
+        </select>
+      </div>
+
+      <!-- Centered Inner Form Container -->
+      <div class="w-full max-w-4xl mx-auto flex flex-col gap-6">
+
+      <!-- Stepper / Breadcrumbs -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between text-xs text-slate-400">
+          <span class="font-bold text-indigo-400 uppercase tracking-wider">Step 1 of 4: Applicant Profile</span>
+          <span id="mainProgressText" class="font-mono">0% Complete (0/15 fields)</span>
+        </div>
+
+        <!-- Step Track -->
+        <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden flex">
+          <div id="mainProgressBar" class="h-full bg-gradient-to-r from-red-600 to-orange-600 w-0 rounded-full transition-all duration-300"></div>
+        </div>
+      </div>
+
+      <!-- Quick Jump Navigation Bar -->
+      <div
+        class="glass-card rounded-xl p-2.5 border border-white/10 flex flex-wrap items-center justify-between gap-2 shadow-lg relative z-20">
+        <div class="flex items-center gap-1.5 text-xs text-slate-400 font-semibold px-2">
+          <i data-lucide="compass" class="w-4 h-4 text-teal-400"></i>
+          <span>Quick Jump:</span>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-1.5 text-xs font-medium">
+          <!-- 1. Assessment button -> stays on current page / scrolls to top (active) -->
+          <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;"
+            class="px-3 py-1.5 rounded-lg bg-teal-500/20 text-teal-300 font-bold border border-teal-500/40 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer">
+            <span class="h-1.5 w-1.5 rounded-full bg-teal-400 animate-pulse"></span>
+            <span>Assessment</span>
+          </a>
+
+          <!-- 2. Matched Scheme button -> navigates to /matched-scheme.html -->
+          <a href="/matched-scheme.html"
+            class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-indigo-500/20 hover:text-indigo-300 text-slate-300 border border-white/10 flex items-center gap-1.5 transition-all cursor-pointer group">
+            <span>Matched Scheme</span>
+            <i data-lucide="arrow-right"
+              class="w-3 h-3 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-transform"></i>
+          </a>
+
+          <!-- 3. EMI Calculator button -> navigates to /emi-calculator.html -->
+          <a href="/emi-calculator.html"
+            class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-purple-500/20 hover:text-purple-300 text-slate-300 border border-white/10 flex items-center gap-1.5 transition-all cursor-pointer group">
+            <span>EMI Calculator</span>
+            <i data-lucide="arrow-right"
+              class="w-3 h-3 text-slate-500 group-hover:text-purple-400 group-hover:translate-x-0.5 transition-transform"></i>
+          </a>
+
+          <!-- 4. Partner Network button -> navigates to /partner-network.html -->
+          <a href="/partner-network.html"
+            class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-emerald-500/20 hover:text-emerald-300 text-slate-300 border border-white/10 flex items-center gap-1.5 transition-all cursor-pointer group">
+            <span>Partner Network</span>
+            <i data-lucide="arrow-right"
+              class="w-3 h-3 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-transform"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Heading Area (NO Hero Section) -->
+      <div class="space-y-2 text-center sm:text-left">
+        <div
+          class="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3.5 py-1 text-xs text-indigo-300">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-teal-400"></i>
+          <span>Ministry Concessional Lending Criteria</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+          Eligibility Assessment
+        </h1>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          Provide your annual family income and credit requirement to calculate exact scheme coverage and subsidized
+          interest rates.
+        </p>
+      </div>
+
+      <!-- Assessment Card & Form (Collecting All Required Details) -->
+      <div
+        class="glass-card rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 relative overflow-hidden border border-white/10">
+
+        <div class="h-1.5 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-teal-400 absolute top-0 left-0">
+        </div>
+
+        <form id="assessmentForm" class="space-y-6">
+
+          <!-- SECTION 1: Basic Financial Information -->
+          <div class="mb-8 p-6 bg-navy-800/50 border border-navy-700 rounded-xl space-y-6">
+            <h2 id="basic-info" class="text-2xl font-bold text-white mb-6">
+              💰 Basic Financial Information
+            </h2>
+
+            <!-- 1. Annual Family Income Input -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <label for="income"
+                  class="text-xs sm:text-sm font-semibold text-slate-200 flex items-center gap-1.5">
+                  <span>Annual Family Income (₹)</span>
+                  <span class="text-red-400 text-sm font-normal ml-2">*</span>
+                </label>
+                <span class="text-[11px] text-teal-400 font-mono">Limit: ≤ ₹5,00,000</span>
+              </div>
+
+              <div class="relative">
+                <span class="absolute left-3.5 top-3 text-slate-400 font-bold text-sm">₹</span>
+                <input type="number" id="income" name="income" required min="1000" max="5000000"
+                  placeholder="e.g. 250000"
+                  class="w-full h-11 pl-8 pr-4 rounded-lg border border-navy-700 bg-navy-800 text-foreground placeholder:text-muted-foreground text-sm font-medium focus:border-aurora-500 focus:ring-1 focus:ring-aurora-500 focus:outline-none transition-all font-mono" />
+              </div>
+
+              <!-- Quick Chips for Income -->
+              <div class="flex flex-wrap items-center gap-2 pt-1">
+                <span class="text-[11px] text-slate-400">Quick select:</span>
+                <button type="button" onclick="setIncome(150000)"
+                  class="text-[11px] font-mono font-medium px-2.5 py-1 rounded-lg border border-navy-700 bg-navy-900/60 text-slate-300 hover:bg-aurora-600 hover:text-white transition-colors">₹1.50L</button>
+                <button type="button" onclick="setIncome(300000)"
+                  class="text-[11px] font-mono font-medium px-2.5 py-1 rounded-lg border border-navy-700 bg-navy-900/60 text-slate-300 hover:bg-aurora-600 hover:text-white transition-colors">₹3.00L</button>
+                <button type="button" onclick="setIncome(500000)"
+                  class="text-[11px] font-mono font-medium px-2.5 py-1 rounded-lg border border-navy-700 bg-navy-900/60 text-slate-300 hover:bg-aurora-600 hover:text-white transition-colors">₹5.00L
+                  (Max)</button>
+                <button type="button" onclick="setIncome(750000)"
+                  class="text-[11px] font-mono font-medium px-2.5 py-1 rounded-lg border border-navy-700 bg-navy-900/60 text-slate-300 hover:bg-red-600 hover:text-white transition-colors">₹7.50L</button>
+              </div>
+            </div>
+
+            <!-- 2. Loan Amount Needed Input -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <label for="loanAmount" class="text-xs sm:text-sm font-semibold text-slate-200 flex items-center gap-1.5">
+                  <span>Required Loan Amount (₹)</span>
+                  <span class="text-red-400 text-sm font-normal ml-2">*</span>
+                </label>
+                <span class="text-[11px] text-aurora-400 font-mono">Up to ₹50,00,000</span>
+              </div>
+
+              <div class="relative">
+                <span class="absolute left-3.5 top-3 text-slate-400 font-bold text-sm">₹</span>
+                <input type="number" id="loanAmount" name="loanAmount" required min="5000" max="5000000"
+                  placeholder="e.g. 120000"
+                  class="w-full h-11 pl-8 pr-4 rounded-lg border border-navy-700 bg-navy-800 text-foreground placeholder:text-muted-foreground text-sm font-medium focus:border-aurora-500 focus:ring-1 focus:ring-aurora-500 focus:outline-none transition-all font-mono" />
+              </div>
+
+              <!-- Quick Chips for Loan Amount -->
+              <div class="flex flex-wrap items-center gap-2 pt-1">
+                <span class="text-[11px] text-slate-400">Quick select:</span>
+                <button type="button" onclick="setLoan(100000)"
+                  class="text-[11px] font-mono font-medium px-2.5 py-1 rounded-lg border border-navy-700 bg-navy-900/60 text-slate-300 hover:bg-teal-600 hover:text-white transition-colors">₹1.00L
+                  (Micro)</button>
+                <button type="button" onclick="setLoan(500000)"
+                  class="text-[11px] font-mono font-medium px-2.5 py-1 rounded-lg border border-navy-700 bg-navy-900/60 text-slate-300 hover:bg-teal-600 hover:text-white transition-colors">₹5.00L</button>
+                <button type="button" onclick="setLoan(1500000)"
+                  class="text-[11px] font-mono font-medium px-2.5 py-1 rounded-lg border border-navy-700 bg-navy-900/60 text-slate-300 hover:bg-teal-600 hover:text-white transition-colors">₹15.00L
+                  (Term)</button>
+                <button type="button" onclick="setLoan(3000000)"
+                  class="text-[11px] font-mono font-medium px-2.5 py-1 rounded-lg border border-navy-700 bg-navy-900/60 text-slate-300 hover:bg-teal-600 hover:text-white transition-colors">₹30.00L</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 2: Loan Purpose -->
+          <div class="mb-8 p-6 bg-navy-800/50 border border-navy-700 rounded-xl space-y-6">
+            <h2 id="loan-purpose" class="text-2xl font-bold text-white mb-6">
+              🎯 Loan Purpose
+            </h2>
+            
+            <!-- Primary Loan Purpose -->
+            <div>
+              <label for="loanPurpose" class="block text-sm font-medium text-muted-foreground mb-2">
+                Primary Loan Purpose *
+              </label>
+              <select 
+                id="loanPurpose" 
+                name="loanPurpose" 
+                required
+                class="w-full px-4 py-3 bg-navy-900 border border-navy-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-aurora-500 focus:border-transparent transition-all"
+                onchange="handleLoanPurposeChange()"
+              >
+                <option value="">Select Purpose</option>
+                <option value="education">Education</option>
+                <option value="business">Business / Self-Employment</option>
+                <option value="personal">Personal Reasons</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            
+            <!-- Education Project Size (Conditional) -->
+            <div id="educationCategoryContainer" class="hidden">
+              <!-- Project Size for Education -->
+              <label for="educationProjectSize" class="block text-sm font-medium text-muted-foreground mb-2">
+                Project Size *
+              </label>
+              <select 
+                id="educationProjectSize" 
+                name="educationProjectSize"
+                class="w-full px-4 py-3 bg-navy-900 border border-navy-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-aurora-500 focus:border-transparent transition-all"
+              >
+                <option value="">Select Project Size</option>
+                <option value="micro">Micro (Up to ₹1.40 Lakh) - Diploma, Certificate, Short-term Courses</option>
+                <option value="medium">Medium (₹1.40 Lakh - ₹10 Lakh) - Undergraduate, Postgraduate, Professional Courses</option>
+                <option value="large">Large (₹10 Lakh - ₹50 Lakh) - Ph.D., Study Abroad, Research Programs</option>
+              </select>
+              <p class="text-xs text-muted-foreground mt-2">
+                💡 Select based on your total education expense requirement
+              </p>
+            </div>
+
+            <!-- Business Project Size (Conditional) -->
+            <div id="businessTypeContainer" class="hidden">
+              <!-- Project Size for Business -->
+              <label for="businessProjectSize" class="block text-sm font-medium text-muted-foreground mb-2">
+                Project Size *
+              </label>
+              <select 
+                id="businessProjectSize" 
+                name="businessProjectSize"
+                class="w-full px-4 py-3 bg-navy-900 border border-navy-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-aurora-500 focus:border-transparent transition-all"
+              >
+                <option value="">Select Project Size</option>
+                <option value="micro">Micro (Up to ₹1.40 Lakh) - Small business, working capital, equipment purchase</option>
+                <option value="medium">Medium (₹1.40 Lakh - ₹10 Lakh) - Business expansion, machinery, inventory</option>
+                <option value="large">Large (₹10 Lakh - ₹50 Lakh) - Large-scale manufacturing, infrastructure, franchise</option>
+              </select>
+              <p class="text-xs text-muted-foreground mt-2">
+                💡 Micro: Small projects (Micro Finance Scheme) | Medium/Large: Term Loan Scheme
+              </p>
+            </div>
+
+            <!-- Personal Project Size (Conditional) -->
+            <div id="personalReasonContainer" class="hidden">
+              <!-- Project Size for Personal -->
+              <label for="personalProjectSize" class="block text-sm font-medium text-muted-foreground mb-2">
+                Loan Size *
+              </label>
+              <select 
+                id="personalProjectSize" 
+                name="personalProjectSize"
+                class="w-full px-4 py-3 bg-navy-900 border border-navy-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-aurora-500 focus:border-transparent transition-all"
+              >
+                <option value="">Select Loan Size</option>
+                <option value="micro">Micro (Up to ₹1 Lakh) - Small personal needs, consumer durables</option>
+                <option value="medium">Medium (₹1 Lakh - ₹5 Lakh) - Medical, wedding, vehicle purchase</option>
+                <option value="large">Large (₹5 Lakh+) - Major expenses, debt consolidation, home renovation</option>
+              </select>
+              <p class="text-xs text-muted-foreground mt-2">
+                💡 Select based on your total loan requirement
+              </p>
+            </div>
+
+            <!-- Other Purpose (Conditional) -->
+            <div id="otherPurposeContainer" class="hidden">
+              <label for="otherPurposeText" class="block text-sm font-medium text-muted-foreground mb-2">
+                Specify Other Purpose *
+              </label>
+              <input 
+                type="text" 
+                id="otherPurposeText" 
+                name="otherPurposeText"
+                placeholder="e.g., Starting a coaching center, Buying agricultural equipment, etc."
+                class="w-full px-4 py-3 bg-navy-900 border border-navy-700 rounded-lg text-white placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-aurora-500 focus:border-transparent transition-all mb-4"
+              />
+              
+              <!-- Project Size for Other -->
+              <label for="otherProjectSize" class="block text-sm font-medium text-muted-foreground mb-2">
+                Project Size *
+              </label>
+              <select 
+                id="otherProjectSize" 
+                name="otherProjectSize"
+                class="w-full px-4 py-3 bg-navy-900 border border-navy-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-aurora-500 focus:border-transparent transition-all"
+              >
+                <option value="">Select Project Size</option>
+                <option value="micro">Micro (Up to ₹1.40 Lakh) - Small projects</option>
+                <option value="medium">Medium (₹1.40 Lakh - ₹10 Lakh) - Medium-scale projects</option>
+                <option value="large">Large (₹10 Lakh - ₹50 Lakh) - Large-scale projects</option>
+              </select>
+              <p class="text-xs text-muted-foreground mt-2">
+                💡 Select based on your total project cost
+              </p>
+            </div>
+          </div>
+
+          <!-- SECTION 3: Financial Liabilities & Banking Profile -->
+          <div class="mb-8 p-6 bg-navy-800/50 border border-navy-700 rounded-xl">
+            <h2 id="financial-liabilities" class="text-2xl font-bold text-white mb-6">
+              💡 Financial Liabilities & Banking Profile
+            </h2>
+            
+            <!-- Existing Monthly EMIs -->
+            <div class="mb-6">
+              <label class="block text-white font-medium mb-2">
+                Existing Monthly EMIs (₹)
+                <span class="text-red-400 text-sm font-normal ml-2">*</span>
+              </label>
+              <input 
+                type="number" 
+                id="existingEmis"
+                required
+                min="0"
+                placeholder="₹0" 
+                class="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-3 text-white placeholder:text-muted-foreground focus:border-aurora-500 focus:ring-2 focus:ring-aurora-500 transition-all"
+              />
+              <p class="text-muted-foreground text-xs mt-2">
+                ℹ️ Include home loan, car loan, personal loan, credit card EMIs, etc.
+              </p>
+            </div>
+            
+            <!-- Salary Account Bank Name -->
+            <div class="mb-6">
+              <label class="block text-white font-medium mb-2">
+                Salary Account Bank Name
+                <span class="text-red-400 text-sm font-normal ml-2">*</span>
+              </label>
+              <select id="salaryBank" required class="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-3 text-white focus:border-aurora-500 focus:ring-2 focus:ring-aurora-500 transition-all">
+                <option value="">Select your bank</option>
+                <option value="sbi">State Bank of India (SBI)</option>
+                <option value="hdfc">HDFC Bank</option>
+                <option value="icici">ICICI Bank</option>
+                <option value="axis">Axis Bank</option>
+                <option value="kotak">Kotak Mahindra Bank</option>
+                <option value="pnb">Punjab National Bank</option>
+                <option value="bob">Bank of Baroda</option>
+                <option value="canara">Canara Bank</option>
+                <option value="union">Union Bank of India</option>
+                <option value="other-private">Other Private Bank</option>
+                <option value="other-psb">Other Public Sector Bank</option>
+                <option value="other">Other Bank</option>
+              </select>
+              <p class="text-muted-foreground text-xs mt-2">
+                💡 Some banks offer pre-approved corporate offers for salary account holders
+              </p>
+            </div>
+            
+            <!-- Net Take-Home Salary -->
+            <div class="mb-4">
+              <label class="block text-white font-medium mb-2">
+                Net Take-Home Salary (₹/month)
+                <span class="text-red-400 text-sm font-normal ml-2">*</span>
+              </label>
+              <input 
+                type="number" 
+                id="netSalary"
+                required
+                min="0"
+                placeholder="₹0" 
+                class="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-3 text-white placeholder:text-muted-foreground focus:border-aurora-500 focus:ring-2 focus:ring-aurora-500 transition-all"
+              />
+              <p class="text-muted-foreground text-xs mt-2">
+                ℹ️ This is the actual amount credited to your bank account monthly (not CTC)
+              </p>
+            </div>
+          </div>
+
+          <!-- SECTION 4: Professional Stability & Employment Details -->
+          <div class="mb-8 p-6 bg-navy-800/50 border border-navy-700 rounded-xl">
+            <h2 id="professional-details" class="text-2xl font-bold text-white mb-6">
+              🏢 Professional Stability & Employment Details
+            </h2>
+            
+            <!-- Current Employer/Company Name -->
+            <div class="mb-6">
+              <label class="block text-white font-medium mb-2">
+                Current Employer/Company Name
+                <span class="text-red-400 text-sm font-normal ml-2">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="companyName"
+                required
+                placeholder="e.g., TCS, Infosys, HCL, Government, etc." 
+                class="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-3 text-white placeholder:text-muted-foreground focus:border-aurora-500 focus:ring-2 focus:ring-aurora-500 transition-all"
+              />
+              <p class="text-muted-foreground text-xs mt-2">
+                💼 Lenders offer better rates for Tier-1 companies (MNCs, Govt, etc.)
+              </p>
+            </div>
+            
+            <!-- Years at Current Job -->
+            <div class="mb-6">
+              <label class="block text-white font-medium mb-2">
+                Years at Current Job
+                <span class="text-red-400 text-sm font-normal ml-2">*</span>
+              </label>
+              <select id="yearsAtJob" required class="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-3 text-white focus:border-aurora-500 focus:ring-2 focus:ring-aurora-500 transition-all">
+                <option value="">Select duration</option>
+                <option value="0-1">Less than 1 year</option>
+                <option value="1-2">1-2 years</option>
+                <option value="2-5">2-5 years</option>
+                <option value="5-10">5-10 years</option>
+                <option value="10+">10+ years</option>
+              </select>
+              <p class="text-muted-foreground text-xs mt-2">
+                ✓ Longer tenure shows job stability and improves approval chances
+              </p>
+            </div>
+            
+            <!-- Total Work Experience -->
+            <div class="mb-4">
+              <label class="block text-white font-medium mb-2">
+                Total Work Experience
+                <span class="text-red-400 text-sm font-normal ml-2">*</span>
+              </label>
+              <select id="totalExperience" required class="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-3 text-white focus:border-aurora-500 focus:ring-2 focus:ring-aurora-500 transition-all">
+                <option value="">Select experience</option>
+                <option value="0-1">Less than 1 year (Fresher)</option>
+                <option value="1-3">1-3 years</option>
+                <option value="3-5">3-5 years</option>
+                <option value="5-10">5-10 years</option>
+                <option value="10-15">10-15 years</option>
+                <option value="15+">15+ years</option>
+              </select>
+              <p class="text-muted-foreground text-xs mt-2">
+                📈 More experience = better career stability = higher loan eligibility
+              </p>
+            </div>
+          </div>
+
+          <!-- SECTION 5: Residential Demographics -->
+          <div class="mb-8 p-6 bg-navy-800/50 border border-navy-700 rounded-xl">
+            <h2 id="loan-demographics" class="text-2xl font-bold text-white mb-6">
+              📌 Residential Demographics
+            </h2>
+            
+            <!-- Current Pincode -->
+            <div class="mb-6">
+              <label class="block text-white font-medium mb-2">
+                Current Pincode
+                <span class="text-red-400 text-sm font-normal ml-2">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="pincode"
+                required
+                maxlength="6"
+                pattern="[0-9]{6}"
+                placeholder="e.g., 110001" 
+                class="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-3 text-white placeholder:text-muted-foreground focus:border-aurora-500 focus:ring-2 focus:ring-aurora-500 transition-all"
+              />
+              <p class="text-muted-foreground text-xs mt-2">
+                📍 Helps find nearest channel partners and location-specific schemes
+              </p>
+            </div>
+            
+            <!-- Current Residential Status -->
+            <div class="mb-6">
+              <label class="block text-white font-medium mb-2">
+                Current Residential Status
+                <span class="text-red-400 text-sm font-normal ml-2">*</span>
+              </label>
+              <select id="residentialStatus" required class="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-3 text-white focus:border-aurora-500 focus:ring-2 focus:ring-aurora-500 transition-all">
+                <option value="">Select status</option>
+                <option value="owned-self">Owned by Self</option>
+                <option value="owned-family">Owned by Family/Parents</option>
+                <option value="rented">Rented</option>
+                <option value="pg-hostel">PG/Hostel</option>
+                <option value="company-provided">Company Provided Accommodation</option>
+                <option value="other">Other</option>
+              </select>
+              <p class="text-muted-foreground text-xs mt-2">
+                🏠 Home ownership indicates asset stability and may improve approval
+              </p>
+            </div>
+            
+            <!-- Complete Address -->
+            <div class="mb-4">
+              <label class="block text-white font-medium mb-2">
+                Complete Address
+                <span class="text-red-400 text-sm font-normal ml-2">*</span>
+              </label>
+              <textarea 
+                id="address"
+                required
+                rows="3"
+                placeholder="House/Flat No., Building Name, Street, Area, Landmark" 
+                class="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-3 text-white placeholder:text-muted-foreground focus:border-aurora-500 focus:ring-2 focus:ring-aurora-500 transition-all resize-none"
+              ></textarea>
+              <p class="text-muted-foreground text-xs mt-2">
+                📍 Your complete residential address for loan processing
+              </p>
+            </div>
+          </div>
+
+          <!-- SECTION 6: Credit Profile & Score Assessment -->
+          <div class="mb-8 p-6 bg-navy-800/50 border border-navy-700 rounded-xl">
+            <h2 id="credit-score" class="text-2xl font-bold text-white mb-6">
+              📊 Credit Profile & Score Assessment
+            </h2>
+            
+            <!-- Credit Score Range -->
+            <div class="mb-4">
+              <label class="block text-white font-medium mb-2">
+                Credit Score Range (CIBIL)
+                <span class="text-red-400 text-sm font-normal ml-2">*</span>
+              </label>
+              <select id="creditScore" required class="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-3 text-white focus:border-aurora-500 focus:ring-2 focus:ring-aurora-500 transition-all">
+                <option value="">Select your credit score range</option>
+                <option value="excellent">Excellent (775 - 900)</option>
+                <option value="good">Good (700 - 774)</option>
+                <option value="fair">Fair (600 - 699)</option>
+                <option value="needs-work">Needs Work (Below 600)</option>
+                <option value="no-history">I don't know / First time borrowing (No History)</option>
+              </select>
+              <div class="mt-3 p-3 bg-aurora-900/20 border border-aurora-700/50 rounded-lg">
+                <p class="text-white text-sm font-medium mb-2">💡 Credit Score Impact:</p>
+                <ul class="text-muted-foreground text-xs space-y-1">
+                  <li>-  Excellent (775+): Best interest rates, highest approval chance</li>
+                  <li>-  Good (700-774): Competitive rates, good approval chance</li>
+                  <li>-  Fair (600-699): Standard rates, may need additional documentation</li>
+                  <li>-  Below 600: Higher interest rates, lower approval chance</li>
+                  <li>-  No History: First-time borrower schemes available</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Action Button -->
+          <div class="pt-4">
+            <button type="submit"
+              class="w-full h-12 rounded-xl bg-gradient-to-r from-aurora-600 to-sunset-500 hover:from-aurora-700 hover:to-sunset-600 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-aurora-500/25 transition-all group">
+              <i data-lucide="sparkles" class="w-4 h-4 text-amber-300 group-hover:rotate-12 transition-transform"></i>
+              <span>Assess &amp; Match Eligible Schemes</span>
+              <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+
+      <!-- Help & Disclaimer Card -->
+      <div class="p-4 rounded-xl border border-white/10 bg-white/5 text-xs text-slate-400 space-y-1">
+        <div class="flex items-center gap-1.5 text-slate-300 font-semibold">
+          <i data-lucide="info" class="w-3.5 h-3.5 text-indigo-400"></i>
+          <span>Statutory Rule:</span>
+        </div>
+        <p>
+          Government concessional loan programs mandate an annual family income threshold of ₹5,00,000. Eligible
+          applicants receive up to 90% project cost coverage with only 10% self-contribution margin.
+        </p>
+      </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 3. FOOTER -->
+  <!-- ========================================================================= -->
+  <footer class="w-full border-t border-white/10 bg-[#070b14]/80 py-8 text-xs text-slate-400">
+    <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-white">SchemeBridge</span>
+        <span>• Smart India Hackathon AI Platform</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/" class="hover:text-white transition-colors">Home</a>
+        <a href="/assessment" class="hover:text-white text-teal-400 font-semibold">Assessment</a>
+        <a href="/matched-scheme" class="hover:text-white transition-colors">Matched Schemes</a>
+        <a href="/emi-calculator" class="hover:text-white transition-colors">EMI Calculator</a>
+        <a href="/partner-network" class="hover:text-white transition-colors">Partner Network</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- APPSTATE & FORM SUBMISSION LOGIC -->
+  <!-- ========================================================================= -->
+  <script src="/utils/state.js"></script>
+  <script>
+    // Quick Select Helpers
+    function setIncome(val) {
+      document.getElementById('income').value = val;
+    }
+
+    function setLoan(val) {
+      document.getElementById('loanAmount').value = val;
+    }
+
+    // Handle Loan Purpose Change
+    function handleLoanPurposeChange() {
+      const loanPurposeEl = document.getElementById('loanPurpose');
+      if (!loanPurposeEl) return;
+      const loanPurpose = loanPurposeEl.value;
+      
+      // Hide all conditional containers
+      const eduContainer = document.getElementById('educationCategoryContainer');
+      const busContainer = document.getElementById('businessTypeContainer');
+      const perContainer = document.getElementById('personalReasonContainer');
+      const othContainer = document.getElementById('otherPurposeContainer');
+
+      if (eduContainer) eduContainer.classList.add('hidden');
+      if (busContainer) busContainer.classList.add('hidden');
+      if (perContainer) perContainer.classList.add('hidden');
+      if (othContainer) othContainer.classList.add('hidden');
+      
+      // Remove required attribute from all conditional fields
+      const allConditionalFields = [
+        'educationProjectSize',
+        'businessProjectSize',
+        'personalProjectSize',
+        'otherPurposeText', 'otherProjectSize'
+      ];
+      
+      allConditionalFields.forEach(id => {
+        document.getElementById(id)?.removeAttribute('required');
+      });
+      
+      // Show and set required based on selection
+      if (loanPurpose === 'education') {
+        if (eduContainer) eduContainer.classList.remove('hidden');
+        document.getElementById('educationProjectSize')?.setAttribute('required', 'required');
+      } else if (loanPurpose === 'business') {
+        if (busContainer) busContainer.classList.remove('hidden');
+        document.getElementById('businessProjectSize')?.setAttribute('required', 'required');
+      } else if (loanPurpose === 'personal') {
+        if (perContainer) perContainer.classList.remove('hidden');
+        document.getElementById('personalProjectSize')?.setAttribute('required', 'required');
+      } else if (loanPurpose === 'other') {
+        if (othContainer) othContainer.classList.remove('hidden');
+        document.getElementById('otherPurposeText')?.setAttribute('required', 'required');
+        document.getElementById('otherProjectSize')?.setAttribute('required', 'required');
+      }
+
+      if (typeof updateProgressBar === 'function') updateProgressBar();
+      if (typeof updateSidebarProgress === 'function') updateSidebarProgress();
+    }
+
+    // Add form validation
+    const form = document.getElementById('assessmentForm');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const loanPurpose = document.getElementById('loanPurpose').value;
+
+      // Validation: Ensure conditional fields and project sizes are selected
+      if (loanPurpose === 'education') {
+        if (!document.getElementById('educationProjectSize')?.value) {
+          alert('Please select your project size');
+          return;
+        }
+      }
+      if (loanPurpose === 'business') {
+        if (!document.getElementById('businessProjectSize')?.value) {
+          alert('Please select your project size');
+          return;
+        }
+      }
+      if (loanPurpose === 'personal') {
+        if (!document.getElementById('personalProjectSize')?.value) {
+          alert('Please select your loan size');
+          return;
+        }
+      }
+      if (loanPurpose === 'other') {
+        if (!document.getElementById('otherPurposeText')?.value.trim()) {
+          alert('Please specify your loan purpose');
+          return;
+        }
+        if (!document.getElementById('otherProjectSize')?.value) {
+          alert('Please select your project size');
+          return;
+        }
+      }
+
+      const selectedProjectSize = loanPurpose === 'education' 
+        ? document.getElementById('educationProjectSize')?.value 
+        : (loanPurpose === 'business' 
+          ? document.getElementById('businessProjectSize')?.value 
+          : (loanPurpose === 'personal' 
+            ? document.getElementById('personalProjectSize')?.value 
+            : (loanPurpose === 'other' ? document.getElementById('otherProjectSize')?.value : null)));
+
+      // Collect all form data
+      const assessmentData = {
+        // Basic Financial Info
+        income: parseFloat(document.getElementById('income').value) || 0,
+        loanAmount: parseFloat(document.getElementById('loanAmount').value) || 0,
+        
+        // Loan Purpose & Conditional details
+        loanPurpose: loanPurpose,
+        primaryPurpose: loanPurpose,
+        educationProjectSize: loanPurpose === 'education' ? document.getElementById('educationProjectSize')?.value : null,
+        businessProjectSize: loanPurpose === 'business' ? document.getElementById('businessProjectSize')?.value : null,
+        personalProjectSize: loanPurpose === 'personal' ? document.getElementById('personalProjectSize')?.value : null,
+        otherPurposeText: loanPurpose === 'other' ? document.getElementById('otherPurposeText').value : null,
+        otherProjectSize: loanPurpose === 'other' ? document.getElementById('otherProjectSize')?.value : null,
+        
+        // Financial Liabilities & Banking
+        existingEmis: parseFloat(document.getElementById('existingEmis').value) || 0,
+        salaryBank: document.getElementById('salaryBank').value,
+        netSalary: parseFloat(document.getElementById('netSalary').value) || 0,
+        
+        // Professional & Stability
+        companyName: document.getElementById('companyName').value,
+        yearsAtJob: document.getElementById('yearsAtJob').value,
+        totalExperience: document.getElementById('totalExperience').value,
+        
+        // Residential Demographics
+        pincode: document.getElementById('pincode').value,
+        residentialStatus: document.getElementById('residentialStatus').value,
+        address: document.getElementById('address').value,
+        
+        // Credit Score
+        creditScore: document.getElementById('creditScore').value,
+
+        // Backward compatibility helpers
+        purpose: loanPurpose === 'education' ? 'Education' : (loanPurpose === 'business' ? 'Business' : (loanPurpose === 'personal' ? 'Personal' : 'Other')),
+        projectType: selectedProjectSize === 'micro' ? 'Small' : (selectedProjectSize === 'medium' ? 'Medium' : (selectedProjectSize === 'large' ? 'Large' : (parseFloat(document.getElementById('loanAmount').value) <= 140000 ? 'Small' : parseFloat(document.getElementById('loanAmount').value) <= 1000000 ? 'Medium' : 'Large'))),
+        educationLevel: loanPurpose === 'education' ? (document.getElementById('educationCategory')?.value || 'Undergraduate') : undefined
+      };
+      
+      // VALIDATION 1: Net Take-Home Salary vs Annual Income
+      const salaryValidation = validateNetSalary(assessmentData.income, assessmentData.netSalary);
+      if (!salaryValidation.valid) {
+        alert("⚠️ Income Validation Failed\n\n" + salaryValidation.message);
+        return;
+      }
+
+      // VALIDATION 2: Existing EMIs vs Net Salary
+      const emiValidation = validateExistingEMIs(assessmentData.netSalary, assessmentData.existingEmis);
+      if (!emiValidation.valid) {
+        alert("⚠️ EMI Validation Failed\n\n" + emiValidation.message);
+        return;
+      }
+
+      // Warning if EMIs are between 50-70% of salary
+      if (assessmentData.existingEmis > (assessmentData.netSalary * 0.50)) {
+        const confirmHighEMI = confirm(
+          `⚠️ High Debt Warning\n\n` +
+          `Your Existing Monthly EMIs (₹${assessmentData.existingEmis.toLocaleString('en-IN')}) are ${(assessmentData.existingEmis / assessmentData.netSalary * 100).toFixed(1)}% of your Net Take-Home Salary.\n\n` +
+          `This is considered a high debt burden and may affect loan approval.\n\n` +
+          `Do you want to continue?`
+        );
+
+        if (!confirmHighEMI) {
+          return;
+        }
+      }
+
+      // Validate pincode (6 digits)
+      if (!/^\d{6}$/.test(assessmentData.pincode)) {
+        alert('Please enter a valid 6-digit pincode');
+        return;
+      }
+      
+      // Validate income > 0
+      if (assessmentData.income <= 0) {
+        alert('Please enter a valid annual income');
+        return;
+      }
+      
+      // Validate loan amount > 0
+      if (assessmentData.loanAmount <= 0) {
+        alert('Please enter a valid loan amount');
+        return;
+      }
+      
+      // Validate address is not empty
+      if (!assessmentData.address || assessmentData.address.trim().length < 10) {
+        alert('Please enter a complete address (at least 10 characters)');
+        return;
+      }
+      
+      // Calculate Debt-to-Income ratio
+      const dtiRatio = assessmentData.netSalary > 0 ? (assessmentData.existingEmis / assessmentData.netSalary) : 0;
+      assessmentData.dtiRatio = dtiRatio;
+      
+      // Save to sessionStorage and AppState
+      sessionStorage.setItem('assessment', JSON.stringify(assessmentData));
+      if (window.AppState && window.AppState.saveAssessment) {
+        window.AppState.saveAssessment(assessmentData);
+      } else {
+        sessionStorage.setItem('schemebridge_assessment', JSON.stringify({
+          ...assessmentData,
+          timestamp: new Date().toISOString()
+        }));
+      }
+      
+      // Continue to next page
+      window.location.href = '/matched-scheme';
+    });
+
+    // Real-time DTI display update
+    function updateDTIDisplay() {
+      const netSalaryInput = document.getElementById('netSalary');
+      const existingEmisInput = document.getElementById('existingEmis');
+      if (!netSalaryInput || !existingEmisInput) return;
+
+      const netSalary = parseFloat(netSalaryInput.value) || 0;
+      const existingEmis = parseFloat(existingEmisInput.value) || 0;
+
+      let dtiEl = document.getElementById('dtiDisplay');
+      if (netSalary > 0) {
+        const dtiRatio = (existingEmis / netSalary) * 100;
+        if (!dtiEl) {
+          dtiEl = document.createElement('div');
+          dtiEl.id = 'dtiDisplay';
+          existingEmisInput.parentNode.appendChild(dtiEl);
+        }
+
+        let color = 'text-teal-400';
+        let message = '✅ Healthy DTI ratio (≤50%)';
+        let bgColor = 'bg-teal-900/20';
+
+        if (dtiRatio > 50) {
+          color = 'text-yellow-400';
+          message = '⚠️ Moderate DTI ratio (30-50% is ideal, >50% requires review)';
+          bgColor = 'bg-yellow-900/20';
+        }
+        if (dtiRatio > 70) {
+          color = 'text-red-400';
+          message = '❌ Critical: Very high DTI ratio (>70% triggers auto-decline)';
+          bgColor = 'bg-red-900/20';
+        }
+
+        dtiEl.className = `mt-3 p-3 rounded-xl ${bgColor} border border-navy-700 transition-all duration-300`;
+        dtiEl.innerHTML = `
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-white text-xs font-semibold">Debt-to-Income Ratio:</span>
+            <span class="font-mono text-sm font-bold text-white">${dtiRatio.toFixed(1)}%</span>
+          </div>
+          <p class="${color} text-xs font-medium">${message}</p>
+          <p class="text-slate-400 text-[11px] mt-1">
+            Ideal DTI should be below 50% for optimal loan approval and pricing
+          </p>
+        `;
+      } else if (dtiEl) {
+        dtiEl.remove();
+      }
+    }
+
+    function validateNetSalary(annualIncome, netSalary) {
+      const monthlyIncomeFromAnnual = annualIncome / 12;
+      const minReasonableSalary = monthlyIncomeFromAnnual * 0.6;
+      const maxReasonableSalary = monthlyIncomeFromAnnual * 1.2;
+      
+      if (netSalary < minReasonableSalary) {
+        return {
+          valid: false,
+          message: `Your Net Take-Home Salary (₹${netSalary.toLocaleString('en-IN')}) is too low compared to your Annual Income (₹${annualIncome.toLocaleString('en-IN')}).\n\nExpected monthly salary: ₹${Math.round(minReasonableSalary).toLocaleString('en-IN')} - ₹${Math.round(maxReasonableSalary).toLocaleString('en-IN')}\n\nPlease verify your income details.`
+        };
+      }
+      
+      if (netSalary > maxReasonableSalary * 2) {
+        return {
+          valid: false,
+          message: `Your Net Take-Home Salary (₹${netSalary.toLocaleString('en-IN')}) seems unusually high compared to your Annual Income (₹${annualIncome.toLocaleString('en-IN')}).\n\nPlease verify your income details.`
+        };
+      }
+      
+      return { valid: true };
+    }
+
+    function validateExistingEMIs(netSalary, existingEmis) {
+      const maxReasonableEMI = netSalary * 0.70;
+      
+      if (existingEmis > maxReasonableEMI) {
+        return {
+          valid: false,
+          message: `Your Existing Monthly EMIs (₹${existingEmis.toLocaleString('en-IN')}) exceed 70% of your Net Take-Home Salary (₹${netSalary.toLocaleString('en-IN')}).\n\nMaximum reasonable EMI: ₹${Math.round(maxReasonableEMI).toLocaleString('en-IN')}\n\nThis indicates extremely high debt burden. Please review your financial details.`
+        };
+      }
+      
+      return { valid: true };
+    }
+
+    // Auto-fill form if existing assessment exists in sessionStorage
+    window.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide) lucide.createIcons();
+
+      const existing = (window.AppState && window.AppState.getAssessment)
+        ? window.AppState.getAssessment()
+        : JSON.parse(sessionStorage.getItem('assessment') || sessionStorage.getItem('schemebridge_assessment') || '{}');
+
+      if (existing) {
+        if (existing.income && document.getElementById('income')) document.getElementById('income').value = existing.income;
+        if (existing.loanAmount && document.getElementById('loanAmount')) document.getElementById('loanAmount').value = existing.loanAmount;
+        if (existing.loanPurpose && document.getElementById('loanPurpose')) {
+          document.getElementById('loanPurpose').value = existing.loanPurpose;
+        } else if (existing.primaryPurpose && document.getElementById('loanPurpose')) {
+          document.getElementById('loanPurpose').value = existing.primaryPurpose;
+        }
+        handleLoanPurposeChange();
+        if (existing.educationCategory && document.getElementById('educationCategory')) document.getElementById('educationCategory').value = existing.educationCategory;
+        if (existing.educationProjectSize && document.getElementById('educationProjectSize')) document.getElementById('educationProjectSize').value = existing.educationProjectSize;
+        if (existing.businessType && document.getElementById('businessType')) document.getElementById('businessType').value = existing.businessType;
+        if (existing.businessProjectSize && document.getElementById('businessProjectSize')) document.getElementById('businessProjectSize').value = existing.businessProjectSize;
+        if (existing.personalReason && document.getElementById('personalReason')) document.getElementById('personalReason').value = existing.personalReason;
+        if (existing.personalProjectSize && document.getElementById('personalProjectSize')) document.getElementById('personalProjectSize').value = existing.personalProjectSize;
+        if (existing.otherPurposeText && document.getElementById('otherPurposeText')) document.getElementById('otherPurposeText').value = existing.otherPurposeText;
+        if (existing.otherProjectSize && document.getElementById('otherProjectSize')) document.getElementById('otherProjectSize').value = existing.otherProjectSize;
+        if (existing.existingEmis !== undefined && document.getElementById('existingEmis')) document.getElementById('existingEmis').value = existing.existingEmis;
+        if (existing.salaryBank && document.getElementById('salaryBank')) document.getElementById('salaryBank').value = existing.salaryBank;
+        if (existing.netSalary !== undefined && document.getElementById('netSalary')) document.getElementById('netSalary').value = existing.netSalary;
+        if (existing.companyName && document.getElementById('companyName')) document.getElementById('companyName').value = existing.companyName;
+        if (existing.yearsAtJob && document.getElementById('yearsAtJob')) document.getElementById('yearsAtJob').value = existing.yearsAtJob;
+        if (existing.totalExperience && document.getElementById('totalExperience')) document.getElementById('totalExperience').value = existing.totalExperience;
+        if (existing.pincode && document.getElementById('pincode')) document.getElementById('pincode').value = existing.pincode;
+        if (existing.residentialStatus && document.getElementById('residentialStatus')) document.getElementById('residentialStatus').value = existing.residentialStatus;
+        if (existing.address && document.getElementById('address')) document.getElementById('address').value = existing.address;
+        if (existing.creditScore && document.getElementById('creditScore')) document.getElementById('creditScore').value = existing.creditScore;
+      } else {
+        handleLoanPurposeChange();
+      }
+      
+      const netSalaryInput = document.getElementById('netSalary');
+      const existingEmisInput = document.getElementById('existingEmis');
+      if (netSalaryInput) netSalaryInput.addEventListener('input', updateDTIDisplay);
+      if (existingEmisInput) existingEmisInput.addEventListener('input', updateDTIDisplay);
+      updateDTIDisplay();
+
+      const form = document.getElementById('assessmentForm');
+      if (form) {
+        const allInputs = form.querySelectorAll('input, select, textarea');
+        allInputs.forEach(input => {
+          input.addEventListener('input', () => {
+            updateProgressBar();
+            updateSidebarProgress();
+          });
+          input.addEventListener('change', () => {
+            updateProgressBar();
+            updateSidebarProgress();
+          });
+        });
+      }
+
+      // Initial progress calculation
+      updateProgressBar();
+      updateSidebarProgress();
+
+      updateActiveSection();
+    });
+
+    // Prevent horizontal scroll
+    document.body.style.overflowX = 'hidden';
+    document.documentElement.style.overflowX = 'hidden';
+
+    function toggleMobileNav() {
+      const drawer = document.getElementById('mobileNavDrawer');
+      if (drawer) {
+        drawer.classList.toggle('hidden');
+      }
+    }
+
+    // Smooth scroll when clicking sidebar links
+    document.querySelectorAll('.section-link').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        const targetSection = document.querySelector(targetId);
+        
+        if (targetSection) {
+          // Smooth scroll to section
+          targetSection.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+          
+          // Update URL without page jump
+          history.pushState(null, null, targetId);
+        }
+      });
+    });
+
+    // Mobile section selector
+    document.getElementById('mobileSectionSelector')?.addEventListener('change', function() {
+      const targetId = this.value;
+      if (targetId) {
+        const targetSection = document.querySelector(targetId);
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    });
+
+    // Highlight active section in sidebar based on scroll position
+    const sections = document.querySelectorAll('h2[id]');
+    const sectionLinks = document.querySelectorAll('.section-link');
+
+    function updateActiveSection() {
+      let currentSection = '';
+      
+      sections.forEach(section => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= 280) {
+          currentSection = section.getAttribute('id');
+        }
+      });
+      
+      // Remove active class from all links
+      sectionLinks.forEach(link => {
+        link.classList.remove('bg-aurora-900/30', 'text-aurora-400');
+        link.classList.add('text-muted-foreground');
+      });
+      
+      // Add active class to current section link
+      const activeLink = document.querySelector(`.section-link[href="#${currentSection}"]`);
+      if (activeLink) {
+        activeLink.classList.remove('text-muted-foreground');
+        activeLink.classList.add('bg-aurora-900/30', 'text-aurora-400');
+      }
+    }
+
+    // Real-time progress bar update based on form completion
+    function updateProgressBar() {
+      const form = document.getElementById('assessmentForm');
+      if (!form) return;
+      
+      const allInputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+      const filledInputs = form.querySelectorAll('input[required]:valid, select[required]:valid, textarea[required]:valid');
+      
+      const totalFields = allInputs.length;
+      const filledFields = filledInputs.length;
+      const progress = totalFields > 0 ? Math.round((filledFields / totalFields) * 100) : 0;
+      
+      // Update progress bar
+      const progressBar = document.getElementById('progressBar');
+      const progressText = document.getElementById('progressText');
+      const mainProgressBar = document.getElementById('mainProgressBar');
+      const mainProgressText = document.getElementById('mainProgressText');
+      
+      if (progressBar) {
+        progressBar.style.width = progress + '%';
+        
+        // Change color based on progress
+        if (progress < 30) {
+          progressBar.className = 'bg-gradient-to-r from-red-600 to-orange-600 h-2 rounded-full transition-all duration-300';
+        } else if (progress < 70) {
+          progressBar.className = 'bg-gradient-to-r from-yellow-600 to-orange-600 h-2 rounded-full transition-all duration-300';
+        } else {
+          progressBar.className = 'bg-gradient-to-r from-aurora-600 to-teal-600 h-2 rounded-full transition-all duration-300';
+        }
+      }
+      
+      if (progressText) {
+        progressText.textContent = progress + '% Complete (' + filledFields + '/' + totalFields + ' fields)';
+      }
+
+      if (mainProgressBar) {
+        mainProgressBar.style.width = progress + '%';
+        if (progress < 30) {
+          mainProgressBar.className = 'bg-gradient-to-r from-red-600 to-orange-600 h-full rounded-full transition-all duration-300';
+        } else if (progress < 70) {
+          mainProgressBar.className = 'bg-gradient-to-r from-yellow-600 to-orange-600 h-full rounded-full transition-all duration-300';
+        } else {
+          mainProgressBar.className = 'bg-gradient-to-r from-aurora-600 to-teal-600 h-full rounded-full transition-all duration-300';
+        }
+      }
+
+      if (mainProgressText) {
+        mainProgressText.textContent = progress + '% Complete (' + filledFields + '/' + totalFields + ' fields)';
+      }
+    }
+
+    // Update sidebar progress bar (if exists)
+    function updateSidebarProgress() {
+      const form = document.getElementById('assessmentForm');
+      if (!form) return;
+      
+      const allInputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+      const filledInputs = form.querySelectorAll('input[required]:valid, select[required]:valid, textarea[required]:valid');
+      
+      const progress = allInputs.length > 0 ? Math.round((filledInputs.length / allInputs.length) * 100) : 0;
+      
+      const progressBar = document.getElementById('progressBar');
+      const progressText = document.getElementById('progressText');
+      
+      if (progressBar) {
+        progressBar.style.width = progress + '%';
+        if (progress < 30) {
+          progressBar.className = 'bg-gradient-to-r from-red-600 to-orange-600 h-2 rounded-full transition-all duration-300';
+        } else if (progress < 70) {
+          progressBar.className = 'bg-gradient-to-r from-yellow-600 to-orange-600 h-2 rounded-full transition-all duration-300';
+        } else {
+          progressBar.className = 'bg-gradient-to-r from-aurora-600 to-teal-600 h-2 rounded-full transition-all duration-300';
+        }
+      }
+      
+      if (progressText) {
+        progressText.textContent = progress + '% Complete (' + filledInputs.length + '/' + allInputs.length + ' fields)';
+      }
+    }
+
+    // Listen for scroll events on both mainScrollContainer and window
+    const scrollContainer = document.getElementById('mainScrollContainer') || window;
+    scrollContainer.addEventListener('scroll', updateActiveSection);
+    window.addEventListener('scroll', updateActiveSection);
+  </script>
+
+</body>
+
+</html>

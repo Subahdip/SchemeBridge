@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Applications — SchemeBridge</title>
+  <meta name="description" content="View and track all your loan applications submitted through SchemeBridge.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            background: '#070b14',
+            card: '#0d1424',
+            border: 'rgba(255, 255, 255, 0.08)',
+            navy: {
+              700: '#1e293b',
+              800: '#0f172a',
+              900: '#0b1120',
+              950: '#070b14',
+            },
+            aurora: {
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      background-color: #070b14;
+      color: #f8fafc;
+      font-family: 'Inter', sans-serif;
+    }
+    .glow-mesh {
+      background-image: radial-gradient(circle at 0% 0%, hsla(246, 80%, 60%, 0.12) 0px, transparent 50%),
+                        radial-gradient(circle at 100% 0%, hsla(174, 90%, 50%, 0.10) 0px, transparent 50%),
+                        radial-gradient(circle at 50% 100%, hsla(280, 80%, 60%, 0.08) 0px, transparent 50%);
+    }
+    .glass-card {
+      background: rgba(13, 20, 36, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+  <!-- Route Auth Protection -->
+  <script>
+    (function() {
+      const user = sessionStorage.getItem('user');
+      if (!user) {
+        window.location.href = '/login';
+      }
+    })();
+  </script>
+</head>
+<body class="bg-background text-slate-100 antialiased selection:bg-indigo-500 selection:text-white min-h-screen flex flex-col glow-mesh">
+
+  <!-- ========================================================================= -->
+  <!-- 1. NAVBAR -->
+  <!-- ========================================================================= -->
+  <nav class="bg-navy-950/95 border-b border-navy-800 sticky top-0 z-50 backdrop-blur-md">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2 group">
+          <span class="text-2xl font-bold bg-gradient-to-r from-aurora-400 to-teal-400 bg-clip-text text-transparent group-hover:brightness-110 transition-all">
+            SchemeBridge
+          </span>
+          <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-aurora-500/10 text-aurora-300 border border-aurora-500/20 hidden sm:inline-block">
+            SIH AI
+          </span>
+        </a>
+        
+        <!-- Navigation Links (Desktop) -->
+        <div class="hidden md:flex items-center gap-6">
+          <a href="/" class="text-slate-300 hover:text-aurora-400 transition-colors">Home</a>
+          <a href="/assessment" class="text-slate-300 hover:text-aurora-400 transition-colors">Assessment</a>
+          <a href="/matched-scheme" class="text-slate-300 hover:text-aurora-400 transition-colors">Scheme</a>
+          <a href="/emi-calculator" class="text-slate-300 hover:text-aurora-400 transition-colors">EMI</a>
+          <a href="/partner-network" class="text-slate-300 hover:text-aurora-400 transition-colors">Partners</a>
+          <a href="/my-applications" class="text-aurora-400 font-medium transition-colors">
+            My Applications
+          </a>
+        </div>
+        
+        <!-- CTA Button & Mobile Toggle -->
+        <div class="flex items-center gap-3">
+          <button onclick="window.location.href='/assessment'" 
+                  class="bg-gradient-to-r from-aurora-600 to-teal-600 hover:from-aurora-700 hover:to-teal-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-aurora-500/20 text-xs sm:text-sm cursor-pointer">
+            Start Assessment
+          </button>
+
+          <!-- Mobile Hamburger Button -->
+          <button onclick="toggleMobileNav()" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-aurora-400 hover:bg-navy-800 transition-colors">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobileNavDrawer" class="hidden md:hidden border-t border-navy-800 bg-navy-950/98 p-4 space-y-2">
+      <a href="/" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Home</a>
+      <a href="/assessment" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Assessment</a>
+      <a href="/matched-scheme" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Scheme</a>
+      <a href="/emi-calculator" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">EMI</a>
+      <a href="/partner-network" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Partners</a>
+      <a href="/my-applications" class="block py-2 px-3 rounded-lg text-aurora-400 font-semibold bg-navy-900 text-sm">My Applications</a>
+    </div>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- 2. MAIN CONTENT -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 py-10">
+    <div class="container mx-auto px-4 max-w-5xl">
+      
+      <!-- Header -->
+      <div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 class="text-4xl font-bold text-white mb-2">My Applications</h1>
+          <p class="text-slate-400">View and track all your loan applications</p>
+        </div>
+      </div>
+      
+      <!-- Applications List -->
+      <div id="applicationsList" class="space-y-4">
+        <!-- Will be populated by JavaScript -->
+      </div>
+      
+      <!-- Empty State (if no applications) -->
+      <div id="emptyState" class="hidden">
+        <div class="bg-navy-800 border border-navy-700 rounded-xl p-12 text-center shadow-xl">
+          <div class="text-6xl mb-4">📋</div>
+          <h3 class="text-2xl font-bold text-white mb-2">No Applications Yet</h3>
+          <p class="text-slate-400 mb-6">Apply for a scheme to see it here</p>
+          <button onclick="window.location.href='/assessment.html'" class="bg-aurora-600 hover:bg-aurora-700 text-white px-8 py-3 rounded-lg font-medium shadow-lg shadow-aurora-500/25 transition-all cursor-pointer">
+            Apply for New Scheme
+          </button>
+        </div>
+      </div>
+      
+      <!-- Apply New Button -->
+      <button onclick="window.location.href='/assessment.html'" class="mt-8 w-full bg-aurora-600 hover:bg-aurora-700 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow-lg shadow-aurora-500/25 transition-all cursor-pointer">
+        + Apply for New Scheme
+      </button>
+
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- 3. FOOTER -->
+  <!-- ========================================================================= -->
+  <footer class="border-t border-white/10 bg-[#070b14]/80 py-8 text-xs text-slate-400 mt-12">
+    <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-white">SchemeBridge</span>
+        <span>• Smart India Hackathon AI Platform</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/" class="hover:text-white transition-colors">Home</a>
+        <a href="/assessment.html" class="hover:text-white transition-colors">Assessment</a>
+        <a href="/matched-scheme.html" class="hover:text-white transition-colors">Matched Scheme</a>
+        <a href="/emi-calculator.html" class="hover:text-white transition-colors">EMI Calculator</a>
+        <a href="/partner-network.html" class="hover:text-white transition-colors">Partner Network</a>
+        <a href="/my-applications.html" class="hover:text-white text-teal-400 font-semibold">My Applications</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Highlight current page in navbar & initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentPage = window.location.pathname;
+      const navLinks = document.querySelectorAll('nav a[href]');
+      
+      navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (
+          href === currentPage || 
+          href + '.html' === currentPage || 
+          currentPage.replace('.html', '') === href ||
+          (currentPage === '/' && (href === '/' || href === '/index.html'))
+        ) {
+          link.classList.add('text-aurora-400', 'font-semibold');
+          link.classList.remove('text-slate-300');
+        }
+      });
+
+      addMockApplications();
+      loadApplications();
+      lucide.createIcons();
+    });
+
+    function toggleMobileNav() {
+      const drawer = document.getElementById('mobileNavDrawer');
+      if (drawer) {
+        drawer.classList.toggle('hidden');
+      }
+    }
+
+    function loadApplications() {
+      // Get all applications from sessionStorage
+      const applications = JSON.parse(sessionStorage.getItem('applications') || '[]');
+      
+      const listContainer = document.getElementById('applicationsList');
+      const emptyState = document.getElementById('emptyState');
+      
+      if (applications.length === 0) {
+        // Show empty state
+        emptyState.classList.remove('hidden');
+        listContainer.innerHTML = '';
+        return;
+      }
+      
+      // Show applications list
+      emptyState.classList.add('hidden');
+      
+      const html = `
+        <div class="space-y-4">
+          ${applications.map((app, index) => {
+            const interestDisplay = typeof app.interestRate === 'number' 
+              ? `${app.interestRate}% p.a.` 
+              : (String(app.interestRate).includes('%') ? app.interestRate : `${app.interestRate}% p.a.`);
+
+            return `
+            <div class="bg-navy-800 border border-navy-700 rounded-xl p-6 hover:border-aurora-500 transition-all cursor-pointer shadow-lg" 
+                 onclick="trackApplication('${app.applicationId}')">
+              <div class="flex flex-col sm:flex-row justify-between items-start gap-4">
+                <div class="flex-1">
+                  <div class="flex items-center gap-3 mb-3">
+                    <span class="text-xl font-mono font-bold text-aurora-400">${app.applicationId}</span>
+                    <span class="${getStatusColor(app.status)} text-white px-4 py-1.5 rounded-full text-sm font-medium">
+                      ${app.status}
+                    </span>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p class="text-slate-400 text-sm mb-1">Scheme</p>
+                      <p class="text-white font-medium">${app.scheme}</p>
+                    </div>
+                    <div>
+                      <p class="text-slate-400 text-sm mb-1">Amount</p>
+                      <p class="text-white font-medium">₹${Number(app.amount).toLocaleString('en-IN')}</p>
+                    </div>
+                    <div>
+                      <p class="text-slate-400 text-sm mb-1">Applied Date</p>
+                      <p class="text-white">${app.submittedDate}</p>
+                    </div>
+                    <div>
+                      <p class="text-slate-400 text-sm mb-1">Interest Rate</p>
+                      <p class="text-white">${interestDisplay}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="flex-shrink-0 self-end sm:self-center">
+                  <button class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-md shadow-teal-500/20">
+                    Track Status →
+                  </button>
+                </div>
+              </div>
+            </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+      
+      listContainer.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function getStatusColor(status) {
+      const colors = {
+        "Submitted": "bg-gray-600",
+        "Under Review": "bg-yellow-600",
+        "Documents Verified": "bg-blue-600",
+        "Approved": "bg-teal-600",
+        "Loan Approved": "bg-teal-600",
+        "Disbursed": "bg-aurora-600",
+        "Rejected": "bg-red-600"
+      };
+      return colors[status] || "bg-gray-600";
+    }
+
+    function trackApplication(appId) {
+      // Navigate to application status page
+      window.location.href = `/application-status?id=${encodeURIComponent(appId)}`;
+    }
+
+    // Add mock applications for demo (only if no real applications exist)
+    function addMockApplications() {
+      const applications = JSON.parse(sessionStorage.getItem('applications') || '[]');
+      
+      if (applications.length === 0) {
+        // Add 3 mock applications for testing
+        const mockApps = [
+          {
+            applicationId: "SIH2026-001",
+            scheme: "Term Loan Scheme",
+            amount: 2500000,
+            interestRate: 7.5,
+            purpose: "Business",
+            status: "Under Review",
+            submittedDate: "04 Sep 2026",
+            timeline: [
+              { step: "Submitted", date: "04 Sep 2026", completed: true },
+              { step: "Documents Verified", date: "05 Sep 2026", completed: true },
+              { step: "Loan Approved", date: "07 Sep 2026 (Est.)", completed: false },
+              { step: "Disbursed", date: "10 Sep 2026 (Est.)", completed: false }
+            ]
+          },
+          {
+            applicationId: "SIH2026-002",
+            scheme: "Education Loan Scheme",
+            amount: 1000000,
+            interestRate: 6.5,
+            purpose: "Education",
+            status: "Approved",
+            submittedDate: "01 Sep 2026",
+            timeline: [
+              { step: "Submitted", date: "01 Sep 2026", completed: true },
+              { step: "Documents Verified", date: "02 Sep 2026", completed: true },
+              { step: "Loan Approved", date: "04 Sep 2026", completed: true },
+              { step: "Disbursed", date: "07 Sep 2026 (Est.)", completed: false }
+            ]
+          },
+          {
+            applicationId: "SIH2026-003",
+            scheme: "Micro Finance Scheme",
+            amount: 100000,
+            interestRate: 6.5,
+            purpose: "Small Business",
+            status: "Disbursed",
+            submittedDate: "25 Aug 2026",
+            timeline: [
+              { step: "Submitted", date: "25 Aug 2026", completed: true },
+              { step: "Documents Verified", date: "26 Aug 2026", completed: true },
+              { step: "Loan Approved", date: "28 Aug 2026", completed: true },
+              { step: "Disbursed", date: "30 Aug 2026", completed: true }
+            ]
+          }
+        ];
+        
+        sessionStorage.setItem('applications', JSON.stringify(mockApps));
+        console.log("Mock applications added for demo");
+      }
+    }
+
+    // Call this function on page load
+    addMockApplications();
+  </script>
+</body>
+</html>

@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SchemeBridge — AI-Driven Scheme Matching for Marginalized Entrepreneurs</title>
+  <meta name="description" content="Discover suitable government loan schemes based on your eligibility and requirements. Check eligibility, calculate EMI, and locate partner banks.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            background: '#070b14',
+            card: '#0d1424',
+            border: 'rgba(255, 255, 255, 0.08)',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      background-color: #070b14;
+      color: #f8fafc;
+      font-family: 'Inter', sans-serif;
+    }
+    .glow-mesh {
+      background-image: radial-gradient(circle at 0% 0%, hsla(246, 80%, 60%, 0.12) 0px, transparent 50%),
+                        radial-gradient(circle at 100% 0%, hsla(174, 90%, 50%, 0.10) 0px, transparent 50%),
+                        radial-gradient(circle at 50% 100%, hsla(280, 80%, 60%, 0.08) 0px, transparent 50%);
+    }
+    .glass-card {
+      background: rgba(13, 20, 36, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body class="bg-background text-slate-100 antialiased selection:bg-indigo-500 selection:text-white min-h-screen flex flex-col glow-mesh">
+
+  <!-- ========================================================================= -->
+  <!-- 1. NAVBAR -->
+  <!-- ========================================================================= -->
+  <nav class="bg-navy-950/95 border-b border-navy-800 sticky top-0 z-50 backdrop-blur-md">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2 group">
+          <span class="text-2xl font-bold bg-gradient-to-r from-aurora-400 to-teal-400 bg-clip-text text-transparent group-hover:brightness-110 transition-all">
+            SchemeBridge
+          </span>
+          <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-aurora-500/10 text-aurora-300 border border-aurora-500/20 hidden sm:inline-block">
+            SIH AI
+          </span>
+        </a>
+        
+        <!-- Navigation Links (Desktop) -->
+        <div class="hidden md:flex items-center gap-6">
+          <a href="/" class="text-aurora-400 font-semibold transition-colors">Home</a>
+          <a href="/assessment" class="text-slate-300 hover:text-aurora-400 transition-colors">Assessment</a>
+          <a href="/matched-scheme" class="text-slate-300 hover:text-aurora-400 transition-colors">Scheme</a>
+          <a href="/emi-calculator" class="text-slate-300 hover:text-aurora-400 transition-colors">EMI</a>
+          <a href="/partner-network" class="text-slate-300 hover:text-aurora-400 transition-colors">Partners</a>
+          <a href="/my-applications" class="text-slate-300 hover:text-aurora-400 transition-colors">
+            My Applications
+          </a>
+        </div>
+        
+        <!-- CTA Button & Mobile Toggle -->
+        <div class="flex items-center gap-3">
+          <div id="navAuthDesktop" class="hidden sm:flex items-center gap-3">
+            <button onclick="window.location.href='/login'" 
+                    class="bg-gradient-to-r from-aurora-600 to-teal-600 hover:from-aurora-700 hover:to-teal-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-aurora-500/20 text-xs sm:text-sm cursor-pointer">
+              Login
+            </button>
+          </div>
+
+          <!-- Mobile Hamburger Button -->
+          <button onclick="toggleMobileNav()" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-aurora-400 hover:bg-navy-800 transition-colors">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobileNavDrawer" class="hidden md:hidden border-t border-navy-800 bg-navy-950/98 p-4 space-y-2">
+      <div id="navAuthMobile" class="pb-2 border-b border-navy-800">
+        <button onclick="window.location.href='/login'" class="w-full bg-gradient-to-r from-aurora-600 to-teal-600 hover:from-aurora-700 hover:to-teal-700 text-white justify-center py-2.5 px-4 rounded-lg font-bold text-xs shadow-lg flex items-center gap-2 cursor-pointer">
+          Login
+        </button>
+      </div>
+      <a href="/" class="block py-2 px-3 rounded-lg text-aurora-400 font-semibold bg-navy-900 text-sm">Home</a>
+      <a href="/assessment" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Assessment</a>
+      <a href="/matched-scheme" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Scheme</a>
+      <a href="/emi-calculator" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">EMI</a>
+      <a href="/partner-network" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Partners</a>
+      <a href="/my-applications" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">My Applications</a>
+    </div>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- 2. HERO SECTION -->
+  <!-- ========================================================================= -->
+  <section class="relative overflow-hidden pt-16 pb-24 md:pt-24 md:pb-32 border-b border-white/10">
+    
+    <!-- Background Ambient Glow -->
+    <div class="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-gradient-to-tr from-indigo-600/20 via-purple-600/15 to-teal-500/15 blur-[140px] -z-10 rounded-full pointer-events-none"></div>
+
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        
+        <!-- Left Content -->
+        <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+          
+          <div class="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-1.5 text-xs text-indigo-300 shadow-sm">
+            <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+            <span class="font-semibold">SchemeBridge AI</span>
+            <span class="h-1 w-1 rounded-full bg-indigo-500"></span>
+            <span class="text-slate-300">Empowering Marginalized Communities</span>
+          </div>
+
+          <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-[1.14]">
+            AI-Driven Scheme Matching for <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-teal-400 bg-clip-text text-transparent">Marginalized Entrepreneurs</span>
+          </h1>
+
+          <p class="text-base sm:text-lg md:text-xl text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+            Discover suitable government loan schemes based on your eligibility and requirements
+          </p>
+
+          <!-- Buttons -->
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+            <button onclick="handleStartAssessment()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-base font-bold px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-xl shadow-indigo-500/25 transition-all cursor-pointer">
+              <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
+              <span>Start Assessment</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+
+            <a href="#how-it-works" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-base font-semibold px-6 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-slate-200 backdrop-blur transition-all">
+              <span>Learn More</span>
+            </a>
+          </div>
+
+          <!-- Trust Badges -->
+          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4 text-xs text-slate-400">
+            <span class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Instant Eligibility Check</span>
+            <span class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> 90% Government Funding</span>
+            <span class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> 16+ Bank Branches Mapped</span>
+          </div>
+
+        </div>
+
+        <!-- Right Visual Card Graphic -->
+        <div class="lg:col-span-5 relative flex items-center justify-center">
+          <div class="w-full max-w-md glass-card rounded-2xl p-6 shadow-2xl space-y-4">
+            
+            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                <span class="text-xs font-bold text-slate-200">Live AI Scheme Match</span>
+              </div>
+              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">
+                100% Eligible
+              </span>
+            </div>
+
+            <!-- Card Body -->
+            <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-emerald-300">✅ Micro Finance Scheme</span>
+                <span class="text-xs font-mono font-bold text-emerald-400">6.5% p.a.</span>
+              </div>
+              <p class="text-[11px] text-slate-300">Max Loan ₹1.40L • 90% Govt Coverage • 10% Margin</p>
+            </div>
+
+            <!-- Segmented Progress Bar -->
+            <div class="space-y-1.5 text-xs">
+              <div class="flex justify-between text-[11px] text-slate-400">
+                <span>90% Govt Loan</span>
+                <span>10% Self Margin</span>
+              </div>
+              <div class="h-2.5 w-full rounded-full bg-slate-800 overflow-hidden flex">
+                <div class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 w-[90%]"></div>
+                <div class="h-full bg-amber-500 w-[10%]"></div>
+              </div>
+            </div>
+
+            <!-- Partner Pin Preview -->
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-white/10 flex items-center justify-between text-xs">
+              <div class="flex items-center gap-2 text-slate-300">
+                <i data-lucide="map-pin" class="w-4 h-4 text-teal-400"></i>
+                <span>State Bank of India (Chandni Chowk, Delhi)</span>
+              </div>
+              <span class="text-[10px] font-bold text-emerald-400">Active</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 3. WHAT OUR APP DOES (4 Feature Cards in 2x2 Grid) -->
+  <!-- ========================================================================= -->
+  <section class="py-20 md:py-28 relative">
+    <div class="max-w-6xl mx-auto px-4 space-y-12">
+      
+      <div class="text-center space-y-3 max-w-2xl mx-auto">
+        <span class="px-3.5 py-1 rounded-full text-xs font-bold text-teal-400 bg-teal-500/10 border border-teal-500/30">
+          Core Capabilities
+        </span>
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white">
+          What Our App Does
+        </h2>
+        <p class="text-slate-400 text-sm sm:text-base">
+          Four interconnected tools built to guide you seamlessly from eligibility discovery to loan disbursement.
+        </p>
+      </div>
+
+      <!-- 2x2 Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Card 1 -->
+        <div class="glass-card rounded-2xl p-7 space-y-4 hover:border-teal-500/40 transition-all group">
+          <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20 group-hover:scale-105 transition-transform">
+            <i data-lucide="search" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white group-hover:text-teal-400 transition-colors">
+            Scheme Discovery
+          </h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Find government loan schemes relevant to your profile and requirements instantly with automated multi-criteria filtering.
+          </p>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="glass-card rounded-2xl p-7 space-y-4 hover:border-teal-500/40 transition-all group">
+          <div class="w-12 h-12 rounded-xl bg-teal-500/10 text-teal-400 flex items-center justify-center border border-teal-500/20 group-hover:scale-105 transition-transform">
+            <i data-lucide="shield-check" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white group-hover:text-teal-400 transition-colors">
+            Eligibility Assessment
+          </h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Check whether you meet important scheme requirements instantly against statutory income ceilings (≤ ₹5.00L) and business capital scale limits.
+          </p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="glass-card rounded-2xl p-7 space-y-4 hover:border-teal-500/40 transition-all group">
+          <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center border border-purple-500/20 group-hover:scale-105 transition-transform">
+            <i data-lucide="calculator" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white group-hover:text-teal-400 transition-colors">
+            Financial Planning
+          </h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Calculate government contribution, self-contribution, EMI and interest with interactive reducing balance schedules and moratorium tracking.
+          </p>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="glass-card rounded-2xl p-7 space-y-4 hover:border-teal-500/40 transition-all group">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20 group-hover:scale-105 transition-transform">
+            <i data-lucide="map-pin" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white group-hover:text-teal-400 transition-colors">
+            Partner Locator
+          </h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Find suitable banks and channel partners near your location across Delhi, Mumbai, Kolkata, Chennai, and Bangalore with NPA health indicators.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 4. WHAT PROBLEM WE SOLVE (4 Pain Points) -->
+  <!-- ========================================================================= -->
+  <section class="py-20 md:py-28 bg-slate-900/30 border-y border-white/10">
+    <div class="max-w-6xl mx-auto px-4 space-y-12">
+      
+      <div class="text-center space-y-3 max-w-3xl mx-auto">
+        <span class="px-3 py-1 rounded-full text-xs font-bold text-red-400 bg-red-500/10 border border-red-500/30">
+          The Real-World Challenge
+        </span>
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white">
+          Finding the right government loan scheme shouldn't be complicated
+        </h2>
+        <p class="text-slate-400 text-sm sm:text-base">
+          Marginalized entrepreneurs face systemic friction navigating fragmented departmental welfare systems.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Pain Point 1 -->
+        <div class="glass-card rounded-2xl p-7 space-y-3 border-l-4 border-l-red-500">
+          <div class="flex items-center gap-3 text-red-400 font-bold text-lg">
+            <i data-lucide="layers" class="w-5 h-5"></i>
+            <span>1. Too Many Schemes</span>
+          </div>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Over 50+ central and state schemes are scattered across disconnected departmental portals, making it nearly impossible for grassroots applicants to identify what applies to them.
+          </p>
+        </div>
+
+        <!-- Pain Point 2 -->
+        <div class="glass-card rounded-2xl p-7 space-y-3 border-l-4 border-l-amber-500">
+          <div class="flex items-center gap-3 text-amber-400 font-bold text-lg">
+            <i data-lucide="file-question" class="w-5 h-5"></i>
+            <span>2. Complicated Eligibility</span>
+          </div>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Intricate annual family income ceilings (e.g. ₹5.00 Lakh limit), business scale tiers, and restrictive education criteria cause frequent application dropouts and wrongful rejections.
+          </p>
+        </div>
+
+        <!-- Pain Point 3 -->
+        <div class="glass-card rounded-2xl p-7 space-y-3 border-l-4 border-l-purple-500">
+          <div class="flex items-center gap-3 text-purple-400 font-bold text-lg">
+            <i data-lucide="trending-down" class="w-5 h-5"></i>
+            <span>3. Difficult EMI Calculations</span>
+          </div>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Borrowers struggle to understand reducing interest amortizations, margin requirements (90% govt vs 10% self), and moratorium interest accruals without specialized financial tools.
+          </p>
+        </div>
+
+        <!-- Pain Point 4 -->
+        <div class="glass-card rounded-2xl p-7 space-y-3 border-l-4 border-l-blue-500">
+          <div class="flex items-center gap-3 text-blue-400 font-bold text-lg">
+            <i data-lucide="building" class="w-5 h-5"></i>
+            <span>4. Finding Correct Bank</span>
+          </div>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Even after identifying a scheme, applicants get turned away because local commercial branches are unaware or not designated as official channel partners for that welfare corporation.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 5. HOW IT WORKS (4-Step Guided Flow) -->
+  <!-- ========================================================================= -->
+  <section id="how-it-works" class="py-20 md:py-28">
+    <div class="max-w-6xl mx-auto px-4 space-y-14">
+      
+      <div class="text-center space-y-3 max-w-2xl mx-auto">
+        <span class="px-3.5 py-1 rounded-full text-xs font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/30">
+          Simple 4-Step Process
+        </span>
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white">
+          How It Works
+        </h2>
+        <p class="text-slate-400 text-sm sm:text-base">
+          From basic profile input to visiting your nearest authorized bank branch in 4 simple steps.
+        </p>
+      </div>
+
+      <!-- Steps Flow -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
+        
+        <!-- Step 1 -->
+        <div class="glass-card rounded-2xl p-6 text-center space-y-4 relative group hover:-translate-y-1 transition-transform">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-blue-500 text-white font-extrabold flex items-center justify-center mx-auto shadow-lg shadow-indigo-500/30">
+            01
+          </div>
+          <h3 class="text-lg font-bold text-white">Tell us about yourself</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Enter income, loan requirement and purpose in under 30 seconds.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="glass-card rounded-2xl p-6 text-center space-y-4 relative group hover:-translate-y-1 transition-transform">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-teal-500 to-emerald-500 text-white font-extrabold flex items-center justify-center mx-auto shadow-lg shadow-teal-500/30">
+            02
+          </div>
+          <h3 class="text-lg font-bold text-white">Get matched</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            The system analyzes your information and identifies suitable schemes instantly.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="glass-card rounded-2xl p-6 text-center space-y-4 relative group hover:-translate-y-1 transition-transform">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 text-white font-extrabold flex items-center justify-center mx-auto shadow-lg shadow-purple-500/30">
+            03
+          </div>
+          <h3 class="text-lg font-bold text-white">Understand funding</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            See government contribution, self-contribution, interest and EMI calculations.
+          </p>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="glass-card rounded-2xl p-6 text-center space-y-4 relative group hover:-translate-y-1 transition-transform">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-white font-extrabold flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/30">
+            04
+          </div>
+          <h3 class="text-lg font-bold text-white">Find a partner</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Locate an appropriate bank or channel partner near your location.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 6. WHY USE SCHEMEBRIDGE (5 Benefits) -->
+  <!-- ========================================================================= -->
+  <section class="py-20 md:py-28 bg-slate-900/30 border-y border-white/10">
+    <div class="max-w-6xl mx-auto px-4 space-y-12">
+      
+      <div class="text-center space-y-3 max-w-2xl mx-auto">
+        <span class="px-3.5 py-1 rounded-full text-xs font-bold text-purple-400 bg-purple-500/10 border border-purple-500/30">
+          Key Advantages
+        </span>
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white">
+          Why Use SchemeBridge?
+        </h2>
+        <p class="text-slate-400 text-sm sm:text-base">
+          Built to make institutional welfare credit transparent, accessible, and actionable across India.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Benefit 1 -->
+        <div class="glass-card rounded-2xl p-6 space-y-3">
+          <div class="flex items-center gap-3 text-indigo-400 font-bold text-base">
+            <i data-lucide="zap" class="w-5 h-5"></i>
+            <span>1. Faster Scheme Discovery</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Eliminate weeks of searching through fragmented department circulars. Match with concessional credit schemes in under 60 seconds.
+          </p>
+        </div>
+
+        <!-- Benefit 2 -->
+        <div class="glass-card rounded-2xl p-6 space-y-3">
+          <div class="flex items-center gap-3 text-teal-400 font-bold text-base">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+            <span>2. Simple Eligibility Assessment</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Clear-cut qualification checks against family income thresholds (≤ ₹5.00 Lakhs limit) and business capital scale categories.
+          </p>
+        </div>
+
+        <!-- Benefit 3 -->
+        <div class="glass-card rounded-2xl p-6 space-y-3">
+          <div class="flex items-center gap-3 text-purple-400 font-bold text-base">
+            <i data-lucide="scale" class="w-5 h-5"></i>
+            <span>3. Transparent Financial Calculations</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Full mathematical visibility into the 90:10 government financing ratio, reducing balance EMIs, and education moratorium interest.
+          </p>
+        </div>
+
+        <!-- Benefit 4 -->
+        <div class="glass-card rounded-2xl p-6 space-y-3">
+          <div class="flex items-center gap-3 text-emerald-400 font-bold text-base">
+            <i data-lucide="compass" class="w-5 h-5"></i>
+            <span>4. Partner/Channel Discovery</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Direct geo-spatial map locating authorized Public Sector Banks, Regional Rural Banks, and State Channelising Agencies with NPA health filters.
+          </p>
+        </div>
+
+        <!-- Benefit 5 -->
+        <div class="glass-card rounded-2xl p-6 space-y-3 md:col-span-2">
+          <div class="flex items-center gap-3 text-blue-400 font-bold text-base">
+            <i data-lucide="award" class="w-5 h-5"></i>
+            <span>5. One Unified Workflow</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            An end-to-end continuous journey connecting requirement assessment, financial planning, and physical channel partner outreach in one seamless interface.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 7. FINAL CTA SECTION -->
+  <!-- ========================================================================= -->
+  <section class="py-20 md:py-28 max-w-5xl mx-auto px-4">
+    <div class="glass-card rounded-3xl p-10 sm:p-14 text-center space-y-6 border-2 border-indigo-500/40 shadow-2xl shadow-indigo-500/20 relative overflow-hidden">
+      
+      <div class="h-1.5 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-teal-400 absolute top-0 left-0"></div>
+
+      <span class="inline-flex items-center gap-2 rounded-full border border-indigo-500/40 bg-indigo-500/15 px-4 py-1 text-xs text-indigo-300 font-semibold">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i>
+        Fast &amp; Concessional Government Credit
+      </span>
+
+      <h2 class="text-3xl sm:text-5xl font-extrabold text-white max-w-2xl mx-auto">
+        Ready to find the right scheme?
+      </h2>
+
+      <p class="text-slate-300 text-sm sm:text-base max-w-lg mx-auto">
+        Start your assessment in less than 2 minutes
+      </p>
+
+      <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <button onclick="handleStartAssessment()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-base font-bold px-10 py-5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-xl shadow-indigo-500/30 transition-all cursor-pointer">
+          <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
+          <span>Start Your Assessment</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 8. FOOTER -->
+  <!-- ========================================================================= -->
+  <footer class="border-t border-white/10 bg-[#070b14]/80 py-12 text-xs text-slate-400">
+    <div class="max-w-6xl mx-auto px-4 space-y-8">
+      
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div class="space-y-2 max-w-md">
+          <div class="flex items-center gap-2.5">
+            <svg class="h-8 w-auto shrink-0" fill="none" viewBox="0 0 40 48" xmlns="http://www.w3.org/2000/svg"><path d="m0 14.5264v18.9473l17.8947-12.2437v-18.94741z" fill="#9333ea" opacity=".5"/><path d="m0 33.4737v-18.9474l17.8947 12.2438v18.9474z" fill="#2563eb" opacity=".5"/><path d="m40 14.5263v18.9474l-17.8947-12.2438v-18.94737z" fill="#9333ea" opacity=".5"/><path d="m40 33.4737v-18.9474l-17.8947 12.2438v18.9474z" fill="#2563eb" opacity=".5"/></svg>
+            <span class="font-bold text-base text-white tracking-tight">SchemeBridge</span>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-white/10 text-slate-300">Smart India Hackathon</span>
+          </div>
+          <p class="text-xs text-slate-400">
+            Empowering marginalized entrepreneurs and students across India through AI-assisted welfare scheme matching and partner discovery.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-6 font-medium">
+          <a href="/" class="hover:text-white transition-colors">Home</a>
+          <a href="/assessment" class="hover:text-white transition-colors">Assessment</a>
+          <a href="/assessment#scheme-results" class="hover:text-white transition-colors">Matched Scheme</a>
+          <a href="/assessment#emi-calculator" class="hover:text-white transition-colors">EMI Calculator</a>
+          <a href="/partner-network.html" class="hover:text-white transition-colors">Partner Network</a>
+          <a href="/my-applications.html" class="hover:text-white text-teal-400 font-semibold">My Applications</a>
+        </div>
+      </div>
+
+      <div class="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]">
+        <p>© 2026 SchemeBridge • Developed for Ministry Welfare Initiatives.</p>
+        <div class="flex items-center gap-2">
+          <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>AI Scheme Inference Engine • Online</span>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    function toggleMobileNav() {
+      const drawer = document.getElementById('mobileNavDrawer');
+      if (drawer) {
+        drawer.classList.toggle('hidden');
+      }
+    }
+
+    function handleStartAssessment() {
+      const user = sessionStorage.getItem('user');
+      if (user) {
+        window.location.href = '/assessment';
+      } else {
+        window.location.href = '/login';
+      }
+    }
+    window.handleStartAssessment = handleStartAssessment;
+
+    function handleLogout() {
+      sessionStorage.removeItem('user');
+      window.location.href = '/';
+    }
+    window.handleLogout = handleLogout;
+
+    function updateNavAuth() {
+      const userStr = sessionStorage.getItem('user');
+      const navAuthDesktop = document.getElementById('navAuthDesktop');
+      const navAuthMobile = document.getElementById('navAuthMobile');
+      if (!navAuthDesktop) return;
+
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          const photo = user.photo || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + encodeURIComponent(user.name || 'User');
+          const name = user.name || 'User';
+
+          navAuthDesktop.innerHTML = `
+            <div class="flex items-center gap-2.5 bg-slate-800/80 py-1 px-3 rounded-full border border-slate-700">
+              <img src="${photo}" alt="${name}" class="w-7 h-7 rounded-full border border-indigo-500 object-cover" />
+              <span class="text-white text-xs font-semibold max-w-[100px] truncate">${name}</span>
+            </div>
+            <button onclick="handleLogout()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all border border-slate-700 cursor-pointer">
+              Logout
+            </button>
+          `;
+
+          if (navAuthMobile) {
+            navAuthMobile.innerHTML = `
+              <div class="flex items-center justify-between p-3 rounded-xl bg-navy-900 border border-navy-800 mb-2">
+                <div class="flex items-center gap-2.5">
+                  <img src="${photo}" alt="${name}" class="w-8 h-8 rounded-full border border-indigo-500 object-cover" />
+                  <div>
+                    <p class="text-white text-sm font-bold truncate max-w-[150px]">${name}</p>
+                    <p class="text-slate-400 text-xs truncate max-w-[150px]">${user.email || ''}</p>
+                  </div>
+                </div>
+                <button onclick="handleLogout()" class="bg-rose-500/10 text-rose-400 px-3 py-1 rounded-lg text-xs font-semibold border border-rose-500/30">
+                  Logout
+                </button>
+              </div>
+            `;
+          }
+        } catch(e) {
+          console.error(e);
+        }
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', updateNavAuth);
+  </script>
+</body>
+</html>

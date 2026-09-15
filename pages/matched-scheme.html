@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matched Scheme Results — SchemeBridge</title>
+  <meta name="description" content="Subsidized government loan scheme matched based on your eligibility criteria.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            background: '#070b14',
+            card: '#0d1424',
+            border: 'rgba(255, 255, 255, 0.08)',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      background-color: #070b14;
+      color: #f8fafc;
+      font-family: 'Inter', sans-serif;
+    }
+    .glow-mesh {
+      background-image: radial-gradient(circle at 0% 0%, hsla(246, 80%, 60%, 0.12) 0px, transparent 50%),
+                        radial-gradient(circle at 100% 0%, hsla(174, 90%, 50%, 0.10) 0px, transparent 50%),
+                        radial-gradient(circle at 50% 100%, hsla(280, 80%, 60%, 0.08) 0px, transparent 50%);
+    }
+    .glass-card {
+      background: rgba(13, 20, 36, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .emi-calculate-btn {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+      color: #ffffff;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4), 0 8px 10px -6px rgba(99, 102, 241, 0.3);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      font-size: 15px;
+    }
+    .emi-calculate-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.5), 0 10px 15px -5px rgba(6, 182, 212, 0.3);
+      filter: brightness(1.1);
+    }
+    .emi-calculate-btn:active {
+      transform: translateY(0) scale(0.98);
+    }
+  </style>
+  <!-- Route Auth Protection -->
+  <script>
+    (function() {
+      const user = sessionStorage.getItem('user');
+      if (!user) {
+        window.location.href = '/login';
+      }
+    })();
+  </script>
+</head>
+<body class="bg-background text-slate-100 antialiased selection:bg-indigo-500 selection:text-white min-h-screen flex flex-col glow-mesh">
+
+  <!-- ========================================================================= -->
+  <!-- 1. NAVBAR -->
+  <!-- ========================================================================= -->
+  <nav class="bg-navy-950/95 border-b border-navy-800 sticky top-0 z-50 backdrop-blur-md">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2 group">
+          <span class="text-2xl font-bold bg-gradient-to-r from-aurora-400 to-teal-400 bg-clip-text text-transparent group-hover:brightness-110 transition-all">
+            SchemeBridge
+          </span>
+          <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-aurora-500/10 text-aurora-300 border border-aurora-500/20 hidden sm:inline-block">
+            SIH AI
+          </span>
+        </a>
+        
+        <!-- Navigation Links (Desktop) -->
+        <div class="hidden md:flex items-center gap-6">
+          <a href="/" class="text-slate-300 hover:text-aurora-400 transition-colors">Home</a>
+          <a href="/assessment" class="text-slate-300 hover:text-aurora-400 transition-colors">Assessment</a>
+          <a href="/matched-scheme" class="text-aurora-400 font-semibold transition-colors">Scheme</a>
+          <a href="/emi-calculator" class="text-slate-300 hover:text-aurora-400 transition-colors">EMI</a>
+          <a href="/partner-network" class="text-slate-300 hover:text-aurora-400 transition-colors">Partners</a>
+          <a href="/my-applications" class="text-slate-300 hover:text-aurora-400 transition-colors">
+            My Applications
+          </a>
+        </div>
+        
+        <!-- CTA Button & Mobile Toggle -->
+        <div class="flex items-center gap-3">
+          <button onclick="window.location.href='/assessment'" 
+                  class="bg-gradient-to-r from-aurora-600 to-teal-600 hover:from-aurora-700 hover:to-teal-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-aurora-500/20 text-xs sm:text-sm cursor-pointer">
+            Start Assessment
+          </button>
+
+          <!-- Mobile Hamburger Button -->
+          <button onclick="toggleMobileNav()" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-aurora-400 hover:bg-navy-800 transition-colors">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobileNavDrawer" class="hidden md:hidden border-t border-navy-800 bg-navy-950/98 p-4 space-y-2">
+      <a href="/" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Home</a>
+      <a href="/assessment" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Assessment</a>
+      <a href="/matched-scheme" class="block py-2 px-3 rounded-lg text-aurora-400 font-semibold bg-navy-900 text-sm">Scheme</a>
+      <a href="/emi-calculator" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">EMI</a>
+      <a href="/partner-network" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Partners</a>
+      <a href="/my-applications" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">My Applications</a>
+    </div>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- 2. MAIN APPLICATION CONTENT -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 py-10 md:py-16">
+    <div class="max-w-3xl mx-auto px-4 space-y-8">
+      
+      <!-- Stepper / Breadcrumbs -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between text-xs text-slate-400">
+          <span class="font-bold text-teal-400 uppercase tracking-wider">Step 2 of 4: Matched Welfare Scheme</span>
+          <span class="font-mono">Next: EMI Schedule &amp; Bank Branches</span>
+        </div>
+        
+        <!-- Step Track -->
+        <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden flex">
+          <div class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-teal-400 w-2/4 rounded-full"></div>
+        </div>
+      </div>
+
+      <!-- Quick Jump Navigation Bar -->
+      <div class="glass-card rounded-xl p-2.5 border border-white/10 flex flex-wrap items-center justify-between gap-2 shadow-lg relative z-20">
+        <div class="flex items-center gap-1.5 text-xs text-slate-400 font-semibold px-2">
+          <i data-lucide="compass" class="w-4 h-4 text-teal-400"></i>
+          <span>Quick Jump:</span>
+        </div>
+        
+        <div class="flex flex-wrap items-center gap-1.5 text-xs font-medium">
+          <!-- 1. Assessment button -> navigates to /assessment.html -->
+          <a
+            href="/assessment.html"
+            class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-teal-500/20 hover:text-teal-300 text-slate-300 border border-white/10 flex items-center gap-1.5 transition-all cursor-pointer group"
+          >
+            <span>Assessment</span>
+            <i data-lucide="arrow-right" class="w-3 h-3 text-slate-500 group-hover:text-teal-400 group-hover:translate-x-0.5 transition-transform"></i>
+          </a>
+
+          <!-- 2. Matched Scheme button -> active -->
+          <a
+            href="#"
+            onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;"
+            class="px-3 py-1.5 rounded-lg bg-teal-500/20 text-teal-300 font-bold border border-teal-500/40 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+          >
+            <span class="h-1.5 w-1.5 rounded-full bg-teal-400 animate-pulse"></span>
+            <span>Matched Scheme</span>
+          </a>
+
+          <!-- 3. EMI Calculator button -> navigates to /emi-calculator.html -->
+          <a
+            href="/emi-calculator.html"
+            class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-purple-500/20 hover:text-purple-300 text-slate-300 border border-white/10 flex items-center gap-1.5 transition-all cursor-pointer group"
+          >
+            <span>EMI Calculator</span>
+            <i data-lucide="arrow-right" class="w-3 h-3 text-slate-500 group-hover:text-purple-400 group-hover:translate-x-0.5 transition-transform"></i>
+          </a>
+
+          <!-- 4. Partner Network button -> navigates to /partner-network.html -->
+          <a
+            href="/partner-network.html"
+            class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-emerald-500/20 hover:text-emerald-300 text-slate-300 border border-white/10 flex items-center gap-1.5 transition-all cursor-pointer group"
+          >
+            <span>Partner Network</span>
+            <i data-lucide="arrow-right" class="w-3 h-3 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-transform"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- DYNAMIC CONTENT CONTAINER (RENDERED VIA JAVASCRIPT) -->
+      <div id="schemeResultContainer" class="space-y-6">
+        <!-- Loading State Placeholder -->
+        <div class="glass-card rounded-2xl p-12 text-center space-y-4">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+          <p class="text-sm text-slate-400">Evaluating statutory eligibility &amp; matching concessional loan schemes...</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- 3. FOOTER -->
+  <!-- ========================================================================= -->
+  <footer class="border-t border-white/10 bg-[#070b14]/80 py-8 text-xs text-slate-400">
+    <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-white">SchemeBridge</span>
+        <span>• Smart India Hackathon AI Platform</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/" class="hover:text-white transition-colors">Home</a>
+        <a href="/partner-network.html" class="hover:text-white transition-colors">Partner Network</a>
+        <a href="/my-applications.html" class="hover:text-white text-teal-400 font-semibold">My Applications</a>
+        <a href="/matched-scheme.html" class="hover:text-white text-teal-400 font-semibold">Matched Schemes</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- SCHEME MATCHING ENGINE & APPSTATE SCRIPT -->
+  <!-- ========================================================================= -->
+  <script>
+    // AppState object managing sessionStorage
+    const AppState = {
+      saveAssessment: function(data) {
+        sessionStorage.setItem('schemebridge_assessment', JSON.stringify({
+          ...data,
+          timestamp: new Date().toISOString()
+        }));
+      },
+      getAssessment: function() {
+        try {
+          return JSON.parse(sessionStorage.getItem('schemebridge_assessment') || '{}');
+        } catch (e) {
+          return {};
+        }
+      },
+      saveScheme: function(data) {
+        sessionStorage.setItem('schemebridge_matched_scheme', JSON.stringify({
+          ...data,
+          timestamp: new Date().toISOString()
+        }));
+      },
+      getScheme: function() {
+        try {
+          return JSON.parse(sessionStorage.getItem('schemebridge_matched_scheme') || '{}');
+        } catch (e) {
+          return {};
+        }
+      }
+    };
+
+    function formatCurrency(amount) {
+      return Number(amount || 0).toLocaleString('en-IN');
+    }
+
+    function evaluateScheme(assessment) {
+      const income = parseFloat(assessment.income) || 250000;
+      const loanAmount = parseFloat(assessment.loanAmount) || 500000;
+      const purpose = assessment.purpose || 'Business';
+
+      // Rule 1: Income > 500000 -> Not Eligible
+      if (income > 500000) {
+        return {
+          isEligible: false,
+          ineligibleReason: `Annual family income of ₹${formatCurrency(income)} exceeds the statutory ceiling limit of ₹5,00,000 for government concessional schemes.`,
+          requestedIncome: income,
+          requestedLoan: loanAmount
+        };
+      }
+
+      // Rule 2: Purpose is Business & Amount <= 140000 -> Micro Finance Scheme (6.5%)
+      if (purpose === 'Business' && loanAmount <= 140000) {
+        const govtShare = Math.round(loanAmount * 0.90);
+        const promoterMargin = Math.round(loanAmount * 0.10);
+
+        return {
+          isEligible: true,
+          schemeName: 'Micro Finance Scheme',
+          interestRate: 6.5,
+          interestRateText: '6.5% p.a.',
+          maxLoanAmount: 140000,
+          maxLoanText: '₹1.40 Lakh',
+          govtCoveragePercent: 90,
+          promoterMarginPercent: 10,
+          govtShareAmount: govtShare,
+          promoterMarginAmount: promoterMargin,
+          totalProjectCost: loanAmount,
+          fundingRatio: '90:10',
+          moratoriumAvailable: false,
+          description: 'Subsidized small-scale credit designed for grassroots micro-enterprises, small retail shops, self-employed artisans, and cottage units with simplified documentation.',
+          keyHighlights: [
+            'Concessional interest rate of 6.5% per annum',
+            'Government covers 90% of total project cost (up to ₹1.40 Lakh)',
+            'Low self-contribution promoter margin of only 10%',
+            'No collateral or third-party guarantee required for eligible units',
+            'Flexible repayment tenure ranging from 1 to 5 years'
+          ]
+        };
+      }
+
+      // Rule 3: Purpose is Business & Amount > 140000 & <= 5000000 -> Term Loan Scheme (7.5%)
+      if (purpose === 'Business' && loanAmount > 140000) {
+        const govtShare = Math.round(loanAmount * 0.90);
+        const promoterMargin = Math.round(loanAmount * 0.10);
+
+        return {
+          isEligible: true,
+          schemeName: 'Term Loan Scheme',
+          interestRate: 7.5,
+          interestRateText: '7.5% p.a.',
+          maxLoanAmount: 5000000,
+          maxLoanText: '₹50.00 Lakh',
+          govtCoveragePercent: 90,
+          promoterMarginPercent: 10,
+          govtShareAmount: govtShare,
+          promoterMarginAmount: promoterMargin,
+          totalProjectCost: loanAmount,
+          fundingRatio: '90:10',
+          moratoriumAvailable: false,
+          description: 'Medium to large capital investment loan scheme designed for business expansion, acquiring machinery, establishing service centers, and commercial production.',
+          keyHighlights: [
+            'Competitive interest rate of 7.5% per annum',
+            '90% government funding coverage (up to ₹50 Lakh)',
+            'Promoter contribution fixed at just 10%',
+            'Supported by National Corporations & State Channelising Agencies (SCAs)',
+            'Tenure of up to 5 to 10 years including initial grace period'
+          ]
+        };
+      }
+
+      // Rule 4: Purpose is Education -> Education Loan Scheme (6.5%)
+      if (purpose === 'Education') {
+        const govtShare = Math.round(loanAmount * 0.90);
+        const promoterMargin = Math.round(loanAmount * 0.10);
+
+        return {
+          isEligible: true,
+          schemeName: 'Education Loan Scheme',
+          interestRate: 6.5,
+          interestRateText: '6.5% p.a.',
+          maxLoanAmount: 3000000,
+          maxLoanText: '₹20.00L (Domestic) / ₹30.00L (Abroad)',
+          govtCoveragePercent: 90,
+          promoterMarginPercent: 10,
+          govtShareAmount: govtShare,
+          promoterMarginAmount: promoterMargin,
+          totalProjectCost: loanAmount,
+          fundingRatio: '90:10',
+          moratoriumAvailable: true,
+          moratoriumDetails: 'Available (Course Duration + 1 Year grace period)',
+          description: 'Comprehensive financial support for marginalized students pursuing higher, professional, and technical studies in India and abroad with zero repayment during study period.',
+          keyHighlights: [
+            'Concessional interest rate of 6.5% p.a. (0.5% rebate for female students)',
+            '90% total educational expense covered by government scheme',
+            '10% margin money requirement',
+            'Moratorium benefit: Repayment starts only 1 year after course completion',
+            'Covers tuition fees, books, equipment, hostel & travel expenses'
+          ]
+        };
+      }
+
+      // Default Fallback
+      return {
+        isEligible: false,
+        ineligibleReason: 'Unable to match a scheme based on specified requirements.',
+        requestedIncome: income,
+        requestedLoan: loanAmount
+      };
+    }
+
+    function renderResult(scheme, assessment) {
+      const container = document.getElementById('schemeResultContainer');
+
+      // CASE A: NOT ELIGIBLE ERROR CARD
+      if (!scheme.isEligible) {
+        container.innerHTML = `
+          <div class="glass-card rounded-2xl p-8 border-2 border-red-500/40 space-y-6 animate-fade-in">
+            <div class="flex items-start gap-4">
+              <div class="p-3 rounded-2xl bg-red-500/10 text-red-400 border border-red-500/30">
+                <i data-lucide="x-circle" class="w-8 h-8"></i>
+              </div>
+              <div class="space-y-1">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold bg-destructive/20 text-destructive border border-destructive">
+                  ✗ Statutory Limit Exceeded
+                </div>
+                <h2 class="text-2xl font-bold text-white">Not Eligible for Concessional Lending</h2>
+                <p class="text-sm text-slate-300">${scheme.ineligibleReason}</p>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-900/80 border border-white/10 text-xs space-y-2">
+              <span class="font-bold text-slate-300 uppercase tracking-wider block">Submitted Assessment:</span>
+              <div class="grid grid-cols-2 gap-2 text-slate-400 font-mono">
+                <div>Annual Family Income: <strong class="text-white">₹${formatCurrency(scheme.requestedIncome)}</strong></div>
+                <div>Loan Amount Requested: <strong class="text-white">₹${formatCurrency(scheme.requestedLoan)}</strong></div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+              <a href="/assessment.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-aurora-600 to-sunset-500 hover:from-aurora-700 hover:to-sunset-600 text-white font-bold text-xs shadow-lg shadow-aurora-500/25 transition-all">
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                <span>Modify Assessment Inputs</span>
+              </a>
+            </div>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      // CASE B: ELIGIBLE & MATCHED SCHEME CARD
+      container.innerHTML = `
+        <!-- Main Matched Scheme Card -->
+        <div class="glass-card rounded-2xl p-6 sm:p-8 shadow-2xl space-y-8 border-2 border-teal-700 relative overflow-hidden animate-fade-in">
+          
+          <div class="h-1.5 w-full bg-gradient-to-r from-teal-400 via-emerald-500 to-aurora-500 absolute top-0 left-0"></div>
+
+          <!-- Card Header & Badge -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-navy-700 pb-6">
+            <div class="space-y-1.5">
+              <div class="flex items-center gap-2">
+                <div class="inline-flex items-center gap-2 bg-teal-900/50 border border-teal-700 text-teal-400 px-4 py-2 rounded-full text-sm font-medium">
+                  <span class="h-2 w-2 rounded-full bg-teal-400 mr-0.5 inline-block animate-pulse"></span>
+                  ✓ Eligible &amp; Matched
+                </div>
+                <div class="inline-flex items-center gap-2 bg-aurora-900/50 border border-aurora-700 text-aurora-400 px-3 py-1.5 rounded-full text-xs font-semibold font-mono">
+                  90:10 Government Ratio
+                </div>
+              </div>
+              
+              <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight pt-1">
+                ${scheme.schemeName}
+              </h2>
+            </div>
+
+            <!-- Interest Rate Callout Box -->
+            <div class="p-3.5 rounded-2xl bg-gradient-to-br from-teal-500/20 to-emerald-500/10 border border-teal-500/40 text-center sm:text-right shrink-0">
+              <span class="text-[10px] font-bold text-teal-300 uppercase tracking-wider block">Concessional Interest</span>
+              <span class="text-2xl sm:text-3xl font-extrabold font-mono text-teal-400">${scheme.interestRateText}</span>
+            </div>
+          </div>
+
+          <!-- Scheme Description -->
+          <p class="text-sm text-slate-300 leading-relaxed">
+            ${scheme.description}
+          </p>
+
+          <!-- 4-Column Financial Metrics Grid -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <div class="p-4 rounded-xl bg-slate-900/70 border border-white/10 space-y-1">
+              <span class="text-[11px] text-slate-400 font-semibold block">Total Project Cost</span>
+              <span class="text-lg font-bold font-mono text-white">₹${formatCurrency(scheme.totalProjectCost)}</span>
+              <span class="text-[10px] text-slate-500 block">Requested Loan</span>
+            </div>
+
+            <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-1">
+              <span class="text-[11px] text-emerald-300 font-semibold block">Government Share (90%)</span>
+              <span class="text-lg font-bold font-mono text-emerald-400">₹${formatCurrency(scheme.govtShareAmount)}</span>
+              <span class="text-[10px] text-emerald-500/80 block">Disbursed by Partner Bank</span>
+            </div>
+
+            <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-1">
+              <span class="text-[11px] text-amber-300 font-semibold block">Promoter Margin (10%)</span>
+              <span class="text-lg font-bold font-mono text-amber-400">₹${formatCurrency(scheme.promoterMarginAmount)}</span>
+              <span class="text-[10px] text-amber-500/80 block">Self Contribution</span>
+            </div>
+
+            <div class="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/30 space-y-1">
+              <span class="text-[11px] text-indigo-300 font-semibold block">Maximum Scheme Limit</span>
+              <span class="text-lg font-bold font-mono text-indigo-400">${scheme.maxLoanText}</span>
+              <span class="text-[10px] text-indigo-400/80 block">Institutional Ratio: 90:10</span>
+            </div>
+
+          </div>
+
+          <!-- Visual Segmented 90:10 Progress Bar -->
+          <div class="p-4 rounded-xl bg-slate-900/60 border border-white/10 space-y-3">
+            <div class="flex items-center justify-between text-xs font-semibold">
+              <span class="text-emerald-400 flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
+                90% Government Loan (₹${formatCurrency(scheme.govtShareAmount)})
+              </span>
+              <span class="text-amber-400 flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
+                10% Self-Contribution (₹${formatCurrency(scheme.promoterMarginAmount)})
+              </span>
+            </div>
+
+            <div class="h-3 w-full rounded-full bg-slate-800 overflow-hidden flex shadow-inner">
+              <div class="h-full bg-gradient-to-r from-teal-500 to-emerald-500 w-[90%] transition-all"></div>
+              <div class="h-full bg-amber-500 w-[10%] transition-all"></div>
+            </div>
+          </div>
+
+          <!-- Key Highlights Bullet List -->
+          <div class="space-y-3 pt-2 border-t border-white/10">
+            <span class="text-xs font-bold text-slate-300 uppercase tracking-wider block">
+              Scheme Highlights &amp; Statutory Terms:
+            </span>
+            <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-slate-300">
+              ${scheme.keyHighlights.map(h => `
+                <li class="flex items-start gap-2">
+                  <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+                  <span>${h}</span>
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+
+          <!-- Action Buttons Area -->
+          <div class="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <a href="/assessment.html" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-300 transition-all">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              <span>Back to Assessment</span>
+            </a>
+
+            <button id="calculateEmiBtn" class="emi-calculate-btn w-full sm:w-auto group">
+              <i data-lucide="calculator" class="w-4 h-4 text-amber-300"></i>
+              <span>Calculate Monthly Repayment EMI</span>
+              <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+            </button>
+          </div>
+
+        </div>
+      `;
+      lucide.createIcons();
+
+      // Add click handler for calculateEmiBtn
+      const calculateEmiBtn = document.getElementById('calculateEmiBtn');
+      if (calculateEmiBtn) {
+        calculateEmiBtn.addEventListener('click', function() {
+          // Data is already saved in sessionStorage from previous page
+          // Just navigate to EMI calculator
+          window.location.href = '/emi-calculator.html';
+        });
+      }
+    }
+
+    // Initialize Page
+    window.addEventListener('DOMContentLoaded', function() {
+      // 1. Get assessment data from sessionStorage
+      const assessment = AppState.getAssessment();
+      
+      // If empty, supply representative default values
+      const activeAssessment = (assessment && assessment.income) ? assessment : {
+        income: 250000,
+        loanAmount: 500000,
+        purpose: 'Business',
+        projectType: 'Medium'
+      };
+
+      // 2. Apply matching rules
+      const matched = evaluateScheme(activeAssessment);
+
+      // 3. Save matched scheme to AppState
+      if (matched.isEligible) {
+        AppState.saveScheme(matched);
+      }
+
+      // 4. Render UI card
+      renderResult(matched, activeAssessment);
+    });
+
+    function toggleMobileNav() {
+      const drawer = document.getElementById('mobileNavDrawer');
+      if (drawer) {
+        drawer.classList.toggle('hidden');
+      }
+    }
+  </script>
+
+</body>
+</html>

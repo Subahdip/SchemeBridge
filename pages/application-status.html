@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Application Status Tracker — SchemeBridge</title>
+  <meta name="description" content="Track your government concessional loan application progress in real time.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            background: '#070b14',
+            card: '#0d1424',
+            border: 'rgba(255, 255, 255, 0.08)',
+            navy: {
+              700: '#1e293b',
+              800: '#0f172a',
+              900: '#0b1120',
+              950: '#070b14',
+            },
+            aurora: {
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      background-color: #070b14;
+      color: #f8fafc;
+      font-family: 'Inter', sans-serif;
+    }
+    .glow-mesh {
+      background-image: radial-gradient(circle at 0% 0%, hsla(246, 80%, 60%, 0.12) 0px, transparent 50%),
+                        radial-gradient(circle at 100% 0%, hsla(174, 90%, 50%, 0.10) 0px, transparent 50%),
+                        radial-gradient(circle at 50% 100%, hsla(280, 80%, 60%, 0.08) 0px, transparent 50%);
+    }
+    .glass-card {
+      background: rgba(13, 20, 36, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+  <!-- Route Auth Protection -->
+  <script>
+    (function() {
+      const user = sessionStorage.getItem('user');
+      if (!user) {
+        window.location.href = '/login';
+      }
+    })();
+  </script>
+</head>
+<body class="bg-background text-slate-100 antialiased selection:bg-indigo-500 selection:text-white min-h-screen flex flex-col glow-mesh">
+
+  <!-- ========================================================================= -->
+  <!-- 1. NAVBAR -->
+  <!-- ========================================================================= -->
+  <nav class="bg-navy-950/95 border-b border-navy-800 sticky top-0 z-50 backdrop-blur-md">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2 group">
+          <span class="text-2xl font-bold bg-gradient-to-r from-aurora-400 to-teal-400 bg-clip-text text-transparent group-hover:brightness-110 transition-all">
+            SchemeBridge
+          </span>
+          <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-aurora-500/10 text-aurora-300 border border-aurora-500/20 hidden sm:inline-block">
+            SIH AI
+          </span>
+        </a>
+        
+        <!-- Navigation Links (Desktop) -->
+        <div class="hidden md:flex items-center gap-6">
+          <a href="/" class="text-slate-300 hover:text-aurora-400 transition-colors">Home</a>
+          <a href="/assessment" class="text-slate-300 hover:text-aurora-400 transition-colors">Assessment</a>
+          <a href="/matched-scheme" class="text-slate-300 hover:text-aurora-400 transition-colors">Scheme</a>
+          <a href="/emi-calculator" class="text-slate-300 hover:text-aurora-400 transition-colors">EMI</a>
+          <a href="/partner-network" class="text-slate-300 hover:text-aurora-400 transition-colors">Partners</a>
+          <a href="/my-applications" class="text-aurora-400 font-medium transition-colors">
+            My Applications
+          </a>
+        </div>
+        
+        <!-- CTA Button & Mobile Toggle -->
+        <div class="flex items-center gap-3">
+          <button onclick="window.location.href='/assessment'" 
+                  class="bg-gradient-to-r from-aurora-600 to-teal-600 hover:from-aurora-700 hover:to-teal-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-aurora-500/20 text-xs sm:text-sm cursor-pointer">
+            Start Assessment
+          </button>
+
+          <!-- Mobile Hamburger Button -->
+          <button onclick="toggleMobileNav()" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-aurora-400 hover:bg-navy-800 transition-colors">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobileNavDrawer" class="hidden md:hidden border-t border-navy-800 bg-navy-950/98 p-4 space-y-2">
+      <a href="/" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Home</a>
+      <a href="/assessment" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Assessment</a>
+      <a href="/matched-scheme" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Scheme</a>
+      <a href="/emi-calculator" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">EMI</a>
+      <a href="/partner-network" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Partners</a>
+      <a href="/my-applications" class="block py-2 px-3 rounded-lg text-aurora-400 font-semibold bg-navy-900 text-sm">My Applications</a>
+    </div>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- 2. MAIN CONTENT -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 py-10">
+    <div class="container mx-auto px-4 max-w-4xl space-y-8">
+      
+      <!-- ===================================================================== -->
+      <!-- SECTION A: MANUAL INPUT FORM (shown when no ?id= is in URL) -->
+      <!-- ===================================================================== -->
+      <div id="inputSection" class="hidden">
+        <!-- Top Back Navigation -->
+        <div class="mb-6">
+          <a
+            href="/my-applications.html"
+            class="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-aurora-400 transition-colors"
+          >
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Back to My Applications</span>
+          </a>
+        </div>
+
+        <div class="bg-navy-800/90 border border-navy-700 rounded-2xl p-8 sm:p-12 shadow-2xl relative overflow-hidden backdrop-blur-xl">
+          <div class="h-1.5 w-full bg-gradient-to-r from-aurora-500 via-purple-500 to-teal-400 absolute top-0 left-0"></div>
+          
+          <div class="max-w-xl mx-auto text-center space-y-4 mb-8">
+            <div class="inline-flex p-3 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20 mb-2">
+              <i data-lucide="search" class="w-8 h-8"></i>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              Track Loan Application
+            </h1>
+            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+              Enter your Application ID to track real-time sanction status, document verification, and disbursement progress.
+            </p>
+          </div>
+
+          <form id="trackForm" onsubmit="handleManualSearch(event)" class="max-w-lg mx-auto space-y-4">
+            <div class="flex flex-col sm:flex-row gap-3">
+              <div class="relative flex-1">
+                <i data-lucide="file-text" class="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input 
+                  type="text" 
+                  id="manualAppIdInput" 
+                  placeholder="e.g. SIH2026-001" 
+                  required
+                  class="w-full h-12 pl-11 pr-4 rounded-xl border border-navy-600 bg-navy-950 text-white font-mono placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-aurora-500 uppercase"
+                />
+              </div>
+              <button 
+                type="submit" 
+                class="h-12 px-7 bg-gradient-to-r from-aurora-600 to-teal-600 hover:from-aurora-700 hover:to-teal-700 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-lg shadow-aurora-500/20 hover:shadow-aurora-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Track Status</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </form>
+
+          <!-- Quick Demo IDs list -->
+          <div class="mt-8 pt-6 border-t border-navy-700/60 max-w-lg mx-auto text-center">
+            <p class="text-xs text-slate-400 mb-3">Or click one of the sample demo applications:</p>
+            <div class="flex flex-wrap items-center justify-center gap-2">
+              <button onclick="lookupApp('SIH2026-001')" class="px-3 py-1.5 rounded-lg bg-navy-900 hover:bg-navy-700 border border-navy-700 text-xs font-mono text-aurora-300 transition-colors cursor-pointer">
+                SIH2026-001 (Term Loan)
+              </button>
+              <button onclick="lookupApp('SIH2026-002')" class="px-3 py-1.5 rounded-lg bg-navy-900 hover:bg-navy-700 border border-navy-700 text-xs font-mono text-teal-300 transition-colors cursor-pointer">
+                SIH2026-002 (Education)
+              </button>
+              <button onclick="lookupApp('SIH2026-003')" class="px-3 py-1.5 rounded-lg bg-navy-900 hover:bg-navy-700 border border-navy-700 text-xs font-mono text-emerald-300 transition-colors cursor-pointer">
+                SIH2026-003 (Micro Finance)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- SECTION B: STATUS TRACKER SECTION (shown when application is loaded) -->
+      <!-- ===================================================================== -->
+      <div id="statusSection" class="hidden space-y-8">
+        <div id="trackerContainer" class="space-y-8">
+          <!-- Dynamically populated by renderStatusDetails(app) -->
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- 3. FOOTER -->
+  <!-- ========================================================================= -->
+  <footer class="border-t border-white/10 bg-[#070b14]/80 py-8 text-xs text-slate-400 mt-12">
+    <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-white">SchemeBridge</span>
+        <span>• Smart India Hackathon AI Platform</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/" class="hover:text-white transition-colors">Home</a>
+        <a href="/assessment.html" class="hover:text-white transition-colors">Assessment</a>
+        <a href="/matched-scheme.html" class="hover:text-white transition-colors">Matched Scheme</a>
+        <a href="/emi-calculator.html" class="hover:text-white transition-colors">EMI Calculator</a>
+        <a href="/partner-network.html" class="hover:text-white transition-colors">Partner Network</a>
+        <a href="/my-applications.html" class="hover:text-white text-teal-400 font-semibold">My Applications</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mock applications data for fallback/demo
+    const mockAppsList = [
+      {
+        applicationId: "SIH2026-001",
+        scheme: "Term Loan Scheme",
+        amount: 2500000,
+        interestRate: 7.5,
+        purpose: "Business",
+        status: "Under Review",
+        submittedDate: "04 Sep 2026",
+        timeline: [
+          { step: "Submitted", date: "04 Sep 2026", completed: true },
+          { step: "Documents Verified", date: "05 Sep 2026", completed: true },
+          { step: "Loan Approved", date: "07 Sep 2026 (Est.)", completed: false },
+          { step: "Disbursed", date: "10 Sep 2026 (Est.)", completed: false }
+        ]
+      },
+      {
+        applicationId: "SIH2026-002",
+        scheme: "Education Loan Scheme",
+        amount: 1000000,
+        interestRate: 6.5,
+        purpose: "Education",
+        status: "Approved",
+        submittedDate: "01 Sep 2026",
+        timeline: [
+          { step: "Submitted", date: "01 Sep 2026", completed: true },
+          { step: "Documents Verified", date: "02 Sep 2026", completed: true },
+          { step: "Loan Approved", date: "04 Sep 2026", completed: true },
+          { step: "Disbursed", date: "07 Sep 2026 (Est.)", completed: false }
+        ]
+      },
+      {
+        applicationId: "SIH2026-003",
+        scheme: "Micro Finance Scheme",
+        amount: 100000,
+        interestRate: 6.5,
+        purpose: "Small Business",
+        status: "Disbursed",
+        submittedDate: "25 Aug 2026",
+        timeline: [
+          { step: "Submitted", date: "25 Aug 2026", completed: true },
+          { step: "Documents Verified", date: "26 Aug 2026", completed: true },
+          { step: "Loan Approved", date: "28 Aug 2026", completed: true },
+          { step: "Disbursed", date: "30 Aug 2026", completed: true }
+        ]
+      }
+    ];
+
+    const AppState = {
+      getApplicationById: function(appId) {
+        const applications = JSON.parse(sessionStorage.getItem('applications') || '[]');
+        return applications.find(a => a.applicationId && a.applicationId.toLowerCase() === appId.toLowerCase()) || null;
+      }
+    };
+
+    function getMockApplication(appId) {
+      return mockAppsList.find(a => a.applicationId && a.applicationId.toLowerCase() === appId.toLowerCase()) || null;
+    }
+
+    // Highlight current page in navbar & initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      // Highlight navbar links
+      const currentPage = window.location.pathname;
+      const navLinks = document.querySelectorAll('nav a[href]');
+      
+      navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (
+          href === currentPage || 
+          href + '.html' === currentPage || 
+          currentPage.replace('.html', '') === href ||
+          (currentPage.includes('application') && href.includes('my-applications'))
+        ) {
+          link.classList.add('text-aurora-400', 'font-semibold');
+          link.classList.remove('text-slate-300');
+        }
+      });
+
+      // Get application ID from URL parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const appId = urlParams.get('id');
+      
+      if (appId) {
+        // Load specific application
+        const application = AppState.getApplicationById(appId);
+        if (application) {
+          displayApplication(application);
+        } else {
+          // Check mock data
+          const mockApp = getMockApplication(appId);
+          if (mockApp) {
+            displayApplication(mockApp);
+          } else {
+            alert("Application not found");
+            window.location.href = '/my-applications.html';
+          }
+        }
+      } else {
+        // No ID provided, show input form
+        showInputForm();
+      }
+    });
+
+    function showInputForm() {
+      // Show the original input form for manual ID entry
+      document.getElementById('inputSection').classList.remove('hidden');
+      document.getElementById('statusSection').classList.add('hidden');
+      lucide.createIcons();
+    }
+
+    function displayApplication(app) {
+      // Show application details
+      document.getElementById('inputSection').classList.add('hidden');
+      document.getElementById('statusSection').classList.remove('hidden');
+      renderStatusDetails(app);
+    }
+
+    function handleManualSearch(e) {
+      e.preventDefault();
+      const input = document.getElementById('manualAppIdInput');
+      const val = input.value.trim();
+      if (!val) return;
+      lookupApp(val);
+    }
+
+    function lookupApp(appId) {
+      const application = AppState.getApplicationById(appId) || getMockApplication(appId);
+      if (application) {
+        // Update URL query string without reloading
+        const newUrl = window.location.pathname + '?id=' + encodeURIComponent(appId);
+        window.history.pushState({ path: newUrl }, '', newUrl);
+        displayApplication(application);
+      } else {
+        alert("Application not found for ID: " + appId);
+      }
+    }
+
+    function toggleMobileNav() {
+      const drawer = document.getElementById('mobileNavDrawer');
+      if (drawer) {
+        drawer.classList.toggle('hidden');
+      }
+    }
+
+    function getStatusColor(status) {
+      const colors = {
+        "Submitted": "bg-slate-600 text-slate-100 border-slate-500",
+        "Under Review": "bg-yellow-600 text-yellow-100 border-yellow-500",
+        "Documents Verified": "bg-blue-600 text-blue-100 border-blue-500",
+        "Approved": "bg-teal-600 text-teal-100 border-teal-500",
+        "Loan Approved": "bg-teal-600 text-teal-100 border-teal-500",
+        "Disbursed": "bg-aurora-600 text-white border-aurora-500",
+        "Rejected": "bg-red-600 text-red-100 border-red-500"
+      };
+      return colors[status] || "bg-slate-600 text-slate-100 border-slate-500";
+    }
+
+    function renderStatusDetails(app) {
+      const interestDisplay = typeof app.interestRate === 'number' 
+        ? `${app.interestRate}% p.a.` 
+        : (String(app.interestRate).includes('%') ? app.interestRate : `${app.interestRate}% p.a.`);
+
+      const container = document.getElementById('trackerContainer');
+      container.innerHTML = `
+        <!-- Top Back Navigation & Action Buttons -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <a
+              href="/my-applications.html"
+              class="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-aurora-400 transition-colors"
+            >
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              <span>Back to My Applications</span>
+            </a>
+            <span class="text-slate-600">•</span>
+            <button
+              onclick="showInputForm()"
+              class="text-xs font-semibold text-teal-400 hover:text-teal-300 transition-colors cursor-pointer"
+            >
+              Search another ID
+            </button>
+          </div>
+
+          <button
+            onclick="window.print()"
+            class="px-4 py-2 rounded-xl border border-navy-700 bg-navy-800/80 hover:bg-navy-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+          >
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Export Slip</span>
+          </button>
+        </div>
+
+        <!-- Application Banner -->
+        <div class="bg-navy-800/90 border border-navy-700 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden space-y-6">
+          <div class="h-1.5 w-full bg-gradient-to-r from-aurora-500 via-purple-500 to-teal-400 absolute top-0 left-0"></div>
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="space-y-1">
+              <span class="text-xs font-semibold text-teal-400 uppercase tracking-wider">
+                Application Status Tracker
+              </span>
+              <h1 class="text-2xl sm:text-3xl font-extrabold text-white font-mono">
+                ${app.applicationId}
+              </h1>
+              <p class="text-xs sm:text-sm text-slate-400">
+                Submitted on <strong class="text-slate-200">${app.submittedDate}</strong>
+              </p>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <span class="px-4 py-1.5 rounded-full text-xs font-bold border ${getStatusColor(app.status)}">
+                ${app.status}
+              </span>
+            </div>
+          </div>
+
+          <!-- Quick Metrics -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-navy-950/80 border border-navy-700/60 text-xs">
+            <div>
+              <span class="text-slate-400 block mb-0.5">Government Scheme</span>
+              <strong class="text-white font-semibold text-sm truncate block">${app.scheme}</strong>
+            </div>
+            <div>
+              <span class="text-slate-400 block mb-0.5">Sanctioned Amount (90%)</span>
+              <strong class="text-emerald-400 font-bold font-mono text-sm">
+                ₹${Number(app.amount).toLocaleString('en-IN')}
+              </strong>
+            </div>
+            <div>
+              <span class="text-slate-400 block mb-0.5">Concessional Rate</span>
+              <strong class="text-white font-semibold text-sm">
+                ${interestDisplay}
+              </strong>
+            </div>
+            <div>
+              <span class="text-slate-400 block mb-0.5">Disbursement Channel</span>
+              <strong class="text-teal-300 font-semibold text-sm">Public Sector Bank</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-Time Processing Timeline -->
+        <div class="bg-navy-800/90 border border-navy-700 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+              <i data-lucide="clock" class="w-5 h-5 text-teal-400"></i>
+              <span>Application Progress Lifecycle</span>
+            </h2>
+            <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/30 uppercase tracking-wider">
+              Live Verified
+            </span>
+          </div>
+
+          <div class="space-y-6 relative pl-2 sm:pl-4">
+            <div class="absolute left-[19px] sm:left-[27px] top-4 bottom-4 w-0.5 bg-navy-700"></div>
+
+            ${app.timeline.map((step, idx) => `
+              <div class="flex items-start gap-4 relative z-10">
+                <div
+                  class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 transition-all ${
+                    step.completed
+                      ? 'bg-teal-500 border-teal-400 text-navy-950 shadow-md shadow-teal-500/30'
+                      : 'bg-navy-900 border-navy-600 text-slate-500'
+                  }"
+                >
+                  ${step.completed ? `<i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>` : `<span class="text-xs font-mono font-bold">${idx + 1}</span>`}
+                </div>
+
+                <div class="flex-1 pt-0.5">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <h3 class="text-sm sm:text-base font-bold ${step.completed ? 'text-white' : 'text-slate-400'}">
+                      ${step.step}
+                    </h3>
+                    <span class="text-xs text-slate-400 font-mono">
+                      ${step.date}
+                    </span>
+                  </div>
+                  <p class="text-xs text-slate-400 mt-1">
+                    ${idx === 0 ? "Application submitted and received by the channel lending partner." : ""}
+                    ${idx === 1 ? "Branch officer verifies applicant caste certificate, project feasibility, and income." : ""}
+                    ${idx === 2 ? "Formal sanction letter issued under National Concessional Scheme guidelines." : ""}
+                    ${idx === 3 ? "Direct benefit transfer of 90% loan amount to beneficiary savings account." : ""}
+                  </p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Assigned Lending Partner Info Card -->
+        <div class="bg-navy-800/90 border border-navy-700 rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-3.5">
+            <div class="p-3 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              <i data-lucide="building-2" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <span class="text-[11px] text-teal-400 font-semibold uppercase tracking-wider block">
+                Nodal Processing Partner
+              </span>
+              <h3 class="text-base font-bold text-white">
+                State Bank of India (MSME & Concessional Lending Hub)
+              </h3>
+              <p class="text-xs text-slate-400">
+                Verified zero-collateral desk • Ambedkar Bhawan / Lead Bank Office
+              </p>
+            </div>
+          </div>
+
+          <a href="/partner-network.html" class="px-4 py-2 rounded-xl border border-navy-700 hover:bg-navy-700 text-xs text-teal-400 font-semibold flex items-center gap-1.5 whitespace-nowrap transition-all">
+            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+            <span>Locate Branch</span>
+          </a>
+        </div>
+      `;
+
+      lucide.createIcons();
+    }
+  </script>
+</body>
+</html>

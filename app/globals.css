@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;       /* clean slate-50 / #f8fafc */
+    --foreground: 222 47% 11%;       /* slate-900 / #0f172a */
+    
+    --card: 0 0% 100%;               /* pure white card */
+    --card-foreground: 222 47% 11%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    
+    --primary: 262 83% 58%;          /* aurora purple */
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 210 40% 96%;        /* slate-100 */
+    --secondary-foreground: 222 47% 11%;
+    
+    --muted: 210 40% 96%;            /* slate-100 */
+    --muted-foreground: 215 16% 47%; /* slate-500 */
+    
+    --accent: 174 72% 40%;           /* teal */
+    --accent-foreground: 222 47% 11%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 214 32% 91%;           /* slate-200 / #e2e8f0 */
+    --input: 214 32% 91%;
+    --ring: 262 83% 58%;
+    
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222 47% 7%;        /* navy-950 / #070b14 */
+    --foreground: 210 40% 98%;       /* white/slate-100 */
+    
+    --card: 222 47% 12%;             /* dark navy card / #0d1424 */
+    --card-foreground: 210 40% 98%;
+    
+    --popover: 222 47% 12%;
+    --popover-foreground: 210 40% 98%;
+    
+    --primary: 262 83% 58%;          /* aurora-500 (purple) */
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 217 33% 17%;        /* navy-800 */
+    --secondary-foreground: 210 40% 98%;
+    
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    
+    --accent: 174 72% 56%;           /* teal-500 */
+    --accent-foreground: 210 40% 98%;
+    
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 262 83% 58%;             /* aurora-500 */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+  
+  /* Remove horizontal scroll globally */
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-200;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Ensure inputs and textareas do not overflow containers */
+  input, select, textarea {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+
+
+/* ========================================================================= */
+/* SHARED DESIGN SYSTEM UTILITIES ACROSS HOME & ASSESSMENT PAGES             */
+/* ========================================================================= */
+
+.glow-mesh {
+  background-image: radial-gradient(at 0% 0%, hsla(246, 80%, 60%, 0.05) 0px, transparent 50%),
+                    radial-gradient(at 100% 0%, hsla(174, 90%, 50%, 0.05) 0px, transparent 50%),
+                    radial-gradient(at 50% 100%, hsla(280, 80%, 60%, 0.04) 0px, transparent 50%);
+}
+
+.dark .glow-mesh {
+  background-image: radial-gradient(at 0% 0%, hsla(246, 80%, 60%, 0.12) 0px, transparent 50%),
+                    radial-gradient(at 100% 0%, hsla(174, 90%, 50%, 0.10) 0px, transparent 50%),
+                    radial-gradient(at 50% 100%, hsla(280, 80%, 60%, 0.08) 0px, transparent 50%);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.dark .glass-panel {
+  background: rgba(13, 20, 36, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Shared Card Utilities */
+.app-card {
+  @apply rounded-2xl border border-border/80 bg-card/90 backdrop-blur-md shadow-md dark:shadow-xl transition-all duration-300 text-card-foreground;
+}
+
+.app-card-hover {
+  @apply hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-0.5;
+}
+
+/* Shared Button Utilities */
+.app-btn-gradient {
+  @apply font-bold text-sm bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/25 transition-all;
+}
+
+.app-btn-teal {
+  @apply font-semibold text-xs bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-500/20 transition-all;
+}
+
+/* Custom Leaflet Map Popup Styling */
+.leaflet-popup-content-wrapper {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
+  padding: 0 !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.leaflet-popup-tip {
+  background: #ffffff !important;
+}

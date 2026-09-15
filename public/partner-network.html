@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Approved Channel Partner Network — SchemeBridge</title>
+  <meta name="description" content="Locate approved Public Sector Banks (PSBs), Regional Rural Banks (RRBs), and State Channelising Agencies (SCAs).">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            background: '#070b14',
+            card: '#0d1424',
+            border: 'rgba(255, 255, 255, 0.08)',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Leaflet.js CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <style>
+    body {
+      background-color: #070b14;
+      color: #f8fafc;
+      font-family: 'Inter', sans-serif;
+    }
+    .glow-mesh {
+      background-image: radial-gradient(circle at 0% 0%, hsla(246, 80%, 60%, 0.12) 0px, transparent 50%),
+                        radial-gradient(circle at 100% 0%, hsla(174, 90%, 50%, 0.10) 0px, transparent 50%),
+                        radial-gradient(circle at 50% 100%, hsla(280, 80%, 60%, 0.08) 0px, transparent 50%);
+    }
+    .glass-card {
+      background: rgba(13, 20, 36, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    #partnerMap {
+      height: 480px;
+      width: 100%;
+      border-radius: 1rem;
+      z-index: 10;
+    }
+    /* Custom Leaflet Dark Popup */
+    .leaflet-popup-content-wrapper {
+      background: #0d1424 !important;
+      color: #f8fafc !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      border-radius: 0.75rem !important;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
+    }
+    .leaflet-popup-tip {
+      background: #0d1424 !important;
+    }
+    .custom-pin-active {
+      background: #10b981;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 14px #10b981;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+    }
+    .custom-pin-inactive {
+      background: #ef4444;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 14px #ef4444;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+    }
+  </style>
+  <!-- Route Auth Protection -->
+  <script>
+    (function() {
+      const user = sessionStorage.getItem('user');
+      if (!user) {
+        window.location.href = '/login';
+      }
+    })();
+  </script>
+</head>
+<body class="bg-background text-slate-100 antialiased selection:bg-indigo-500 selection:text-white min-h-screen flex flex-col glow-mesh">
+
+  <!-- ========================================================================= -->
+  <!-- 1. NAVBAR -->
+  <!-- ========================================================================= -->
+  <nav class="bg-navy-950/95 border-b border-navy-800 sticky top-0 z-50 backdrop-blur-md">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2 group">
+          <span class="text-2xl font-bold bg-gradient-to-r from-aurora-400 to-teal-400 bg-clip-text text-transparent group-hover:brightness-110 transition-all">
+            SchemeBridge
+          </span>
+          <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-aurora-500/10 text-aurora-300 border border-aurora-500/20 hidden sm:inline-block">
+            SIH AI
+          </span>
+        </a>
+        
+        <!-- Navigation Links (Desktop) -->
+        <div class="hidden md:flex items-center gap-6">
+          <a href="/" class="text-slate-300 hover:text-aurora-400 transition-colors">Home</a>
+          <a href="/assessment" class="text-slate-300 hover:text-aurora-400 transition-colors">Assessment</a>
+          <a href="/matched-scheme" class="text-slate-300 hover:text-aurora-400 transition-colors">Scheme</a>
+          <a href="/emi-calculator" class="text-slate-300 hover:text-aurora-400 transition-colors">EMI</a>
+          <a href="/partner-network" class="text-aurora-400 font-semibold transition-colors">Partners</a>
+          <a href="/my-applications" class="text-slate-300 hover:text-aurora-400 transition-colors">
+            My Applications
+          </a>
+        </div>
+        
+        <!-- CTA Button & Mobile Toggle -->
+        <div class="flex items-center gap-3">
+          <button onclick="window.location.href='/assessment'" 
+                  class="bg-gradient-to-r from-aurora-600 to-teal-600 hover:from-aurora-700 hover:to-teal-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-aurora-500/20 text-xs sm:text-sm cursor-pointer">
+            Start Assessment
+          </button>
+
+          <!-- Mobile Hamburger Button -->
+          <button onclick="toggleMobileNav()" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-aurora-400 hover:bg-navy-800 transition-colors">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobileNavDrawer" class="hidden md:hidden border-t border-navy-800 bg-navy-950/98 p-4 space-y-2">
+      <a href="/" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Home</a>
+      <a href="/assessment" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Assessment</a>
+      <a href="/matched-scheme" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">Scheme</a>
+      <a href="/emi-calculator" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">EMI</a>
+      <a href="/partner-network" class="block py-2 px-3 rounded-lg text-aurora-400 font-semibold bg-navy-900 text-sm">Partners</a>
+      <a href="/my-applications" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-aurora-400 hover:bg-navy-900 text-sm">My Applications</a>
+    </div>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- 2. MAIN APPLICATION CONTENT -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 py-10 md:py-16">
+    <div class="max-w-6xl mx-auto px-4 space-y-8">
+      
+      <!-- Stepper / Breadcrumbs -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between text-xs text-slate-400">
+          <span class="font-bold text-teal-400 uppercase tracking-wider">Step 4 of 4: Channel Partner Network</span>
+          <span class="font-mono text-emerald-400 font-semibold">Ready for Application</span>
+        </div>
+        
+        <!-- Step Track -->
+        <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden flex">
+          <div class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-teal-400 w-full rounded-full"></div>
+        </div>
+      </div>
+
+      <!-- Quick Jump Navigation Bar -->
+      <div class="glass-card rounded-xl p-2.5 border border-white/10 flex flex-wrap items-center justify-between gap-2 shadow-lg relative z-20">
+        <div class="flex items-center gap-1.5 text-xs text-slate-400 font-semibold px-2">
+          <i data-lucide="compass" class="w-4 h-4 text-teal-400"></i>
+          <span>Quick Jump:</span>
+        </div>
+        
+        <div class="flex flex-wrap items-center gap-1.5 text-xs font-medium">
+          <!-- 1. Assessment button -> navigates to /assessment.html -->
+          <a
+            href="/assessment.html"
+            class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-teal-500/20 hover:text-teal-300 text-slate-300 border border-white/10 flex items-center gap-1.5 transition-all cursor-pointer group"
+          >
+            <span>Assessment</span>
+            <i data-lucide="arrow-right" class="w-3 h-3 text-slate-500 group-hover:text-teal-400 group-hover:translate-x-0.5 transition-transform"></i>
+          </a>
+
+          <!-- 2. Matched Scheme button -> navigates to /matched-scheme.html -->
+          <a
+            href="/matched-scheme.html"
+            class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-indigo-500/20 hover:text-indigo-300 text-slate-300 border border-white/10 flex items-center gap-1.5 transition-all cursor-pointer group"
+          >
+            <span>Matched Scheme</span>
+            <i data-lucide="arrow-right" class="w-3 h-3 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-transform"></i>
+          </a>
+
+          <!-- 3. EMI Calculator button -> navigates to /emi-calculator.html -->
+          <a
+            href="/emi-calculator.html"
+            class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-purple-500/20 hover:text-purple-300 text-slate-300 border border-white/10 flex items-center gap-1.5 transition-all cursor-pointer group"
+          >
+            <span>EMI Calculator</span>
+            <i data-lucide="arrow-right" class="w-3 h-3 text-slate-500 group-hover:text-purple-400 group-hover:translate-x-0.5 transition-transform"></i>
+          </a>
+
+          <!-- 4. Partner Network button -> active -->
+          <a
+            href="#"
+            onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;"
+            class="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+          >
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Partner Network</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Heading Area -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="space-y-2">
+          <div class="inline-flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-500/10 px-3.5 py-1 text-xs text-teal-300">
+            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-teal-400"></i>
+            <span>Ministry Accredited Lending Partners</span>
+          </div>
+          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+            Approved Channel Partner Network
+          </h1>
+          <p class="text-sm text-slate-400 leading-relaxed max-w-2xl">
+            Locate verified Public Sector Banks (PSBs), Regional Rural Banks (RRBs), and State Channelising Agencies (SCAs) authorized for zero-collateral concessional lending.
+          </p>
+        </div>
+
+        <div id="activeFilterBadgeContainer">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+      <!-- Helpful Guide Info Box -->
+      <div class="mb-6 p-4 bg-aurora-900/20 border border-aurora-700/50 rounded-lg">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl">ℹ️</span>
+          <div>
+            <h4 class="text-white font-semibold mb-1">How to Apply</h4>
+            <ol class="text-slate-400 text-sm space-y-1">
+              <li>1. Review your matched scheme (previous page)</li>
+              <li>2. Calculate EMI to understand repayments</li>
+              <li>3. Find your nearest channel partner on this map</li>
+              <li>4. Click "Apply to This Scheme" button below</li>
+              <li>5. Track your application in "My Applications" page</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- SECTION 1: INTERACTIVE FILTERS & COUNTER -->
+      <!-- ===================================================================== -->
+      <div class="glass-card rounded-2xl p-6 shadow-xl space-y-4 border border-white/10 relative overflow-hidden">
+        
+        <div class="h-1 w-full bg-gradient-to-r from-teal-400 via-indigo-500 to-purple-500 absolute top-0 left-0"></div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+          
+          <!-- 1. City / State Region Dropdown -->
+          <div class="space-y-1.5">
+            <label for="citySelect" class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+              <i data-lucide="building-2" class="w-3.5 h-3.5 text-teal-400"></i>
+              <span>City / Metropolitan Hub</span>
+            </label>
+            <select
+              id="citySelect"
+              onchange="handleFilterChange()"
+              class="w-full h-11 px-3.5 rounded-xl border border-white/15 bg-slate-900/80 text-white text-xs font-medium focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer"
+            >
+              <option value="All">All Cities (Nationwide)</option>
+              <option value="Delhi">Delhi NCR (Ambedkar Bhawan &amp; Rohini)</option>
+              <option value="Mumbai">Mumbai (Fort &amp; BKC)</option>
+              <option value="Kolkata" selected>Kolkata (Salt Lake &amp; BBD Bagh)</option>
+              <option value="Chennai">Chennai (Teynampet &amp; Anna Salai)</option>
+              <option value="Bangalore">Bangalore (Race Course Rd &amp; Koramangala)</option>
+            </select>
+          </div>
+
+          <!-- 2. Scheme Type Filter -->
+          <div class="space-y-1.5">
+            <label for="schemeTypeSelect" class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+              <i data-lucide="award" class="w-3.5 h-3.5 text-indigo-400"></i>
+              <span>Scheme Type</span>
+            </label>
+            <select
+              id="schemeTypeSelect"
+              onchange="handleFilterChange()"
+              class="w-full h-11 px-3.5 rounded-xl border border-white/15 bg-slate-900/80 text-white text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+            >
+              <option value="All">All Supported Schemes</option>
+              <option value="Micro Finance">Micro Finance Scheme</option>
+              <option value="Term Loan">Term Loan Scheme</option>
+              <option value="Education Loan">Education Loan Scheme</option>
+            </select>
+          </div>
+
+          <!-- 3. NPA Risk Assessment Toggle -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+              <span>NPA Risk Assessment</span>
+            </label>
+            
+            <div class="h-11 px-3.5 rounded-xl border border-white/15 bg-slate-900/80 flex items-center justify-between">
+              <span class="text-xs text-slate-300">Active branches only</span>
+              
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="npaActiveToggle"
+                  checked
+                  onchange="handleFilterChange()"
+                  class="sr-only peer"
+                />
+                <div class="w-8 h-4.5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-emerald-500"></div>
+              </label>
+            </div>
+          </div>
+
+          <!-- 4. Counter Display & Reset -->
+          <div class="flex items-center justify-between bg-slate-900/90 border border-white/10 rounded-xl h-11 px-4">
+            <div class="flex items-center gap-2">
+              <span class="h-2 w-2 rounded-full bg-teal-400 animate-ping"></span>
+              <span id="partnerCountDisplay" class="text-xs font-bold text-teal-300 font-mono">
+                Showing 3 partners
+              </span>
+            </div>
+            <button
+              type="button"
+              onclick="resetFilters()"
+              class="text-[11px] text-slate-400 hover:text-white flex items-center gap-1 transition-colors"
+            >
+              <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
+              <span>Reset</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- SECTION 2: INTERACTIVE LEAFLET MAP -->
+      <!-- ===================================================================== -->
+      <div class="glass-card rounded-2xl p-6 shadow-2xl space-y-4 border border-white/10">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+          <div class="space-y-1">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <i data-lucide="map" class="w-4 h-4 text-teal-400"></i>
+              <span>Geospatial Branch Locator</span>
+            </h3>
+            <p class="text-xs text-slate-400">
+              Interactive map pins centered on selected metropolitan region. Click any pin to inspect partner credentials.
+            </p>
+          </div>
+
+          <!-- Legend -->
+          <div class="flex items-center gap-3 text-[11px] font-mono shrink-0">
+            <span class="flex items-center gap-1.5 text-emerald-400">
+              <span class="custom-pin-active !w-3 !h-3"></span>
+              Active (Low NPA)
+            </span>
+            <span class="flex items-center gap-1.5 text-red-400">
+              <span class="custom-pin-inactive !w-3 !h-3"></span>
+              High Risk / Inactive
+            </span>
+          </div>
+        </div>
+
+        <!-- Leaflet Map Canvas Container -->
+        <div id="partnerMap" class="shadow-inner border border-white/10"></div>
+
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- SECTION 3: MATCHING PARTNER DIRECTORY CARDS -->
+      <!-- ===================================================================== -->
+      <div class="space-y-4">
+        
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i data-lucide="list-filter" class="w-5 h-5 text-indigo-400"></i>
+            <span>Matching Partner Directory</span>
+          </h3>
+          <span class="text-xs text-slate-400 font-mono" id="directoryCountNotice">
+            3 Institutions Found
+          </span>
+        </div>
+
+        <!-- Directory Cards Container (Injected via JS) -->
+        <div id="partnerCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Injected via JavaScript -->
+        </div>
+
+      </div>
+
+      <!-- Apply to This Scheme Action Card -->
+      <div class="mt-8 p-6 bg-navy-800 border border-navy-700 rounded-xl shadow-xl space-y-4">
+        <h3 class="text-2xl font-bold text-white mb-2">Ready to Apply?</h3>
+        <p class="text-slate-300 text-sm mb-4">
+          You've reviewed your matched scheme, calculated EMI, and found your nearest partner. 
+          Now you can submit your application.
+        </p>
+        <div>
+          <button onclick="handleApplyNow()" class="bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow-lg shadow-indigo-500/30 transition-all cursor-pointer">
+            ✅ Apply to This Scheme
+          </button>
+        </div>
+        <p class="text-slate-400 text-xs mt-3">
+          Your application will be saved and you can track it anytime in "My Applications"
+        </p>
+      </div>
+
+      <!-- Final Application Complete Card -->
+      <div class="glass-card rounded-2xl p-6 sm:p-8 border border-emerald-500/40 bg-emerald-500/5 space-y-4 text-center">
+        <div class="inline-flex items-center gap-2 p-3 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+          <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-bold text-white">
+          Application Pathway Configured
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto leading-relaxed">
+          You have successfully completed scheme discovery, eligibility assessment, EMI planning, and identified verified channel partner branches. Bring your project report and ID to the selected branch for expedited disbursement.
+        </p>
+        <div class="flex items-center justify-center gap-3 pt-2">
+          <a href="/" class="px-6 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-400 hover:to-indigo-500 text-white font-bold text-xs shadow-lg transition-all">
+            Return to SchemeBridge Home
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- 3. FOOTER -->
+  <!-- ========================================================================= -->
+  <footer class="border-t border-white/10 bg-[#070b14]/80 py-8 text-xs text-slate-400">
+    <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-white">SchemeBridge</span>
+        <span>• Smart India Hackathon AI Platform</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/" class="hover:text-white transition-colors">Home</a>
+        <a href="/assessment.html" class="hover:text-white transition-colors">Assessment</a>
+        <a href="/matched-scheme.html" class="hover:text-white transition-colors">Matched Scheme</a>
+        <a href="/emi-calculator.html" class="hover:text-white transition-colors">EMI Calculator</a>
+        <a href="/partner-network.html" class="hover:text-white text-teal-400 font-semibold">Partner Network</a>
+        <a href="/my-applications.html" class="hover:text-white text-teal-400 font-semibold">My Applications</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- PARTNER NETWORK DATA & LEAFLET JS SCRIPT -->
+  <!-- ========================================================================= -->
+  <script>
+    // Embedded partners data
+    const PARTNERS_DATA = [
+      {
+        "id": "cp-del-01",
+        "name": "Delhi SC/ST/OBC/Minorities Finance & Development Corp (DSFDC)",
+        "type": "SCA",
+        "schemes": ["Micro Finance", "Term Loan", "Education Loan"],
+        "lat": 28.6315,
+        "lng": 77.2167,
+        "status": "Active",
+        "npaFlag": false,
+        "address": "Ambedkar Bhawan, Sector 16, Rohini & Connaught Place HQ",
+        "city": "Delhi"
+      },
+      {
+        "id": "cp-del-02",
+        "name": "Punjab National Bank - MSME Specialized Hub",
+        "type": "PSB",
+        "schemes": ["Term Loan", "Micro Finance"],
+        "lat": 28.5494,
+        "lng": 77.2534,
+        "status": "Active",
+        "npaFlag": false,
+        "address": "7, Bhikaji Cama Place, Ring Road",
+        "city": "Delhi"
+      },
+      {
+        "id": "cp-del-03",
+        "name": "Delhi Regional Rural Gramin Bank",
+        "type": "RRB",
+        "schemes": ["Micro Finance"],
+        "lat": 28.6219,
+        "lng": 77.0878,
+        "status": "Active",
+        "npaFlag": false,
+        "address": "District Centre, Janakpuri",
+        "city": "Delhi"
+      },
+      {
+        "id": "cp-mum-01",
+        "name": "Mahatama Phule Backward Class Development Corporation (MPBCDC)",
+        "type": "SCA",
+        "schemes": ["Micro Finance", "Term Loan", "Education Loan"],
+        "lat": 18.9298,
+        "lng": 72.8333,
+        "status": "Active",
+        "npaFlag": false,
+        "address": "M.V. Road, Near Crawford Market, Fort",
+        "city": "Mumbai"
+      },
+      {
+        "id": "cp-mum-02",
+        "name": "State Bank of India - SME & Welfare Branch",
+        "type": "PSB",
+        "schemes": ["Term Loan", "Education Loan", "Micro Finance"],
+        "lat": 19.0657,
+        "lng": 72.8687,
+        "status": "Active",
+        "npaFlag": false,
+        "address": "SBI Building, G Block, Bandra Kurla Complex (BKC)",
+        "city": "Mumbai"
+      },
+      {
+        "id": "cp-mum-03",
+        "name": "Western Urban Credit & Microfin NBFC",
+        "type": "NBFC",
+        "schemes": ["Micro Finance"],
+        "lat": 19.1136,
+        "lng": 72.8697,
+        "status": "Inactive",
+        "npaFlag": true,
+        "address": "MIDC Central Road, Andheri East",
+        "city": "Mumbai"
+      },
+      {
+        "id": "cp-kol-01",
+        "name": "West Bengal SC, ST & OBC Development & Finance Corporation",
+        "type": "SCA",
+        "schemes": ["Micro Finance", "Term Loan", "Education Loan"],
+        "lat": 22.5768,
+        "lng": 88.4344,
+        "status": "Active",
+        "npaFlag": false,
+        "address": "CF-217/A/1, Sector 1, Salt Lake City",
+        "city": "Kolkata"
+      },
+      {
+        "id": "cp-kol-02",
+        "name": "UCO Bank - Social Banking & Lead Bank Office",
+        "type": "PSB",
+        "schemes": ["Term Loan", "Micro Finance", "Education Loan"],
+        "lat": 22.5726,
+        "lng": 88.3499,
+        "status": "Active",
+        "npaFlag": false,
+        "address": "10, B.T.M. Sarani, Brabourne Road, BBD Bagh",
+        "city": "Kolkata"
+      },
+      {
+        "id": "cp-kol-03",
+        "name": "Bangiya Gramin Vikash Bank (BGVB)",
+        "type": "RRB",
+        "schemes": ["Micro Finance", "Term Loan"],
+        "lat": 22.5518,
+        "lng": 88.3524,
+        "status": "Active",
+        "npaFlag": false,
+        "address": "Park Street Crossing, Kolkata Central",
+        "city": "Kolkata"
+      },
+      {
+        "id": "cp-chn-01",
+        "name": "Tamil Nadu Adi Dravidar Housing and Development Corp (TAHDCO)",
+        "type": "SCA",
+        "schemes": ["Micro Finance", "Term Loan", "Education Loan"],
+        "lat": 13.0604,
+        "lng": 80.2496,
+        "status": "Active",
+        "npaFlag": false,
+        "address": "31, Cenotaph Road, Teynampet & Anna Salai",
+        "city": "Chennai"
+      },
+      {
+        "id": "cp-chn-02",
+        "name": "Indian Bank - Lead Welfare Division",
+        "type": "PSB",
+        "schemes": ["Term Loan", "Education Loan", "Micro Finance"],
+        "lat": 13.0902,
+        "lng": 80.2882,
+        "status": "Active",
+        "npaFlag": false,
+        "address": "Corporate Office, 254-260, Avvai Shanmugam Salai, George Town",
+        "city": "Chennai"
+      },
+      {
+        "id": "cp-chn-03",
+        "name": "Tamil Nadu Grama Bank",
+        "type": "RRB",
+        "schemes": ["Micro Finance", "Term Loan"],
+        "lat": 13.0418,
+        "lng": 80.2341,
+        "status": "Active",
+        "npaFlag": false,
+        "address": "Venkatnarayana Road, T. Nagar",
+        "city": "Chennai"
+      },
+      {
+        "id": "cp-blr-01",
+        "name": "Karnataka Minorities & Backward Classes Development Corp",
+        "type": "SCA",
+        "schemes": ["Micro Finance", "Term Loan", "Education Loan"],
+        "lat": 12.9756,
+        "lng": 77.6066,
+        "status": "Active",
+        "npaFlag": false,
+        "address": "Khanija Bhavan, 4th Floor, Race Course Road & MG Road",
+        "city": "Bangalore"
+      },
+      {
+        "id": "cp-blr-02",
+        "name": "Canara Bank - Financial Inclusion & Priority Credit Hub",
+        "type": "PSB",
+        "schemes": ["Term Loan", "Education Loan", "Micro Finance"],
+        "lat": 12.9250,
+        "lng": 77.5938,
+        "status": "Active",
+        "npaFlag": false,
+        "address": "112, J.C. Road & 4th Block, Jayanagar",
+        "city": "Bangalore"
+      },
+      {
+        "id": "cp-blr-03",
+        "name": "Karnataka Gramin Bank (KaGB)",
+        "type": "RRB",
+        "schemes": ["Micro Finance", "Term Loan"],
+        "lat": 12.9352,
+        "lng": 77.6245,
+        "status": "Active",
+        "npaFlag": false,
+        "address": "80 Feet Road, 4th Block, Koramangala",
+        "city": "Bangalore"
+      },
+      {
+        "id": "cp-blr-04",
+        "name": "Apex Micro-Enterprise Lending NBFC",
+        "type": "NBFC",
+        "schemes": ["Micro Finance"],
+        "lat": 12.9698,
+        "lng": 77.7499,
+        "status": "Inactive",
+        "npaFlag": true,
+        "address": "ITPL Main Road, Whitefield",
+        "city": "Bangalore"
+      }
+    ];
+
+    // City Coordinates Map
+    const CITY_COORDINATES = {
+      "Delhi": [28.6139, 77.2090],
+      "Mumbai": [19.0760, 72.8777],
+      "Kolkata": [22.5726, 88.3639],
+      "Chennai": [13.0827, 80.2707],
+      "Bangalore": [12.9716, 77.5946]
+    };
+
+    // AppState Helper
+    const AppState = {
+      getScheme: function() {
+        try {
+          return JSON.parse(sessionStorage.getItem('schemebridge_matched_scheme') || '{}');
+        } catch (e) {
+          return {};
+        }
+      }
+    };
+
+    let map = null;
+    let markersLayer = null;
+
+    function initMap() {
+      // Create Leaflet Map centered on Kolkata by default
+      map = L.map('partnerMap', {
+        zoomControl: true,
+        scrollWheelZoom: false
+      }).setView([22.5726, 88.3639], 12);
+
+      // CartoDB Dark Matter Tiles for dark theme
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19
+      }).addTo(map);
+
+      markersLayer = L.layerGroup().addTo(map);
+    }
+
+    function createCustomPin(isActive) {
+      return L.divIcon({
+        className: 'custom-pin-wrapper',
+        html: `<span class="${isActive ? 'custom-pin-active' : 'custom-pin-inactive'}"></span>`,
+        iconSize: [18, 18],
+        iconAnchor: [9, 9],
+        popupAnchor: [0, -10]
+      });
+    }
+
+    function renderMapAndCards(filteredPartners, selectedCity) {
+      // 1. Clear existing markers
+      if (markersLayer) {
+        markersLayer.clearLayers();
+      }
+
+      // 2. Adjust Map Center
+      if (selectedCity && selectedCity !== 'All' && CITY_COORDINATES[selectedCity]) {
+        map.setView(CITY_COORDINATES[selectedCity], 12, { animate: true });
+      } else if (filteredPartners.length > 0) {
+        const bounds = L.latLngBounds(filteredPartners.map(p => [p.lat, p.lng]));
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
+      }
+
+      // 3. Add Markers
+      filteredPartners.forEach(partner => {
+        const isActive = partner.status === 'Active' && !partner.npaFlag;
+        const marker = L.marker([partner.lat, partner.lng], {
+          icon: createCustomPin(isActive)
+        });
+
+        const popupContent = `
+          <div class="space-y-2 p-1 font-sans text-xs">
+            <div class="flex items-center gap-1.5">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isActive ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-red-500/20 text-red-400 border border-red-500/40'}">
+                ${partner.status} • ${partner.type}
+              </span>
+            </div>
+            <h4 class="font-bold text-white text-sm">${partner.name}</h4>
+            <p class="text-slate-300 text-[11px]">${partner.address}</p>
+            <div class="pt-1 flex flex-wrap gap-1">
+              ${partner.schemes.map(s => `<span class="px-1.5 py-0.5 rounded bg-white/10 text-[10px] text-slate-200">${s}</span>`).join('')}
+            </div>
+          </div>
+        `;
+
+        marker.bindPopup(popupContent);
+        markersLayer.addLayer(marker);
+      });
+
+      // 4. Update Partner Counter
+      const count = filteredPartners.length;
+      document.getElementById('partnerCountDisplay').innerText = `Showing ${count} partner${count === 1 ? '' : 's'}`;
+      document.getElementById('directoryCountNotice').innerText = `${count} Institution${count === 1 ? '' : 's'} Found`;
+
+      // 5. Render Directory Cards
+      const container = document.getElementById('partnerCardsContainer');
+      if (count === 0) {
+        container.innerHTML = `
+          <div class="col-span-full glass-card rounded-2xl p-12 text-center space-y-3">
+            <i data-lucide="search-x" class="w-8 h-8 text-slate-500 mx-auto"></i>
+            <h4 class="text-base font-bold text-white">No Channel Partners Found</h4>
+            <p class="text-xs text-slate-400">Try adjusting your city selection or disabling the NPA filter.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      container.innerHTML = filteredPartners.map(p => {
+        const isActive = p.status === 'Active' && !p.npaFlag;
+        
+        let typeBadgeColor = 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30';
+        if (p.type === 'SCA') typeBadgeColor = 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+        if (p.type === 'PSB') typeBadgeColor = 'bg-teal-500/20 text-teal-300 border-teal-500/30';
+        if (p.type === 'RRB') typeBadgeColor = 'bg-amber-500/20 text-amber-300 border-amber-500/30';
+
+        return `
+          <div class="glass-card rounded-2xl p-5 border border-white/10 hover:border-teal-500/40 transition-all flex flex-col justify-between gap-4 group">
+            
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${typeBadgeColor}">
+                  ${p.type} (${getTypeFullName(p.type)})
+                </span>
+                
+                <span class="inline-flex items-center gap-1 text-[11px] font-semibold ${isActive ? 'text-emerald-400' : 'text-red-400'}">
+                  <span class="h-2 w-2 rounded-full ${isActive ? 'bg-emerald-400' : 'bg-red-400'}"></span>
+                  ${isActive ? 'Active (Low NPA)' : 'High Risk'}
+                </span>
+              </div>
+
+              <h4 class="text-sm font-bold text-white group-hover:text-teal-300 transition-colors leading-snug">
+                ${p.name}
+              </h4>
+
+              <p class="text-xs text-slate-400 flex items-start gap-1.5">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-500 shrink-0 mt-0.5"></i>
+                <span>${p.address}, <strong class="text-slate-300">${p.city}</strong></span>
+              </p>
+            </div>
+
+            <div class="space-y-3 pt-2 border-t border-white/10">
+              <div class="flex flex-wrap gap-1">
+                ${p.schemes.map(s => `
+                  <span class="px-2 py-0.5 rounded-lg bg-slate-900 border border-white/10 text-[10px] text-slate-300">
+                    ${s}
+                  </span>
+                `).join('')}
+              </div>
+
+              <button
+                type="button"
+                onclick="flyToPartner(${p.lat}, ${p.lng}, '${p.id}')"
+                class="w-full py-2 rounded-xl bg-white/5 hover:bg-teal-500/20 hover:text-teal-300 text-xs font-semibold text-slate-300 border border-white/10 flex items-center justify-center gap-1.5 transition-all"
+              >
+                <i data-lucide="navigation" class="w-3.5 h-3.5"></i>
+                <span>Locate on Map</span>
+              </button>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function getTypeFullName(type) {
+      if (type === 'PSB') return 'Public Sector Bank';
+      if (type === 'RRB') return 'Regional Rural Bank';
+      if (type === 'SCA') return 'State Channelising Agency';
+      if (type === 'NBFC') return 'Non-Banking Financial Co';
+      return type;
+    }
+
+    function flyToPartner(lat, lng, id) {
+      map.flyTo([lat, lng], 15, { duration: 1.2 });
+      // Smooth scroll up to map on mobile
+      document.getElementById('partnerMap').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function handleFilterChange() {
+      const city = document.getElementById('citySelect').value;
+      const scheme = document.getElementById('schemeTypeSelect').value;
+      const activeOnly = document.getElementById('npaActiveToggle').checked;
+
+      let filtered = PARTNERS_DATA;
+
+      if (city !== 'All') {
+        filtered = filtered.filter(p => p.city.toLowerCase() === city.toLowerCase());
+      }
+
+      if (scheme !== 'All') {
+        filtered = filtered.filter(p => p.schemes.includes(scheme));
+      }
+
+      if (activeOnly) {
+        filtered = filtered.filter(p => p.status === 'Active' && !p.npaFlag);
+      }
+
+      renderMapAndCards(filtered, city);
+    }
+
+    function resetFilters() {
+      document.getElementById('citySelect').value = 'All';
+      document.getElementById('schemeTypeSelect').value = 'All';
+      document.getElementById('npaActiveToggle').checked = true;
+      handleFilterChange();
+    }
+
+    function handleApplyNow() {
+      // Get current scheme and assessment data
+      const scheme = AppState.getScheme();
+      const assessment = AppState.getAssessment();
+      
+      if (!scheme || !assessment) {
+        alert("Please complete assessment first");
+        window.location.href = '/assessment.html';
+        return;
+      }
+      
+      // Generate random application ID
+      const appId = `SIH2026-${Math.floor(Math.random() * 1000)}`;
+      const schemeName = scheme.name || scheme.schemeName || "Welfare Scheme";
+      
+      // Create application object
+      const application = {
+        applicationId: appId,
+        scheme: schemeName,
+        amount: Math.round(assessment.loanAmount * 0.9), // 90% govt coverage
+        interestRate: scheme.interestRateText || scheme.interestRate,
+        purpose: assessment.purpose,
+        status: "Submitted",
+        submittedDate: new Date().toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        }),
+        timeline: [
+          { step: "Submitted", date: new Date().toLocaleDateString('en-IN'), completed: true },
+          { step: "Documents Verified", date: "Pending", completed: false },
+          { step: "Loan Approved", date: "Pending", completed: false },
+          { step: "Disbursed", date: "Pending", completed: false }
+        ]
+      };
+      
+      // Save to sessionStorage
+      const applications = JSON.parse(sessionStorage.getItem('applications') || '[]');
+      applications.push(application);
+      sessionStorage.setItem('applications', JSON.stringify(applications));
+      
+      // Show success message
+      const message = `✅ Application Submitted Successfully!\n\n` +
+                      `Application ID: ${appId}\n` +
+                      `Scheme: ${schemeName}\n` +
+                      `Amount: ₹${application.amount.toLocaleString('en-IN')}\n` +
+                      `Date: ${application.submittedDate}\n\n` +
+                      `You can track your application anytime in "My Applications" page.`;
+      
+      alert(message);
+      
+      // Ask user what to do next
+      const choice = confirm("Click OK to view all your applications, or Cancel to stay here.");
+      if (choice) {
+        window.location.href = '/my-applications.html';
+      }
+    }
+
+    // Initialize Page
+    window.addEventListener('DOMContentLoaded', function() {
+      initMap();
+
+      // Check if user came with a matched scheme
+      const matched = AppState.getScheme();
+      if (matched && matched.schemeName) {
+        let schemeCategory = 'All';
+        if (matched.schemeName.includes('Micro')) schemeCategory = 'Micro Finance';
+        if (matched.schemeName.includes('Term')) schemeCategory = 'Term Loan';
+        if (matched.schemeName.includes('Education')) schemeCategory = 'Education Loan';
+
+        if (schemeCategory !== 'All') {
+          document.getElementById('schemeTypeSelect').value = schemeCategory;
+          
+          document.getElementById('activeFilterBadgeContainer').innerHTML = `
+            <div class="p-3 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center gap-3">
+              <div class="p-2 rounded-xl bg-teal-500/20 text-teal-400">
+                <i data-lucide="filter" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <span class="text-[10px] text-teal-300 font-bold uppercase tracking-wider block">Pre-Filtered Scheme</span>
+                <span class="text-xs font-bold text-white">${schemeCategory} (${matched.schemeName})</span>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      // Initial filter & render
+      handleFilterChange();
+    });
+
+    function toggleMobileNav() {
+      const drawer = document.getElementById('mobileNavDrawer');
+      if (drawer) {
+        drawer.classList.toggle('hidden');
+      }
+    }
+  </script>
+
+</body>
+</html>

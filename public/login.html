@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - SchemeBridge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              700: '#1e293b',
+              800: '#0f172a',
+              900: '#0b1120',
+              950: '#070b14',
+            },
+            aurora: {
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <script type="module">
+    import { signInWithGoogle, isAuthenticated } from '../src/firebase.js';
+
+    // Check if already logged in
+    if (isAuthenticated()) {
+      window.location.href = '/assessment';
+    }
+
+    async function handleGoogleLogin() {
+      try {
+        await signInWithGoogle();
+        window.location.href = '/assessment';
+      } catch (error) {
+        alert("Login failed: " + error.message);
+      }
+    }
+
+    // Make function available globally
+    window.handleGoogleLogin = handleGoogleLogin;
+  </script>
+</head>
+<body class="bg-navy-950 min-h-screen flex items-center justify-center p-4 text-white">
+  <div class="bg-navy-800 border border-navy-700 rounded-2xl p-8 sm:p-12 max-w-md w-full text-center shadow-2xl relative overflow-hidden">
+    <!-- Top accent strip -->
+    <div class="h-1.5 w-full bg-gradient-to-r from-aurora-500 via-purple-500 to-teal-400 absolute top-0 left-0"></div>
+
+    <!-- Logo -->
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold bg-gradient-to-r from-aurora-400 to-teal-400 bg-clip-text text-transparent mb-3">
+        SchemeBridge
+      </h1>
+      <p class="text-slate-400 text-sm sm:text-base">
+        Sign in to access your loan scheme assessment
+      </p>
+    </div>
+
+    <!-- Google Login Button -->
+    <button 
+      onclick="handleGoogleLogin()"
+      class="w-full bg-white hover:bg-gray-100 text-gray-800 font-semibold py-3.5 px-6 rounded-xl flex items-center justify-center gap-3 transition-all border border-gray-300 shadow-lg hover:shadow-xl cursor-pointer"
+    >
+      <img src="https://www.gstatic.com/firebasejs/ui/logo/lock/google_landing_logo.svg" alt="Google" class="w-5 h-5" />
+      <span>Sign in with Google</span>
+    </button>
+
+    <!-- Info Box -->
+    <div class="mt-8 p-4 bg-aurora-900/20 border border-aurora-700/50 rounded-xl">
+      <div class="flex items-start gap-3 text-left">
+        <span class="text-xl">🔒</span>
+        <div>
+          <p class="text-white text-sm font-semibold mb-0.5">Secure Authentication</p>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            We use Firebase Authentication with Google OAuth. Your data is encrypted and never shared.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="mt-8 space-y-3 text-left">
+      <div class="flex items-center gap-3 text-slate-300 text-xs sm:text-sm">
+        <span class="text-teal-400 font-bold">✓</span>
+        <span>Access personalized scheme recommendations</span>
+      </div>
+      <div class="flex items-center gap-3 text-slate-300 text-xs sm:text-sm">
+        <span class="text-teal-400 font-bold">✓</span>
+        <span>Track your applications anytime</span>
+      </div>
+      <div class="flex items-center gap-3 text-slate-300 text-xs sm:text-sm">
+        <span class="text-teal-400 font-bold">✓</span>
+        <span>Save your assessment data securely</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

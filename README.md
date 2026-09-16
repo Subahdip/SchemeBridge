@@ -1,36 +1,221 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌉 SchemeBridge — AI-Driven Scheme Matching Platform
 
-## Getting Started
+> Find smarter. Match better. Apply with confidence.
 
-First, run the development server:
+SchemeBridge is a bilingual digital platform developed by **Team DesiDevs** for **Smart India Hackathon 2026** under the **Ministry of Social Justice and Empowerment (MoSJE)**.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+The platform helps entrepreneurs and applicants discover suitable government-backed concessional credit schemes through profile-based matching, financial planning tools, partner discovery, application submission, and application tracking.
+
+---
+
+## ✨ Features
+
+- 🔍 **Smart Scheme Matcher** — Matches user and project details with suitable government credit schemes using rule-based eligibility criteria.
+
+- 🌐 **Bilingual Interface** — Supports **English and Hindi** for improved accessibility.
+
+- 📋 **Centralized Scheme Discovery** — Brings relevant government-backed schemes into a single platform.
+
+- 🥧 **90/10 Funding Visualizer** — Clearly visualizes the **90% institutional loan and 10% promoter contribution** structure.
+
+- 🧮 **Dynamic EMI Calculator** — Calculates EMI based on loan amount, interest rate, and repayment tenure.
+
+- 📊 **Financial Visualization** — Displays EMI, principal, interest, and funding information through interactive charts.
+
+- 📍 **NPA-Aware Partner Locator** — Helps users identify nearby channel partners using maps, geolocation, and available partner-status information.
+
+- 📤 **Application Submission** — Provides a guided workflow for submitting applications through the selected partner.
+
+- 📑 **Application Tracker** — Tracks application progress through stages such as **Submitted, Verified, Sanctioned, and Disbursed**.
+
+- 🔐 **Secure Authentication** — Firebase Authentication provides user login and session management.
+
+- 📱 **Responsive Design** — Designed for use across desktop and mobile devices.
+
+---
+
+## 🛠️ Tech Stack
+
+| Category | Technologies |
+|---|---|
+| **Frontend** | Next.js 14, React, TypeScript |
+| **Styling** | Tailwind CSS, shadcn/ui |
+| **UI Icons** | Lucide React |
+| **Authentication** | Firebase Authentication |
+| **Data Visualization** | Recharts |
+| **Maps & GIS** | Leaflet, React-Leaflet, OpenStreetMap |
+| **Geolocation** | Browser Geolocation API |
+| **State & Persistence** | Session Storage API |
+| **Deployment** | GitHub, Vercel |
+
+---
+
+## 🚀 How It Works
+
+```text
+                         ┌───────────────────┐
+                         │       User        │
+                         └─────────┬─────────┘
+                                   │
+                                   ▼
+                         ┌───────────────────┐
+                         │   SchemeBridge    │
+                         │    Home Page      │
+                         └─────────┬─────────┘
+                                   │
+                                   ▼
+                         ┌───────────────────┐
+                         │  Authentication   │
+                         └─────────┬─────────┘
+                                   │
+                                   ▼
+                         ┌───────────────────┐
+                         │ Language Selection│
+                         │  English / Hindi  │
+                         └─────────┬─────────┘
+                                   │
+                                   ▼
+                         ┌───────────────────┐
+                         │ User & Project    │
+                         │     Details       │
+                         └─────────┬─────────┘
+                                   │
+                                   ▼
+                         ┌───────────────────┐
+                         │  Scheme Matcher   │
+                         │ Rules-Based       │
+                         │ Eligibility       │
+                         └─────────┬─────────┘
+                                   │
+                     ┌─────────────┴─────────────┐
+                     │                           │
+                     ▼                           ▼
+           ┌──────────────────┐       ┌──────────────────┐
+           │   Not Eligible   │       │    Eligible      │
+           └────────┬─────────┘       └────────┬─────────┘
+                    │                          │
+                    ▼                          ▼
+           ┌──────────────────┐       ┌──────────────────┐
+           │ Reason & Next-   │       │ Matched Schemes  │
+           │ Step Suggestions │       └────────┬─────────┘
+           └────────┬─────────┘                │
+                    │                          │
+                    └─────── Try Again ────────┘
+                                               │
+                                               ▼
+                                  ┌──────────────────────┐
+                                  │ 90/10 Funding        │
+                                  │     Visualizer       │
+                                  └──────────┬───────────┘
+                                             │
+                                             ▼
+                                  ┌──────────────────────┐
+                                  │ Dynamic EMI          │
+                                  │     Calculator       │
+                                  └──────────┬───────────┘
+                                             │
+                                             ▼
+                                  ┌──────────────────────┐
+                                  │ EMI & Funding        │
+                                  │    Visualization     │
+                                  └──────────┬───────────┘
+                                             │
+                                             ▼
+                                  ┌──────────────────────┐
+                                  │ NPA-Aware Partner    │
+                                  │      Locator         │
+                                  └──────────┬───────────┘
+                                             │
+                                             ▼
+                                  ┌──────────────────────┐
+                                  │ Application          │
+                                  │     Submission       │
+                                  └──────────┬───────────┘
+                                             │
+                                             ▼
+                                  ┌──────────────────────┐
+                                  │ Application Tracker  │
+                                  └──────────┬───────────┘
+                                             │
+                                             ▼
+                                  ┌──────────────────────┐
+                                  │   Loan Disbursed     │
+                                  └──────────────────────┘
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 💻 Run Locally
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Prerequisites
 
-## Learn More
+- Node.js 18.17.0 or higher
+- npm
+- Git
 
-To learn more about Next.js, take a look at the following resources:
+### Steps
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Clone the Repository**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```bash
+   git clone https://github.com/Subahdip/SchemeBridge.git
+   cd SchemeBridge
+   ```
 
-## Deploy on Vercel
+2. **Install Dependencies**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```bash
+   npm install
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. **Start the Development Server**
+
+   ```bash
+   npm run dev
+   ```
+
+4. **Open the Application**
+
+   Open:
+
+   ```text
+   http://localhost:3000
+   ```
+
+---
+
+## ☁️ Deployment
+
+SchemeBridge is deployed using **Vercel**.
+
+The deployment workflow is:
+
+```text
+GitHub Repository
+        ↓
+      Vercel
+        ↓
+  Next.js Build
+        ↓
+Production Deployment
+```
+
+---
+
+## 👨‍💻 Team DesiDevs
+
+Developed with ❤️ by **Team DesiDevs** for **Smart India Hackathon 2026**.
+
+### 🌉 SchemeBridge
+
+> **Bridging Citizens to Government Opportunities.**
+
+---
+
+## ⭐ Support
+
+If you like **SchemeBridge**, consider giving the repository a ⭐ on GitHub.
+
+**GitHub Repository:**
+
+https://github.com/Subahdip/SchemeBridge

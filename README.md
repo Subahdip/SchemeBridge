@@ -1,6 +1,7 @@
 # 🌉 SchemeBridge — AI-Driven Scheme Matching Platform
 
 > Find smarter. Match better. Apply with confidence.
+🌐 **Live Demo:** [SchemeBridge](https://sih-ai-xi.vercel.app/)
 
 SchemeBridge is a bilingual digital platform developed by **Team DesiDevs** for **Smart India Hackathon 2026** under the **Ministry of Social Justice and Empowerment (MoSJE)**.
 
@@ -209,6 +210,7 @@ Developed with ❤️ by **Team DesiDevs** for **Smart India Hackathon 2026**.
 ### 🌉 SchemeBridge
 
 > **Bridging Citizens to Government Opportunities.**
+🌐 **Live Demo:** [SchemeBridge](https://sih-ai-xi.vercel.app/)
 
 ---
 

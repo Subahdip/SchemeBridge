@@ -77,7 +77,6 @@ interface PartnerItem {
   type: string;
   schemes: string[];
   status: string;
-  npaFlag: boolean;
 }
 
 export function SchemeMatchingForm({
@@ -110,10 +109,10 @@ export function SchemeMatchingForm({
   const activePartnersCount = useMemo(() => {
     const typedPartners = partnersData as PartnerItem[];
     if (matchedSchemeType === "All Schemes") {
-      return typedPartners.filter((p) => p.status === "Active" && !p.npaFlag).length;
+      return typedPartners.filter((p) => p.status === "Active").length;
     }
     return typedPartners.filter(
-      (p) => p.status === "Active" && !p.npaFlag && p.schemes.includes(matchedSchemeType)
+      (p) => p.status === "Active" && p.schemes.includes(matchedSchemeType)
     ).length;
   }, [matchedSchemeType]);
 
@@ -177,7 +176,7 @@ export function SchemeMatchingForm({
       if (incomeNum > 500000) {
         evalResult = {
           isEligible: false,
-          headerTitle: "❌ Not Eligible - Annual income exceeds ₹5.00 Lakhs limit",
+          headerTitle: "Not Eligible - Annual income exceeds ₹5.00 Lakhs limit",
           schemeName: "Ineligible for Concessional Welfare Schemes",
           interestRate: "N/A",
           maxLoan: "N/A",
@@ -206,7 +205,7 @@ export function SchemeMatchingForm({
         evalResult = {
           isEligible: true,
           headerTitle:
-            "✅ Micro Finance Scheme - Interest: 6.5%, Max Loan: ₹1.40L, Govt Coverage: 90%",
+            "Micro Finance Scheme - Interest: 6.5%, Max Loan: ₹1.40L, Govt Coverage: 90%",
           schemeName: "Micro Finance Scheme",
           interestRate: "6.5% p.a.",
           maxLoan: "₹1.40 Lakh",
@@ -238,7 +237,7 @@ export function SchemeMatchingForm({
         evalResult = {
           isEligible: true,
           headerTitle:
-            "✅ Term Loan Scheme - Interest: 7.5%, Max Loan: ₹50L, Govt Coverage: 90%",
+            "Term Loan Scheme - Interest: 7.5%, Max Loan: ₹50L, Govt Coverage: 90%",
           schemeName: "Term Loan Scheme",
           interestRate: "7.5% p.a.",
           maxLoan: "₹50.00 Lakh",
@@ -270,7 +269,7 @@ export function SchemeMatchingForm({
         evalResult = {
           isEligible: true,
           headerTitle:
-            "✅ Education Loan Scheme - Interest: 6.5%, Govt Coverage: 90%, Moratorium: Available",
+            "Education Loan Scheme - Interest: 6.5%, Govt Coverage: 90%, Moratorium: Available",
           schemeName: "Education Loan Scheme",
           interestRate: "6.5% p.a.",
           maxLoan: "₹20.00 Lakh (Domestic) / ₹30.00 Lakh (Abroad)",
@@ -298,7 +297,7 @@ export function SchemeMatchingForm({
       else {
         evalResult = {
           isEligible: false,
-          headerTitle: "❌ Loan Ceiling Exceeded - Maximum welfare scheme limit is ₹50.00 Lakhs",
+          headerTitle: "Loan Ceiling Exceeded - Maximum welfare scheme limit is ₹50.00 Lakhs",
           schemeName: "Loan Amount Exceeds Scheme Ceiling",
           interestRate: "N/A",
           maxLoan: "₹50.00 Lakh",
@@ -789,11 +788,12 @@ export function SchemeMatchingForm({
                   <div className="flex items-start gap-3">
                     <XCircle className="h-7 w-7 text-destructive flex-shrink-0 mt-0.5" />
                     <div className="space-y-2">
-                      <div className="inline-flex items-center gap-2 bg-destructive/20 border border-destructive text-destructive px-4 py-1.5 rounded-full text-xs font-bold">
-                        ✗ {t("Statutory Limit Exceeded")}
+                      <div className="inline-flex items-center gap-1.5 bg-destructive/20 border border-destructive text-destructive px-4 py-1.5 rounded-full text-xs font-bold">
+                        <XCircle className="w-3.5 h-3.5" />
+                        <span>{t("Statutory Limit Exceeded")}</span>
                       </div>
                       <CardTitle className="text-xl sm:text-2xl font-bold text-red-400 leading-tight">
-                        {result.headerTitle.includes("Not Eligible") ? `❌ ${t("Not Eligible")} - ${t("Income exceeds limit")}` : result.headerTitle}
+                        {result.headerTitle.includes("Not Eligible") ? `${t("Not Eligible")} - ${t("Income exceeds limit")}` : result.headerTitle}
                       </CardTitle>
                       <p className="text-sm text-slate-300">
                         Eligibility Check Status: <span className="font-semibold text-red-400">{t("Not Eligible")} ({t("Income exceeds limit")})</span>
@@ -847,8 +847,9 @@ export function SchemeMatchingForm({
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <div className="inline-flex items-center gap-2 bg-teal-900/50 border border-teal-700 text-teal-400 px-4 py-2 rounded-full text-sm font-medium">
-                          ✓ {t("AI Match Verified")}
+                        <div className="inline-flex items-center gap-1.5 bg-teal-900/50 border border-teal-700 text-teal-400 px-4 py-2 rounded-full text-sm font-medium">
+                          <CheckCircle2 className="w-4 h-4 text-teal-400" />
+                          <span>{t("AI Match Verified")}</span>
                         </div>
                         <div className="inline-flex items-center gap-2 bg-aurora-900/50 border border-aurora-700 text-aurora-400 px-3 py-1.5 rounded-full text-xs font-medium font-mono">
                           {result.purpose === "business" ? t("Business / MSME") : t("Higher Education")}

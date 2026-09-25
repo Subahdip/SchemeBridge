@@ -102,6 +102,24 @@ const AppState = {
   },
 
   /**
+   * Automatically initialize lock state on navbar links
+   */
+  initNavbarLocks: function() {
+    if (typeof window === 'undefined') return;
+    const hasAss = this.hasAssessment();
+    const protectedRoutes = ['/matched-scheme', '/emi-calculator', '/partner-network', '/my-applications'];
+    
+    document.querySelectorAll('nav a').forEach(a => {
+      const href = a.getAttribute('href') || '';
+      const isProtected = protectedRoutes.some(r => href === r || href === r + '.html' || href.startsWith(r));
+      if (isProtected && !hasAss) {
+        a.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+        a.setAttribute('title', 'Submit Assessment first to unlock');
+      }
+    });
+  },
+
+  /**
    * Clear all application assessment and scheme data (for reset)
    */
   clear: function() {
@@ -122,4 +140,7 @@ const AppState = {
 // Expose to window for direct browser script inclusion
 if (typeof window !== 'undefined') {
   window.AppState = AppState;
+  window.addEventListener('DOMContentLoaded', () => {
+    AppState.initNavbarLocks();
+  });
 }

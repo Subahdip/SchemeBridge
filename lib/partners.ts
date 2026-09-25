@@ -12,7 +12,6 @@ export interface ChannelPartner {
   lat: number;
   lng: number;
   status: PartnerStatus | string;
-  npaFlag: boolean;
   address: string;
   city: string;
   contact?: string;
@@ -37,10 +36,8 @@ export function getPartnersByScheme(scheme: PartnerScheme): ChannelPartner[] {
 }
 
 /**
- * Filter active partners with healthy NPA status
+ * Filter active authorized partners
  */
-export function getHealthyActivePartners(): ChannelPartner[] {
-  return channelPartners.filter(
-    (p) => p.status === "Active" && !p.npaFlag
-  );
+export function getActivePartners(): ChannelPartner[] {
+  return channelPartners.filter((p) => p.status === "Active");
 }

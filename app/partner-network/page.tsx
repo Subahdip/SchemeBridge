@@ -13,11 +13,16 @@ import {
   ShieldCheck,
   CheckCircle2,
   RotateCcw,
+  Info,
+  Hourglass,
+  CircleCheck,
 } from "lucide-react";
 import { AppState, MatchedSchemeData } from "@/lib/app-state";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { AuthGuard } from "@/components/auth-guard";
+import { isAuthenticated, getIdToken } from "@/lib/firebase";
+import { SCHEMES_CATALOG } from "@/lib/schemes";
 
 const DynamicPartnerMap = dynamic(
   () => import("@/components/partner-map").then((mod) => mod.PartnerMap),
@@ -32,10 +37,28 @@ const DynamicPartnerMap = dynamic(
   }
 );
 
+function resolveCanonicalSchemeId(schemeName?: string, existingId?: string): string {
+  if (existingId && SCHEMES_CATALOG.some((s) => s.id === existingId)) {
+    return existingId;
+  }
+  if (!schemeName) return "term-loan-nsfdc";
+  const normalized = schemeName.toLowerCase();
+  if (normalized.includes("micro credit finance") || normalized.includes("mcf")) return "micro-finance-small";
+  if (normalized.includes("term loan") || normalized.includes("tl")) return "term-loan-nsfdc";
+  if (normalized.includes("education") || normalized.includes("els")) return "education-loan-scheme";
+  if (normalized.includes("mahila samriddhi") || normalized.includes("msy")) return "mahila-samriddhi-yojana";
+  if (normalized.includes("mahila adhikarita") || normalized.includes("may")) return "mahila-adhikarita-yojana";
+  if (normalized.includes("laghu vyavsay") || normalized.includes("lvy")) return "laghu-vyavsay-yojana";
+  if (normalized.includes("swachhta") || normalized.includes("suy")) return "swachhta-udyamiyojna";
+  if (normalized.includes("vocational") || normalized.includes("skill")) return "vocational-education-training";
+  return "term-loan-nsfdc";
+}
+
 export default function PartnerNetworkPage() {
   const { t } = useTranslation();
   const [matchedScheme, setMatchedScheme] = useState<MatchedSchemeData | null>(null);
   const [selectedSchemeFilter, setSelectedSchemeFilter] = useState<string>("All Schemes");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const scheme = AppState.getScheme();
@@ -47,62 +70,80 @@ export default function PartnerNetworkPage() {
     }
   }, []);
 
-  const handleApplyNow = () => {
-    // Get current scheme and assessment data
+  const handleApplyNow = async () => {
+    const user = isAuthenticated();
+    if (!user) {
+      alert("Please sign in to submit your loan application.");
+      window.location.href = "/login";
+      return;
+    }
+
     const scheme = AppState.getScheme();
     const assessment = AppState.getAssessment();
 
     if (!scheme || !assessment) {
-      alert("Please complete assessment first");
+      alert("Please complete the scheme eligibility assessment first.");
       window.location.href = "/assessment";
       return;
     }
 
-    // Generate random application ID
-    const appId = `SIH2026-${Math.floor(Math.random() * 1000)}`;
-    const schemeName = (scheme as any).name || scheme.schemeName || "Welfare Scheme";
+    setSubmitting(true);
 
-    // Create application object
-    const application = {
-      applicationId: appId,
-      scheme: schemeName,
-      amount: Math.round(assessment.loanAmount * 0.9), // 90% govt coverage
-      interestRate: scheme.interestRateText || `${scheme.interestRate}% p.a.`,
-      purpose: assessment.purpose,
-      status: "Submitted" as const,
-      submittedDate: new Date().toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }),
-      timeline: [
-        { step: "Submitted", date: new Date().toLocaleDateString("en-IN"), completed: true },
-        { step: "Documents Verified", date: "Pending", completed: false },
-        { step: "Loan Approved", date: "Pending", completed: false },
-        { step: "Disbursed", date: "Pending", completed: false },
-      ],
-    };
+    try {
+      const idToken = await getIdToken();
+      if (!idToken) {
+        alert("Authentication session expired. Please sign in again.");
+        window.location.href = "/login";
+        return;
+      }
 
-    // Save to sessionStorage
-    const applications = JSON.parse(sessionStorage.getItem("applications") || "[]");
-    applications.push(application);
-    sessionStorage.setItem("applications", JSON.stringify(applications));
+      const canonicalSchemeId = resolveCanonicalSchemeId(scheme.schemeName, scheme.schemeId);
+      const loanAmt = assessment.loanAmount || 120000;
+      const coverage = scheme.govtCoveragePercent ? scheme.govtCoveragePercent / 100 : 0.9;
+      const calculatedAmount = Math.round(loanAmt * coverage);
 
-    // Show success message
-    const message =
-      `✅ Application Submitted Successfully!\n\n` +
-      `Application ID: ${appId}\n` +
-      `Scheme: ${schemeName}\n` +
-      `Amount: ₹${application.amount.toLocaleString("en-IN")}\n` +
-      `Date: ${application.submittedDate}\n\n` +
-      `You can track your application anytime in "My Applications" page.`;
+      const payload = {
+        schemeId: canonicalSchemeId,
+        schemeName: scheme.schemeName,
+        amount: calculatedAmount,
+        interestRate: scheme.interestRate,
+        interestRateText: scheme.interestRateText,
+        purpose: assessment.purpose || "Business",
+      };
 
-    alert(message);
+      const res = await fetch("/api/applications", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
-    // Ask user what to do next
-    const choice = confirm("Click OK to view all your applications, or Cancel to stay here.");
-    if (choice) {
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to persist application in PostgreSQL database.");
+      }
+
+      const createdApp = data.application;
+
+      const message =
+        `Application Submitted & Persisted Successfully!\n\n` +
+        `Application ID: ${createdApp.applicationId}\n` +
+        `Scheme: ${createdApp.scheme}\n` +
+        `Amount: ₹${createdApp.amount.toLocaleString("en-IN")}\n` +
+        `Status: ${createdApp.status}\n` +
+        `Date: ${createdApp.submittedDate}\n\n` +
+        `Your application is securely stored in PostgreSQL. You can track its timeline anytime in "My Applications".`;
+
+      alert(message);
       window.location.href = "/my-applications";
+    } catch (err: any) {
+      console.error("Application submission failed:", err);
+      alert(`Submission Error: ${err.message || "Could not connect to database."}`);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -209,7 +250,7 @@ export default function PartnerNetworkPage() {
         {/* Helpful Guide Info Box */}
         <div className="mb-6 p-4 bg-aurora-50 dark:bg-aurora-900/20 border border-aurora-200 dark:border-aurora-700/50 rounded-xl text-card-foreground">
           <div className="flex items-start gap-3">
-            <span className="text-2xl">ℹ️</span>
+            <Info className="w-5 h-5 text-teal-600 dark:text-teal-400 shrink-0 mt-0.5" />
             <div>
               <h4 className="font-bold text-slate-900 dark:text-white mb-1">{t("How to Apply")}</h4>
               <ol className="text-slate-600 dark:text-muted-foreground text-sm space-y-1">
@@ -246,11 +287,22 @@ export default function PartnerNetworkPage() {
           <div className="pt-6">
             <Button
               onClick={handleApplyNow}
+              disabled={submitting}
               variant="cta"
               size="lg"
-              className="bg-gradient-to-r from-aurora-600 to-teal-600 hover:from-aurora-700 hover:to-teal-700 text-white px-8 py-6 rounded-xl text-base sm:text-lg font-bold shadow-xl shadow-aurora-500/30 transition-all flex items-center gap-2 cursor-pointer"
+              className="bg-gradient-to-r from-aurora-600 to-teal-600 hover:from-aurora-700 hover:to-teal-700 text-white px-8 py-6 rounded-xl text-base sm:text-lg font-bold shadow-xl shadow-aurora-500/30 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
             >
-              <span>✅ {t("Apply to This Scheme")}</span>
+              {submitting ? (
+                <>
+                  <Hourglass className="w-5 h-5 animate-spin" />
+                  <span>{t("Persisting Application...")}</span>
+                </>
+              ) : (
+                <>
+                  <CircleCheck className="w-5 h-5" />
+                  <span>{t("Apply to This Scheme")}</span>
+                </>
+              )}
             </Button>
           </div>
 

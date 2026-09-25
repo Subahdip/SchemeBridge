@@ -7,7 +7,6 @@
     "lat": 28.6315,
     "lng": 77.2167,
     "status": "Active",
-    "npaFlag": false,
     "address": "Ambedkar Bhawan, Sector 16, Rohini & Connaught Place HQ",
     "city": "Delhi"
   },
@@ -19,7 +18,6 @@
     "lat": 28.5494,
     "lng": 77.2534,
     "status": "Active",
-    "npaFlag": false,
     "address": "7, Bhikaji Cama Place, Ring Road",
     "city": "Delhi"
   },
@@ -31,7 +29,6 @@
     "lat": 28.6219,
     "lng": 77.0878,
     "status": "Active",
-    "npaFlag": false,
     "address": "District Centre, Janakpuri",
     "city": "Delhi"
   },
@@ -43,7 +40,6 @@
     "lat": 18.9298,
     "lng": 72.8333,
     "status": "Active",
-    "npaFlag": false,
     "address": "M.V. Road, Near Crawford Market, Fort",
     "city": "Mumbai"
   },
@@ -55,7 +51,6 @@
     "lat": 19.0657,
     "lng": 72.8687,
     "status": "Active",
-    "npaFlag": false,
     "address": "SBI Building, G Block, Bandra Kurla Complex (BKC)",
     "city": "Mumbai"
   },
@@ -67,7 +62,6 @@
     "lat": 19.1136,
     "lng": 72.8697,
     "status": "Inactive",
-    "npaFlag": true,
     "address": "MIDC Central Road, Andheri East",
     "city": "Mumbai"
   },
@@ -79,7 +73,6 @@
     "lat": 22.5768,
     "lng": 88.4344,
     "status": "Active",
-    "npaFlag": false,
     "address": "CF-217/A/1, Sector 1, Salt Lake City",
     "city": "Kolkata"
   },
@@ -91,7 +84,6 @@
     "lat": 22.5726,
     "lng": 88.3499,
     "status": "Active",
-    "npaFlag": false,
     "address": "10, B.T.M. Sarani, Brabourne Road, BBD Bagh",
     "city": "Kolkata"
   },
@@ -103,7 +95,6 @@
     "lat": 22.5518,
     "lng": 88.3524,
     "status": "Active",
-    "npaFlag": false,
     "address": "Park Street Crossing, Kolkata Central",
     "city": "Kolkata"
   },
@@ -115,7 +106,6 @@
     "lat": 13.0604,
     "lng": 80.2496,
     "status": "Active",
-    "npaFlag": false,
     "address": "31, Cenotaph Road, Teynampet & Anna Salai",
     "city": "Chennai"
   },
@@ -127,7 +117,6 @@
     "lat": 13.0902,
     "lng": 80.2882,
     "status": "Active",
-    "npaFlag": false,
     "address": "Corporate Office, 254-260, Avvai Shanmugam Salai, George Town",
     "city": "Chennai"
   },
@@ -139,7 +128,6 @@
     "lat": 13.0418,
     "lng": 80.2341,
     "status": "Active",
-    "npaFlag": false,
     "address": "Venkatnarayana Road, T. Nagar",
     "city": "Chennai"
   },
@@ -151,7 +139,6 @@
     "lat": 12.9756,
     "lng": 77.6066,
     "status": "Active",
-    "npaFlag": false,
     "address": "Khanija Bhavan, 4th Floor, Race Course Road & MG Road",
     "city": "Bangalore"
   },
@@ -163,7 +150,6 @@
     "lat": 12.9250,
     "lng": 77.5938,
     "status": "Active",
-    "npaFlag": false,
     "address": "112, J.C. Road & 4th Block, Jayanagar",
     "city": "Bangalore"
   },
@@ -175,7 +161,6 @@
     "lat": 12.9352,
     "lng": 77.6245,
     "status": "Active",
-    "npaFlag": false,
     "address": "80 Feet Road, 4th Block, Koramangala",
     "city": "Bangalore"
   },
@@ -187,7 +172,6 @@
     "lat": 12.9698,
     "lng": 77.7499,
     "status": "Inactive",
-    "npaFlag": true,
     "address": "ITPL Main Road, Whitefield",
     "city": "Bangalore"
   }

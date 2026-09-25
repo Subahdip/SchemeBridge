@@ -25,7 +25,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AppState, ApplicationRecord } from "@/lib/app-state";
+import { ApplicationRecord } from "@/lib/app-state";
+import { getIdToken, isAuthenticated } from "@/lib/firebase";
 
 function ApplicationStatusContent() {
   const { t } = useTranslation();
@@ -34,51 +35,64 @@ function ApplicationStatusContent() {
   const appId = searchParams?.get("id");
   const [application, setApplication] = useState<ApplicationRecord | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [manualIdInput, setManualIdInput] = useState("");
   const [showManualForm, setShowManualForm] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const apps = AppState.getApplications();
-      if (appId) {
-        const found = apps.find(
-          (a) => a.applicationId && a.applicationId.toLowerCase() === appId.toLowerCase()
-        );
-        if (found) {
-          setApplication(found);
-          setShowManualForm(false);
-        } else {
-          // If ID not found, alert & redirect or show input
-          alert(t("Application not found"));
-          router.push("/my-applications");
-          return;
-        }
-      } else {
-        // No ID provided, show input form
-        setShowManualForm(true);
-      }
+    if (appId) {
+      fetchApplication(appId);
+    } else {
+      setShowManualForm(true);
       setIsLoaded(true);
     }
-  }, [appId, router, t]);
+  }, [appId]);
+
+  const fetchApplication = async (targetId: string) => {
+    setIsLoaded(false);
+    setError(null);
+    try {
+      const idToken = await getIdToken();
+      if (!idToken) {
+        setError("Authentication session required.");
+        setIsLoaded(true);
+        return;
+      }
+
+      const res = await fetch(`/api/applications/${encodeURIComponent(targetId)}`, {
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Application with ID "${targetId}" was not found or access is restricted.`);
+      }
+
+      const data = await res.json();
+      if (data.application) {
+        setApplication(data.application);
+        setShowManualForm(false);
+      } else {
+        throw new Error("Application not found.");
+      }
+    } catch (err: any) {
+      console.error("❌ Error fetching application:", err);
+      setError(err.message);
+      setShowManualForm(true);
+      setApplication(null);
+    } finally {
+      setIsLoaded(true);
+    }
+  };
 
   const handleManualSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!manualIdInput.trim()) return;
-    lookupId(manualIdInput.trim());
-  };
-
-  const lookupId = (targetId: string) => {
-    const apps = AppState.getApplications();
-    const found = apps.find(
-      (a) => a.applicationId && a.applicationId.toLowerCase() === targetId.toLowerCase()
-    );
-    if (found) {
-      router.push(`/application-status?id=${encodeURIComponent(found.applicationId)}`);
-      setApplication(found);
-      setShowManualForm(false);
-    } else {
-      alert(`Application with ID "${targetId}" not found.`);
-    }
+    const trimmed = manualIdInput.trim();
+    router.push(`/application-status?id=${encodeURIComponent(trimmed)}`);
+    fetchApplication(trimmed);
   };
 
   const getStatusColor = (status: string) => {
@@ -102,7 +116,7 @@ function ApplicationStatusContent() {
     return (
       <div className="py-24 text-center">
         <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-aurora-500 border-r-transparent align-[-0.125em]" />
-        <p className="mt-4 text-xs text-muted-foreground">{t("Loading application status...")}</p>
+        <p className="mt-4 text-xs text-muted-foreground">{t("Loading application status from database...")}</p>
       </div>
     );
   }
@@ -137,8 +151,15 @@ function ApplicationStatusContent() {
                   {t("Track Loan Application")}
                 </h1>
                 <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-relaxed">
-                  {t("Enter your Application ID to track real-time sanction status, document verification, and disbursement progress.")}
+                  {t("Enter your Application ID to track the persistent status and verification progress for your application.")}
                 </p>
+
+                {error && (
+                  <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs text-left flex items-start gap-2.5">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>{error}</span>
+                  </div>
+                )}
               </div>
 
               <form onSubmit={handleManualSearch} className="max-w-lg mx-auto space-y-4">
@@ -147,7 +168,7 @@ function ApplicationStatusContent() {
                     <FileText className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input 
                       type="text" 
-                      placeholder="e.g. SIH2026-001" 
+                      placeholder="e.g. SIH2026-XXXX" 
                       value={manualIdInput}
                       onChange={(e) => setManualIdInput(e.target.value)}
                       required
@@ -164,34 +185,6 @@ function ApplicationStatusContent() {
                   </Button>
                 </div>
               </form>
-
-              {/* Quick Demo IDs list */}
-              <div className="mt-8 pt-6 border-t border-slate-200 dark:border-navy-700/60 max-w-lg mx-auto text-center">
-                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">{t("Or click one of the sample demo applications:")}</p>
-                <div className="flex flex-wrap items-center justify-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => lookupId("SIH2026-001")}
-                    className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-navy-900 dark:hover:bg-navy-700 border border-slate-200 dark:border-navy-700 text-xs font-mono text-aurora-700 dark:text-aurora-300 transition-colors cursor-pointer"
-                  >
-                    SIH2026-001 ({t("Term Loan")})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => lookupId("SIH2026-002")}
-                    className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-navy-900 dark:hover:bg-navy-700 border border-slate-200 dark:border-navy-700 text-xs font-mono text-teal-700 dark:text-teal-300 transition-colors cursor-pointer"
-                  >
-                    SIH2026-002 ({t("Education Loan")})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => lookupId("SIH2026-003")}
-                    className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-navy-900 dark:hover:bg-navy-700 border border-slate-200 dark:border-navy-700 text-xs font-mono text-emerald-700 dark:text-emerald-300 transition-colors cursor-pointer"
-                  >
-                    SIH2026-003 ({t("Micro Finance")})
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         ) : (
@@ -279,15 +272,15 @@ function ApplicationStatusContent() {
               </div>
             </div>
 
-            {/* Real-Time Processing Timeline */}
+            {/* Persistent Application Status Timeline */}
             <div className="bg-white dark:bg-navy-800/90 border border-slate-200 dark:border-navy-700 rounded-2xl p-6 sm:p-8 shadow-xl backdrop-blur-xl space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                   <Clock className="w-5 h-5 text-teal-600 dark:text-teal-400" />
-                  <span>{t("Application Progress Lifecycle")}</span>
+                  <span>{t("Persistent Application Status Timeline")}</span>
                 </h2>
                 <Badge variant="glow" className="text-[10px] bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-500/30">
-                  {t("Live Verified")}
+                  {t("Tracked Workflow")}
                 </Badge>
               </div>
 
@@ -321,10 +314,14 @@ function ApplicationStatusContent() {
                         </span>
                       </div>
                       <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                        {idx === 0 && t("Application submitted and received by the channel lending partner.")}
-                        {idx === 1 && t("Branch officer verifies applicant caste certificate, project feasibility, and income.")}
-                        {idx === 2 && t("Formal sanction letter issued under National Concessional Scheme guidelines.")}
-                        {idx === 3 && t("Direct benefit transfer of 90% loan amount to beneficiary savings account.")}
+                        {step.note ? t(step.note) : (
+                          <>
+                            {idx === 0 && t("Application submitted and received by the channel lending partner.")}
+                            {idx === 1 && t("Branch officer verifies applicant caste certificate, project feasibility, and income.")}
+                            {idx === 2 && t("Formal sanction letter issued under National Concessional Scheme guidelines.")}
+                            {idx === 3 && t("Direct benefit transfer of 90% loan amount to beneficiary savings account.")}
+                          </>
+                        )}
                       </p>
                     </div>
                   </div>

@@ -23,7 +23,7 @@ export function Footer() {
                 SchemeBridge
               </span>
               <Badge variant="glow" className="text-[10px] font-medium py-0 px-2">
-                BY DESIDEVS
+                BY DESIDEVS_SURTECH
               </Badge>
             </Link>
 

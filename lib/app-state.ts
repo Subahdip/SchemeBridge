@@ -9,6 +9,8 @@ export interface AssessmentData {
 
   // Loan Purpose & Scale
   primaryPurpose?: string;
+  requirementText?: string;
+  purposeDescription?: string;
   businessScale?: string;
   educationCategory?: string;
   educationProjectSize?: string;
@@ -49,6 +51,7 @@ export interface AssessmentData {
 }
 
 export interface MatchedSchemeData {
+  schemeId?: string;
   isEligible: boolean;
   schemeName: string;
   interestRate: number; // e.g. 6.5 or 7.5
@@ -65,6 +68,14 @@ export interface MatchedSchemeData {
   moratoriumAvailable: boolean;
   moratoriumDetails?: string;
   ineligibleReason?: string;
+  aiMatchScore?: number;
+  cosineSimilarity?: number;
+  reasons?: string[];
+  topMatches?: any[];
+  allEvaluations?: any[];
+  aiModelUsed?: string;
+  userSemanticText?: string;
+  isAiAssisted?: boolean;
   timestamp?: string;
 }
 
@@ -72,17 +83,34 @@ export interface ApplicationTimelineStep {
   step: string;
   date: string;
   completed: boolean;
+  note?: string;
 }
 
 export interface ApplicationRecord {
   applicationId: string;
+  id?: string | number;
+  userId?: string;
+  userEmail?: string | null;
+  schemeId?: string;
   scheme: string;
+  schemeName?: string;
   amount: number;
+  loanAmount?: number;
   interestRate: string | number;
+  interestRateText?: string;
+  tenureMonths?: number;
+  tenureYears?: number;
+  emi?: number;
+  totalInterest?: number;
+  totalPayment?: number;
+  channelPartner?: string;
   purpose: string;
-  status: "Submitted" | "Under Review" | "Documents Verified" | "Approved" | "Loan Approved" | "Disbursed" | "Rejected";
+  status: "Submitted" | "Under Review" | "Documents Verified" | "Approved" | "Loan Approved" | "Disbursed" | "Rejected" | "approved" | "pending" | "rejected" | string;
   submittedDate: string;
+  appliedDate?: string;
   timeline: ApplicationTimelineStep[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export const AppState = {
@@ -94,6 +122,11 @@ export const AppState = {
       };
       sessionStorage.setItem("schemebridge_assessment", JSON.stringify(payload));
       sessionStorage.setItem("assessment", JSON.stringify(payload));
+      try {
+        window.dispatchEvent(new CustomEvent("assessmentSubmitted", { detail: payload }));
+      } catch (e) {
+        // ignore
+      }
     }
   },
 
@@ -140,65 +173,13 @@ export const AppState = {
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
+          if (Array.isArray(parsed)) {
             return parsed;
           }
         } catch {
-          // fallback to mock
+          return [];
         }
       }
-
-      // Default mock applications for demo if empty
-      const mockApps: ApplicationRecord[] = [
-        {
-          applicationId: "SIH2026-001",
-          scheme: "Term Loan Scheme",
-          amount: 2500000,
-          interestRate: 7.5,
-          purpose: "Business",
-          status: "Under Review",
-          submittedDate: "04 Sep 2026",
-          timeline: [
-            { step: "Submitted", date: "04 Sep 2026", completed: true },
-            { step: "Documents Verified", date: "05 Sep 2026", completed: true },
-            { step: "Loan Approved", date: "07 Sep 2026 (Est.)", completed: false },
-            { step: "Disbursed", date: "10 Sep 2026 (Est.)", completed: false }
-          ]
-        },
-        {
-          applicationId: "SIH2026-002",
-          scheme: "Education Loan Scheme",
-          amount: 1000000,
-          interestRate: 6.5,
-          purpose: "Education",
-          status: "Approved",
-          submittedDate: "01 Sep 2026",
-          timeline: [
-            { step: "Submitted", date: "01 Sep 2026", completed: true },
-            { step: "Documents Verified", date: "02 Sep 2026", completed: true },
-            { step: "Loan Approved", date: "04 Sep 2026", completed: true },
-            { step: "Disbursed", date: "07 Sep 2026 (Est.)", completed: false }
-          ]
-        },
-        {
-          applicationId: "SIH2026-003",
-          scheme: "Micro Finance Scheme",
-          amount: 100000,
-          interestRate: 6.5,
-          purpose: "Small Business",
-          status: "Disbursed",
-          submittedDate: "25 Aug 2026",
-          timeline: [
-            { step: "Submitted", date: "25 Aug 2026", completed: true },
-            { step: "Documents Verified", date: "26 Aug 2026", completed: true },
-            { step: "Loan Approved", date: "28 Aug 2026", completed: true },
-            { step: "Disbursed", date: "30 Aug 2026", completed: true }
-          ]
-        }
-      ];
-
-      sessionStorage.setItem("applications", JSON.stringify(mockApps));
-      return mockApps;
     }
     return [];
   },
@@ -223,6 +204,11 @@ export const AppState = {
       sessionStorage.removeItem("schemebridge_matched_scheme");
       sessionStorage.removeItem("creditDecision");
       sessionStorage.removeItem("schemebridge_credit_decision");
+      try {
+        window.dispatchEvent(new CustomEvent("assessmentSubmitted", { detail: null }));
+      } catch (e) {
+        // ignore
+      }
     }
   },
 

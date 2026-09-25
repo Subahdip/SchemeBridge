@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { useTheme } from "@/components/theme-provider";
 import { isAuthenticated, logout, UserSessionData } from "@/lib/firebase";
+import { AppState } from "@/lib/app-state";
 import Image from "next/image";
 import { BrandIcon } from "@/components/brand-icon";
 
@@ -19,11 +20,26 @@ export function Navbar() {
   const { isDark, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserSessionData | null>(null);
+  const [hasAssessment, setHasAssessment] = useState<boolean>(false);
 
-  // Sync user authentication state on client mount and path transitions
+  // Sync user authentication state and assessment state on client mount and path transitions
   useEffect(() => {
     const user = isAuthenticated();
     setCurrentUser(user);
+
+    const checkAssessment = () => {
+      const stored = AppState.getAssessment();
+      setHasAssessment(Boolean(stored && (stored.income || stored.loanAmount || stored.loanPurpose || stored.primaryPurpose)));
+    };
+
+    checkAssessment();
+
+    window.addEventListener("storage", checkAssessment);
+    window.addEventListener("assessmentSubmitted", checkAssessment);
+    return () => {
+      window.removeEventListener("storage", checkAssessment);
+      window.removeEventListener("assessmentSubmitted", checkAssessment);
+    };
   }, [pathname]);
 
   const handleLogout = async () => {
@@ -42,12 +58,12 @@ export function Navbar() {
   const isMyApplicationsActive = currentPath === "/my-applications" || currentPath === "/my-applications.html" || currentPath.startsWith("/application-status");
 
   const navLinks = [
-    { name: t("Home"), href: "/", isActive: isHomeActive },
-    { name: t("Assessment"), href: "/assessment", isActive: isAssessmentActive },
-    { name: t("Scheme"), href: "/matched-scheme", isActive: isMatchedSchemeActive },
-    { name: t("EMI"), href: "/emi-calculator", isActive: isEmiActive },
-    { name: t("Partners"), href: "/partner-network", isActive: isPartnerNetworkActive },
-    { name: t("My Applications"), href: "/my-applications", isActive: isMyApplicationsActive },
+    { name: t("Home"), href: "/", isActive: isHomeActive, requiresAssessment: false },
+    { name: t("Assessment"), href: "/assessment", isActive: isAssessmentActive, requiresAssessment: false },
+    { name: t("Scheme"), href: "/matched-scheme", isActive: isMatchedSchemeActive, requiresAssessment: true },
+    { name: t("EMI"), href: "/emi-calculator", isActive: isEmiActive, requiresAssessment: true },
+    { name: t("Partners"), href: "/partner-network", isActive: isPartnerNetworkActive, requiresAssessment: true },
+    { name: t("My Applications"), href: "/my-applications", isActive: isMyApplicationsActive, requiresAssessment: true },
   ];
 
   return (
@@ -63,25 +79,39 @@ export function Navbar() {
                 SchemeBridge
               </span>
               <Badge variant="glow" className="text-[10px] font-medium py-0 px-2 hidden sm:inline-flex border-aurora-500/30 text-aurora-600 dark:text-aurora-300 bg-aurora-500/10">
-                DesiDevs
+                DesiDevs_Surtech
               </Badge>
             </div>
           </Link>
 
           {/* 2. NAVIGATION LINKS (DESKTOP) */}
           <div className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`transition-colors font-medium text-sm ${link.isActive
-                  ? "text-aurora-600 dark:text-aurora-400 font-semibold border-b-2 border-aurora-600 dark:border-aurora-400 pb-0.5"
-                  : "text-slate-600 dark:text-slate-300 hover:text-aurora-600 dark:hover:text-aurora-400"
-                  }`}
-              >
-                {link.name}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isLocked = link.requiresAssessment && !hasAssessment;
+              if (isLocked) {
+                return (
+                  <span
+                    key={link.href}
+                    className="font-medium text-sm text-slate-400/50 dark:text-slate-600 cursor-not-allowed select-none py-1"
+                    title={t("Submit Assessment first to unlock")}
+                  >
+                    {link.name}
+                  </span>
+                );
+              }
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`transition-colors font-medium text-sm ${link.isActive
+                    ? "text-aurora-600 dark:text-aurora-400 font-semibold border-b-2 border-aurora-600 dark:border-aurora-400 pb-0.5"
+                    : "text-slate-600 dark:text-slate-300 hover:text-aurora-600 dark:hover:text-aurora-400"
+                    }`}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
           </div>
 
           {/* 3. CTA & UTILITIES (RIGHT) */}
@@ -112,8 +142,8 @@ export function Navbar() {
                     <Image
                       src={currentUser.photo}
                       alt={currentUser.name}
-                      width={36}  // 👈 Add this
-                      height={36} // 👈 Add this
+                      width={36}
+                      height={36}
                       className="w-9 h-9 rounded-full border-2 border-aurora-500 object-cover"
                       unoptimized
                     />
@@ -172,8 +202,8 @@ export function Navbar() {
                   <Image
                     src={currentUser.photo}
                     alt={currentUser.name}
-                    width={36}  // 👈 Add this
-                    height={36} // 👈 Add this
+                    width={36}
+                    height={36}
                     className="w-9 h-9 rounded-full border-2 border-aurora-500 object-cover"
                     unoptimized
                   />
@@ -204,22 +234,39 @@ export function Navbar() {
           )}
 
           <div className="flex flex-col space-y-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between text-sm py-2.5 px-3.5 rounded-lg transition-colors ${link.isActive
-                  ? "bg-slate-100 dark:bg-navy-800 text-aurora-600 dark:text-aurora-400 font-semibold border border-slate-200 dark:border-navy-700"
-                  : "text-slate-700 dark:text-slate-300 hover:text-aurora-600 dark:hover:text-aurora-400 hover:bg-slate-50 dark:hover:bg-navy-900/60 font-medium"
-                  }`}
-              >
-                <span>{link.name}</span>
-                {link.isActive && (
-                  <span className="h-2 w-2 rounded-full bg-aurora-500 shadow-sm" />
-                )}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isLocked = link.requiresAssessment && !hasAssessment;
+              if (isLocked) {
+                return (
+                  <div
+                    key={link.href}
+                    className="flex items-center justify-between text-sm py-2.5 px-3.5 rounded-lg text-slate-400/60 dark:text-slate-600 cursor-not-allowed select-none font-medium bg-slate-50/50 dark:bg-navy-950/40 border border-transparent"
+                    title={t("Submit Assessment first to unlock")}
+                  >
+                    <span>{link.name}</span>
+                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wider bg-slate-200/60 dark:bg-navy-900 px-2 py-0.5 rounded-md border border-slate-300/60 dark:border-navy-800">
+                      {t("Locked")}
+                    </span>
+                  </div>
+                );
+              }
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center justify-between text-sm py-2.5 px-3.5 rounded-lg transition-colors ${link.isActive
+                    ? "bg-slate-100 dark:bg-navy-800 text-aurora-600 dark:text-aurora-400 font-semibold border border-slate-200 dark:border-navy-700"
+                    : "text-slate-700 dark:text-slate-300 hover:text-aurora-600 dark:hover:text-aurora-400 hover:bg-slate-50 dark:hover:bg-navy-900/60 font-medium"
+                    }`}
+                >
+                  <span>{link.name}</span>
+                  {link.isActive && (
+                    <span className="h-2 w-2 rounded-full bg-aurora-500 shadow-sm" />
+                  )}
+                </Link>
+              );
+            })}
           </div>
 
           <LanguageSwitcher isMobile={true} />

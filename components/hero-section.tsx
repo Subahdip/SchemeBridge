@@ -43,10 +43,10 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-32 border-b border-slate-200 dark:border-navy-800 bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-navy-950 dark:via-navy-900 dark:to-aurora-950/20 transition-colors">
+    <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-32 border-b border-slate-200/80 dark:border-navy-800 bg-gradient-to-br from-white via-slate-50/70 to-slate-100/50 dark:from-navy-950 dark:via-navy-900 dark:to-aurora-950/20 transition-colors">
       {/* Background radial & ambient glow effects */}
-      <div className="absolute top-1/3 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-gradient-to-tr from-aurora-600/15 via-purple-600/10 to-teal-500/10 blur-[120px] -z-10 rounded-full pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-[500px] h-[350px] bg-gradient-to-bl from-teal-500/10 via-aurora-500/10 to-transparent blur-[100px] -z-10 rounded-full pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-gradient-to-tr from-aurora-500/10 via-purple-500/8 to-teal-400/8 dark:from-aurora-600/15 dark:via-purple-600/10 dark:to-teal-500/10 blur-[130px] -z-10 rounded-full pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-[500px] h-[350px] bg-gradient-to-bl from-teal-400/8 via-aurora-400/6 to-transparent dark:from-teal-500/10 dark:via-aurora-500/10 blur-[110px] -z-10 rounded-full pointer-events-none" />
 
       <div className="container px-4 mx-auto max-w-6xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
@@ -55,16 +55,19 @@ export function HeroSection() {
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
             
             {/* Trust Pill */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-aurora-500/30 bg-aurora-500/10 backdrop-blur-md px-4 py-1.5 text-xs sm:text-sm text-aurora-700 dark:text-aurora-300 shadow-sm animate-fade-in">
-              <Sparkles className="h-4 w-4 text-aurora-500 dark:text-aurora-400 animate-pulse" />
-              <span className="font-semibold">{t("SchemeBridge AI")}</span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-aurora-200 dark:border-aurora-500/30 bg-aurora-50 dark:bg-aurora-500/10 backdrop-blur-md px-4 py-1.5 text-xs sm:text-sm text-aurora-800 dark:text-aurora-300 shadow-sm animate-fade-in">
+              <Sparkles className="h-4 w-4 text-aurora-600 dark:text-aurora-400 animate-pulse" />
+              <span className="font-bold">{t("SchemeBridge AI")}</span>
               <span className="h-1 w-1 rounded-full bg-aurora-500" />
-              <span className="text-slate-600 dark:text-slate-300 font-normal">{t("Empowering Marginalized Communities")}</span>
+              <span className="text-slate-700 dark:text-slate-300 font-medium">{t("Empowering Marginalized Communities")}</span>
             </div>
 
             {/* Main Heading */}
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.14]">
-              {t("AI-Driven Scheme Matching for Marginalized Entrepreneurs")}
+              <span className="bg-gradient-to-r from-aurora-600 via-indigo-600 to-teal-600 dark:from-aurora-400 dark:via-indigo-300 dark:to-teal-300 bg-clip-text text-transparent">
+                {t("AI-Driven Scheme Matching")}
+              </span>{" "}
+              {t("for Marginalized Entrepreneurs")}
             </h1>
 
             {/* Subtext */}
@@ -89,7 +92,7 @@ export function HeroSection() {
                 size="lg"
                 variant="secondary"
                 onClick={handleScrollToHowItWorks}
-                className="w-full sm:w-auto text-base font-semibold px-6 py-6 border-slate-300 dark:border-navy-700 bg-white dark:bg-navy-800/60 hover:bg-slate-100 dark:hover:bg-navy-700 text-slate-800 dark:text-white shadow-sm backdrop-blur"
+                className="w-full sm:w-auto text-base font-semibold px-6 py-6 border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-800/60 hover:bg-slate-50 dark:hover:bg-navy-700 text-slate-800 dark:text-white shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-navy-600 transition-all cursor-pointer backdrop-blur"
               >
                 {t("Learn More")}
               </Button>
@@ -97,16 +100,16 @@ export function HeroSection() {
 
             {/* Quick Proof Checklist */}
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4 text-xs text-slate-600 dark:text-slate-400">
-              <span className="inline-flex items-center gap-1.5">
-                <Check className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+              <span className="inline-flex items-center gap-1.5 font-medium">
+                <Check className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400 font-bold" />
                 {t("Instant Eligibility Check")}
               </span>
-              <span className="inline-flex items-center gap-1.5">
-                <Check className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+              <span className="inline-flex items-center gap-1.5 font-medium">
+                <Check className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400 font-bold" />
                 {t("90% Government Funding")}
               </span>
-              <span className="inline-flex items-center gap-1.5">
-                <Check className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+              <span className="inline-flex items-center gap-1.5 font-medium">
+                <Check className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400 font-bold" />
                 {t("16+ Bank Branches Mapped")}
               </span>
             </div>
@@ -117,10 +120,10 @@ export function HeroSection() {
           <div className="lg:col-span-5 relative flex items-center justify-center">
             
             {/* Background Glow Behind Illustration */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-aurora-500/20 via-purple-500/20 to-teal-400/20 blur-2xl rounded-3xl -z-10 transform scale-95" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-aurora-500/15 via-purple-500/15 to-teal-400/15 dark:from-aurora-500/20 dark:via-purple-500/20 dark:to-teal-400/20 blur-2xl rounded-3xl -z-10 transform scale-95" />
 
             {/* Main Interactive SaaS Mockup Card */}
-            <div className="w-full max-w-md rounded-2xl border border-slate-200 dark:border-navy-700 bg-white/90 dark:bg-navy-800/50 backdrop-blur-xl shadow-xl p-5 sm:p-6 space-y-4 relative overflow-hidden transition-all duration-500 hover:border-aurora-500/50 hover:shadow-aurora-500/10">
+            <div className="w-full max-w-md rounded-2xl border border-slate-200/90 dark:border-navy-700 bg-white/95 dark:bg-navy-800/50 backdrop-blur-xl shadow-xl shadow-slate-200/60 dark:shadow-aurora-500/10 p-5 sm:p-6 space-y-4 relative overflow-hidden transition-all duration-500 hover:border-aurora-400/60 dark:hover:border-aurora-500/50 hover:shadow-2xl">
               
               {/* Top Accent Strip */}
               <div className="h-1 w-full bg-gradient-to-r from-aurora-500 via-purple-500 to-teal-400 absolute top-0 left-0" />
@@ -133,65 +136,65 @@ export function HeroSection() {
                     {t("Live Assessment Preview")}
                   </span>
                 </div>
-                <Badge variant="glow" className="text-[10px] px-2 py-0.5 border-aurora-500/30 text-aurora-700 dark:text-aurora-300 bg-aurora-500/10">
+                <Badge variant="glow" className="text-[10px] px-2.5 py-0.5 border-aurora-200 dark:border-aurora-500/30 text-aurora-800 dark:text-aurora-300 bg-aurora-50 dark:bg-aurora-500/10 font-semibold">
                   {t("AI Match Verified")}
                 </Badge>
               </div>
 
               {/* Matched Scheme Card Preview */}
-              <div className="p-4 rounded-xl border border-teal-500/30 bg-teal-50/60 dark:bg-teal-950/30 space-y-3">
+              <div className="p-4 rounded-xl border border-teal-200 dark:border-teal-500/30 bg-teal-50/80 dark:bg-teal-950/30 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-teal-800 dark:text-teal-300 flex items-center gap-1">
+                  <span className="text-xs font-bold text-teal-900 dark:text-teal-300 flex items-center gap-1.5">
                     <CheckCircle2 className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
                     {t("Micro Finance Scheme")}
                   </span>
-                  <Badge className="bg-teal-600 text-white text-[10px] py-0 px-1.5 font-bold">
+                  <Badge className="bg-teal-600 text-white text-[10px] py-0 px-2 font-bold shadow-sm">
                     6.5% p.a.
                   </Badge>
                 </div>
 
                 {/* Segmented Funding Bar */}
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-[10px] font-semibold text-teal-800 dark:text-teal-200">
+                  <div className="flex items-center justify-between text-[10px] font-bold text-teal-900 dark:text-teal-200">
                     <span>{t("Government Loan (90%)")} (₹1.26L)</span>
                     <span>{t("Promoter Margin (10%)")} (₹14K)</span>
                   </div>
-                  <div className="w-full h-3 bg-slate-200 dark:bg-navy-950 rounded-full overflow-hidden flex p-0.5 border border-teal-500/30">
+                  <div className="w-full h-3 bg-slate-200 dark:bg-navy-950 rounded-full overflow-hidden flex p-0.5 border border-teal-200 dark:border-teal-500/30">
                     <div className="h-full bg-gradient-to-r from-teal-500 to-emerald-400 rounded-l-full" style={{ width: "90%" }} />
                     <div className="h-full bg-aurora-500 rounded-r-full" style={{ width: "10%" }} />
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] pt-1 text-teal-800/90 dark:text-teal-200/90 border-t border-teal-500/20">
-                  <span>{t("Monthly EMI")}: <strong>₹2,465/mo</strong></span>
-                  <span className="text-[10px]">{t("Maximum Repayment Tenure")}: 5 Years</span>
+                <div className="flex items-center justify-between text-[11px] pt-1 text-teal-900 dark:text-teal-200/90 border-t border-teal-200/60 dark:border-teal-500/20 font-medium">
+                  <span>{t("Monthly EMI")}: <strong className="font-bold text-teal-950 dark:text-teal-100">₹2,465/mo</strong></span>
+                  <span className="text-[10px] text-teal-800 dark:text-teal-300">{t("Maximum Repayment Tenure")}: 5 Years</span>
                 </div>
               </div>
 
               {/* Floating Sub-Cards (Channel Partner & Criteria) */}
               <div className="grid grid-cols-2 gap-2.5">
-                <div className="p-3 rounded-xl border border-slate-200 dark:border-navy-700 bg-slate-50 dark:bg-navy-900/60 space-y-1">
-                  <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400">
+                <div className="p-3 rounded-xl border border-slate-200/90 dark:border-navy-700 bg-slate-50/90 dark:bg-navy-900/60 shadow-sm space-y-1 hover:bg-white dark:hover:bg-navy-900 transition-colors">
+                  <div className="flex items-center gap-1 text-[10px] text-slate-600 dark:text-slate-400 font-medium">
                     <Building className="h-3 w-3 text-aurora-600 dark:text-aurora-400" />
                     <span>{t("Find Nearest Partner")}</span>
                   </div>
                   <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
                     SBI BKC MSME Hub
                   </p>
-                  <span className="text-[9px] text-teal-600 dark:text-teal-400 font-semibold flex items-center gap-0.5">
+                  <span className="text-[9px] text-teal-700 dark:text-teal-400 font-bold flex items-center gap-0.5">
                     <Check className="h-2.5 w-2.5" /> {t("Active")}
                   </span>
                 </div>
 
-                <div className="p-3 rounded-xl border border-slate-200 dark:border-navy-700 bg-slate-50 dark:bg-navy-900/60 space-y-1">
-                  <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400">
+                <div className="p-3 rounded-xl border border-slate-200/90 dark:border-navy-700 bg-slate-50/90 dark:bg-navy-900/60 shadow-sm space-y-1 hover:bg-white dark:hover:bg-navy-900 transition-colors">
+                  <div className="flex items-center gap-1 text-[10px] text-slate-600 dark:text-slate-400 font-medium">
                     <ShieldCheck className="h-3 w-3 text-purple-600 dark:text-purple-400" />
                     <span>{t("Statutory Rules")}</span>
                   </div>
                   <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
                     Income ≤ ₹5.00L
                   </p>
-                  <span className="text-[9px] text-aurora-700 dark:text-aurora-300 font-semibold flex items-center gap-0.5">
+                  <span className="text-[9px] text-aurora-800 dark:text-aurora-300 font-bold flex items-center gap-0.5">
                     <Check className="h-2.5 w-2.5" /> 100% {t("Check Eligibility")}
                   </span>
                 </div>
@@ -201,14 +204,14 @@ export function HeroSection() {
               <button
                 type="button"
                 onClick={handleStartAssessment}
-                className="w-full block pt-1 text-left cursor-pointer"
+                className="w-full block pt-1 text-left cursor-pointer group"
               >
-                <div className="p-2.5 rounded-xl bg-aurora-500/10 hover:bg-aurora-500/20 border border-aurora-500/20 flex items-center justify-between text-xs text-aurora-700 dark:text-aurora-300 font-medium transition-colors">
+                <div className="p-2.5 rounded-xl bg-aurora-50 group-hover:bg-aurora-100/80 border border-aurora-200/80 dark:bg-aurora-500/10 dark:group-hover:bg-aurora-500/20 dark:border-aurora-500/20 flex items-center justify-between text-xs text-aurora-800 dark:text-aurora-300 font-semibold transition-all shadow-sm">
                   <span className="flex items-center gap-1.5">
                     <Sparkles className="h-3.5 w-3.5 text-amber-500 dark:text-amber-300" />
                     {t("Start your assessment in less than 2 minutes")}
                   </span>
-                  <ChevronRight className="h-3.5 w-3.5" />
+                  <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </button>
 

@@ -40,7 +40,7 @@ export function WhyUseSection() {
       shortTitle: t("1. Faster Discovery"),
       icon: Zap,
       accentColor: "from-indigo-500 to-blue-600",
-      iconBg: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/30",
+      iconBg: "bg-indigo-50 text-indigo-700 border-indigo-200/70 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/30",
       description: t("Eliminate weeks of searching through fragmented government circulars. Match with concessional credit schemes in under 60 seconds."),
       highlights: [
         t("Instant AI-driven matching"),
@@ -54,7 +54,7 @@ export function WhyUseSection() {
       shortTitle: t("2. Simple Assessment"),
       icon: ShieldCheck,
       accentColor: "from-teal-500 to-emerald-600",
-      iconBg: "bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/30",
+      iconBg: "bg-teal-50 text-teal-700 border-teal-200/70 dark:bg-teal-500/10 dark:text-teal-400 dark:border-teal-500/30",
       description: t("Clear-cut qualification checks against family income thresholds (≤ ₹5.00 Lakhs ceiling) and specific business project categories."),
       highlights: [
         t("Transparent statutory rules"),
@@ -68,7 +68,7 @@ export function WhyUseSection() {
       shortTitle: t("3. Transparent Calculations"),
       icon: Scale,
       accentColor: "from-purple-500 to-pink-600",
-      iconBg: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30",
+      iconBg: "bg-purple-50 text-purple-700 border-purple-200/70 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/30",
       description: t("Full mathematical clarity on the 90% government funding ratio, 10% promoter margin, reducing balance EMIs, and moratorium interest."),
       highlights: [
         t("Live Recharts principal vs interest breakdown"),
@@ -82,11 +82,11 @@ export function WhyUseSection() {
       shortTitle: t("4. Partner Discovery"),
       icon: Compass,
       accentColor: "from-emerald-500 to-teal-600",
-      iconBg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
+      iconBg: "bg-emerald-50 text-emerald-700 border-emerald-200/70 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/30",
       description: t("Direct geo-spatial map locating authorized Public Sector Banks, Regional Rural Banks, and State Channelising Agencies in your city."),
       highlights: [
         t("16+ verified metro bank branches"),
-        t("NPA risk health indicator filter"),
+        t("Official channel partner verification"),
         t("Direct branch contact details"),
       ],
     },
@@ -96,7 +96,7 @@ export function WhyUseSection() {
       shortTitle: t("5. Unified Workflow"),
       icon: Award,
       accentColor: "from-blue-600 via-indigo-600 to-purple-600",
-      iconBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30",
+      iconBg: "bg-blue-50 text-blue-700 border-blue-200/70 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/30",
       description: t("An end-to-end continuous journey connecting requirement assessment, financial planning, and physical channel partner outreach in one unified interface."),
       highlights: [
         t("End-to-end guidance from discovery to branch"),
@@ -108,10 +108,10 @@ export function WhyUseSection() {
   ];
 
   return (
-    <section id="why-use" className="py-20 md:py-28 relative overflow-hidden bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100 dark:from-navy-950 dark:via-navy-900 dark:to-navy-950 border-t border-slate-200 dark:border-navy-800 transition-colors">
+    <section id="why-use" className="py-20 md:py-28 relative overflow-hidden bg-gradient-to-b from-slate-100/50 via-slate-50 to-white dark:from-navy-950 dark:via-navy-900 dark:to-navy-950 border-t border-slate-200/80 dark:border-navy-800 transition-colors">
       
       {/* Background ambient mesh */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[400px] bg-gradient-to-tr from-aurora-500/10 via-purple-500/10 to-teal-500/10 blur-[130px] -z-10 rounded-full pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[400px] bg-gradient-to-tr from-aurora-500/10 via-purple-500/8 to-teal-500/8 dark:from-aurora-500/10 dark:via-purple-500/10 dark:to-teal-500/10 blur-[130px] -z-10 rounded-full pointer-events-none" />
 
       <div className="container px-4 mx-auto max-w-6xl">
         
@@ -119,7 +119,7 @@ export function WhyUseSection() {
         <div className="text-center space-y-4 max-w-2xl mx-auto mb-16">
           <Badge
             variant="secondary"
-            className="px-3.5 py-1 text-xs font-semibold text-aurora-700 dark:text-aurora-300 bg-aurora-500/10 border border-aurora-500/25"
+            className="px-3.5 py-1 text-xs font-semibold text-amber-900 dark:text-aurora-300 bg-amber-50 dark:bg-aurora-500/10 border border-amber-200/80 dark:border-aurora-500/25 shadow-sm"
           >
             <Star className="h-3.5 w-3.5 mr-1.5 inline-block text-amber-500 fill-amber-500" />
             {t("Key Advantages")}
@@ -141,7 +141,7 @@ export function WhyUseSection() {
             return (
               <Card
                 key={b.id}
-                className={`border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-800/50 backdrop-blur-md shadow-md rounded-2xl overflow-hidden transition-all duration-300 hover:border-aurora-500/50 hover:shadow-2xl hover:shadow-aurora-500/10 hover:-translate-y-1.5 flex flex-col justify-between group ${
+                className={`border border-slate-200/90 dark:border-navy-700 bg-white dark:bg-navy-800/50 backdrop-blur-md shadow-sm dark:shadow-md rounded-2xl overflow-hidden transition-all duration-300 hover:border-aurora-300 dark:hover:border-aurora-500/50 hover:shadow-xl hover:shadow-slate-200/70 dark:hover:shadow-aurora-500/10 hover:-translate-y-1 flex flex-col justify-between group ${
                   b.featured ? "md:col-span-2 lg:col-span-2" : ""
                 }`}
               >
@@ -160,7 +160,7 @@ export function WhyUseSection() {
                     </div>
                   </div>
 
-                  <CardTitle className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white group-hover:text-aurora-600 dark:group-hover:text-aurora-300 transition-colors">
+                  <CardTitle className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white group-hover:text-aurora-700 dark:group-hover:text-aurora-300 transition-colors">
                     {b.title}
                   </CardTitle>
 
@@ -171,14 +171,14 @@ export function WhyUseSection() {
 
                 <CardContent className="px-6 sm:p-7 pt-0 border-t border-slate-100 dark:border-navy-700/60 mt-auto">
                   <div className="pt-4 space-y-2">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 block">
                       {t("Key Highlights:")}
                     </span>
                     <ul className="grid grid-cols-1 gap-1.5 text-xs text-slate-600 dark:text-slate-300">
                       {b.highlights.map((h, i) => (
                         <li key={i} className="flex items-center gap-2">
-                          <CheckCircle2 className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
-                          <span>{h}</span>
+                          <CheckCircle2 className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400 shrink-0 font-bold" />
+                          <span className="font-medium">{h}</span>
                         </li>
                       ))}
                     </ul>
@@ -190,7 +190,7 @@ export function WhyUseSection() {
         </div>
 
         {/* Bottom CTA Banner */}
-        <div className="mt-14 p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900/60 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left shadow-md">
+        <div className="mt-14 p-6 sm:p-8 rounded-2xl border border-slate-200/90 dark:border-navy-700 bg-white dark:bg-navy-900/60 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left shadow-lg shadow-slate-200/60 dark:shadow-md">
           <div className="space-y-1">
             <h4 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center justify-center sm:justify-start gap-2">
               <Sparkles className="h-4 w-4 text-amber-500 dark:text-amber-300" />

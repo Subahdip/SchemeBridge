@@ -323,61 +323,6 @@
       <!-- Centered Inner Form Container -->
       <div class="w-full max-w-4xl mx-auto flex flex-col gap-6">
 
-      <!-- Stepper / Breadcrumbs -->
-      <div class="space-y-3">
-        <div class="flex items-center justify-between text-xs text-slate-400">
-          <span class="font-bold text-indigo-400 uppercase tracking-wider">Step 1 of 4: Applicant Profile</span>
-          <span id="mainProgressText" class="font-mono">0% Complete (0/15 fields)</span>
-        </div>
-
-        <!-- Step Track -->
-        <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden flex">
-          <div id="mainProgressBar" class="h-full bg-gradient-to-r from-red-600 to-orange-600 w-0 rounded-full transition-all duration-300"></div>
-        </div>
-      </div>
-
-      <!-- Quick Jump Navigation Bar -->
-      <div
-        class="glass-card rounded-xl p-2.5 border border-white/10 flex flex-wrap items-center justify-between gap-2 shadow-lg relative z-20">
-        <div class="flex items-center gap-1.5 text-xs text-slate-400 font-semibold px-2">
-          <i data-lucide="compass" class="w-4 h-4 text-teal-400"></i>
-          <span>Quick Jump:</span>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-1.5 text-xs font-medium">
-          <!-- 1. Assessment button -> stays on current page / scrolls to top (active) -->
-          <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;"
-            class="px-3 py-1.5 rounded-lg bg-teal-500/20 text-teal-300 font-bold border border-teal-500/40 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer">
-            <span class="h-1.5 w-1.5 rounded-full bg-teal-400 animate-pulse"></span>
-            <span>Assessment</span>
-          </a>
-
-          <!-- 2. Matched Scheme button -> navigates to /matched-scheme.html -->
-          <a href="/matched-scheme.html"
-            class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-indigo-500/20 hover:text-indigo-300 text-slate-300 border border-white/10 flex items-center gap-1.5 transition-all cursor-pointer group">
-            <span>Matched Scheme</span>
-            <i data-lucide="arrow-right"
-              class="w-3 h-3 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-transform"></i>
-          </a>
-
-          <!-- 3. EMI Calculator button -> navigates to /emi-calculator.html -->
-          <a href="/emi-calculator.html"
-            class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-purple-500/20 hover:text-purple-300 text-slate-300 border border-white/10 flex items-center gap-1.5 transition-all cursor-pointer group">
-            <span>EMI Calculator</span>
-            <i data-lucide="arrow-right"
-              class="w-3 h-3 text-slate-500 group-hover:text-purple-400 group-hover:translate-x-0.5 transition-transform"></i>
-          </a>
-
-          <!-- 4. Partner Network button -> navigates to /partner-network.html -->
-          <a href="/partner-network.html"
-            class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-emerald-500/20 hover:text-emerald-300 text-slate-300 border border-white/10 flex items-center gap-1.5 transition-all cursor-pointer group">
-            <span>Partner Network</span>
-            <i data-lucide="arrow-right"
-              class="w-3 h-3 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-transform"></i>
-          </a>
-        </div>
-      </div>
-
       <!-- Heading Area (NO Hero Section) -->
       <div class="space-y-2 text-center sm:text-left">
         <div
@@ -699,7 +644,7 @@
                 Years at Current Job
                 <span class="text-red-400 text-sm font-normal ml-2">*</span>
               </label>
-              <select id="yearsAtJob" required class="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-3 text-white focus:border-aurora-500 focus:ring-2 focus:ring-aurora-500 transition-all">
+              <select id="yearsAtJob" required class="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-3 text-white focus:border-aurora-500 focus:ring-2 focus:ring-aurora-500 transition-all cursor-pointer">
                 <option value="">Select duration</option>
                 <option value="0-1">Less than 1 year</option>
                 <option value="1-2">1-2 years</option>
@@ -707,7 +652,10 @@
                 <option value="5-10">5-10 years</option>
                 <option value="10+">10+ years</option>
               </select>
-              <p class="text-muted-foreground text-xs mt-2">
+              <p id="tenureErrorMsg" class="hidden text-red-400 text-xs mt-2 flex items-center gap-1.5 font-medium animate-pulse">
+                ⚠️ Years at Current Job cannot exceed Total Work Experience
+              </p>
+              <p id="tenureNormalMsg" class="text-muted-foreground text-xs mt-2 flex items-center gap-1.5">
                 ✓ Longer tenure shows job stability and improves approval chances
               </p>
             </div>
@@ -718,7 +666,7 @@
                 Total Work Experience
                 <span class="text-red-400 text-sm font-normal ml-2">*</span>
               </label>
-              <select id="totalExperience" required class="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-3 text-white focus:border-aurora-500 focus:ring-2 focus:ring-aurora-500 transition-all">
+              <select id="totalExperience" required class="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-3 text-white focus:border-aurora-500 focus:ring-2 focus:ring-aurora-500 transition-all cursor-pointer">
                 <option value="">Select experience</option>
                 <option value="0-1">Less than 1 year (Fresher)</option>
                 <option value="1-3">1-3 years</option>
@@ -1035,6 +983,18 @@
         return;
       }
 
+      // VALIDATION: Years at Current Job vs Total Work Experience
+      if (!isJobTenureValid(assessmentData.yearsAtJob, assessmentData.totalExperience)) {
+        alert("⚠️ Years at Current Job cannot exceed Total Work Experience. Please correct your selections in Section 4.");
+        const jobEl = document.getElementById('yearsAtJob');
+        if (jobEl) {
+          jobEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          jobEl.focus();
+          jobEl.classList.add('border-red-500', 'ring-2', 'ring-red-500/50');
+        }
+        return;
+      }
+
       // VALIDATION 2: Existing EMIs vs Net Salary
       const emiValidation = validateExistingEMIs(assessmentData.netSalary, assessmentData.existingEmis);
       if (!emiValidation.valid) {
@@ -1229,19 +1189,22 @@
       updateDTIDisplay();
 
       const form = document.getElementById('assessmentForm');
-      if (form) {
-        const allInputs = form.querySelectorAll('input, select, textarea');
-        allInputs.forEach(input => {
-          input.addEventListener('input', () => {
-            updateProgressBar();
-            updateSidebarProgress();
-          });
-          input.addEventListener('change', () => {
-            updateProgressBar();
-            updateSidebarProgress();
-          });
+      // Job tenure vs Experience sync listeners
+      const totalExpEl = document.getElementById('totalExperience');
+      const yearsAtJobEl = document.getElementById('yearsAtJob');
+      if (totalExpEl) {
+        totalExpEl.addEventListener('change', function() {
+          const jobEl = document.getElementById('yearsAtJob');
+          if (jobEl && jobEl.value && !isJobTenureValid(jobEl.value, this.value)) {
+            jobEl.value = '';
+          }
+          syncJobTenureOptions();
         });
       }
+      if (yearsAtJobEl) {
+        yearsAtJobEl.addEventListener('change', syncJobTenureOptions);
+      }
+      syncJobTenureOptions();
 
       // Initial progress calculation
       updateProgressBar();
@@ -1249,6 +1212,61 @@
 
       updateActiveSection();
     });
+
+    // Helper functions for comparing Years at Current Job vs Total Work Experience
+    function getExperienceRank(val) {
+      switch (val) {
+        case '0-1': return 1;
+        case '1-2': return 2;
+        case '1-3': return 2;
+        case '2-5': return 3;
+        case '3-5': return 3;
+        case '5-10': return 4;
+        case '10+': return 5;
+        case '10-15': return 5;
+        case '15+': return 6;
+        default: return 0;
+      }
+    }
+
+    function isJobTenureValid(jobTenure, totalExp) {
+      if (!jobTenure || !totalExp) return true;
+      return getExperienceRank(jobTenure) <= getExperienceRank(totalExp);
+    }
+
+    function syncJobTenureOptions() {
+      const expSelect = document.getElementById('totalExperience');
+      const jobSelect = document.getElementById('yearsAtJob');
+      const tenureError = document.getElementById('tenureErrorMsg');
+      const tenureNormal = document.getElementById('tenureNormalMsg');
+      if (!expSelect || !jobSelect) return;
+
+      const expVal = expSelect.value;
+      const jobVal = jobSelect.value;
+
+      Array.from(jobSelect.options).forEach(opt => {
+        if (!opt.value) return;
+        if (expVal && !isJobTenureValid(opt.value, expVal)) {
+          opt.disabled = true;
+          if (!opt.text.includes('(Exceeds')) {
+            opt.text = opt.text.replace(/\s*\(Exceeds.*?\)/g, '') + ' (Exceeds total experience)';
+          }
+        } else {
+          opt.disabled = false;
+          opt.text = opt.text.replace(/\s*\(Exceeds.*?\)/g, '');
+        }
+      });
+
+      if (jobVal && expVal && !isJobTenureValid(jobVal, expVal)) {
+        jobSelect.classList.add('border-red-500', 'ring-2', 'ring-red-500/50');
+        if (tenureError) tenureError.classList.remove('hidden');
+        if (tenureNormal) tenureNormal.classList.add('hidden');
+      } else {
+        jobSelect.classList.remove('border-red-500', 'ring-2', 'ring-red-500/50');
+        if (tenureError) tenureError.classList.add('hidden');
+        if (tenureNormal) tenureNormal.classList.remove('hidden');
+      }
+    }
 
     // Prevent horizontal scroll
     document.body.style.overflowX = 'hidden';
@@ -1261,24 +1279,369 @@
       }
     }
 
-    // Smooth scroll when clicking sidebar links
-    document.querySelectorAll('.section-link').forEach(link => {
+    // Section validation logic
+    function validateSection(sectionName) {
+      const form = document.getElementById('assessmentForm');
+      if (!form) return true;
+
+      // Normalize section key and aliases
+      const norm = (sectionName || '').toLowerCase().trim().replace('#', '');
+      let secKey = norm;
+      if (norm === 'personal' || norm === 'basic' || norm === 'basic-info') secKey = 'basic-info';
+      else if (norm === 'loan' || norm === 'purpose' || norm === 'loan-purpose') secKey = 'loan-purpose';
+      else if (norm === 'financial' || norm === 'liabilities' || norm === 'financial-liabilities') secKey = 'financial-liabilities';
+      else if (norm === 'employment' || norm === 'professional' || norm === 'professional-details') secKey = 'professional-details';
+      else if (norm === 'demographics' || norm === 'address' || norm === 'loan-demographics') secKey = 'loan-demographics';
+      else if (norm === 'credit' || norm === 'credit-profile' || norm === 'credit-score') secKey = 'credit-score';
+
+      const sectionFields = {
+        'basic-info': ['income', 'loanAmount'],
+        'loan-purpose': ['loanPurpose'],
+        'financial-liabilities': ['existingEmis', 'salaryBank', 'netSalary'],
+        'professional-details': ['companyName', 'yearsAtJob', 'totalExperience'],
+        'loan-demographics': ['pincode', 'residentialStatus', 'address'],
+        'credit-score': ['creditScore']
+      };
+
+      const fieldLabels = {
+        'income': 'Annual Family Income',
+        'loanAmount': 'Required Loan Amount',
+        'loanPurpose': 'Primary Loan Purpose',
+        'educationCategory': 'Education Category',
+        'educationProjectSize': 'Education Project Size',
+        'businessType': 'Business Type',
+        'businessProjectSize': 'Business Project Size',
+        'personalReason': 'Personal Reason',
+        'personalProjectSize': 'Personal Loan Size',
+        'otherPurposeText': 'Purpose Description',
+        'otherProjectSize': 'Project Size',
+        'existingEmis': 'Existing Monthly EMIs',
+        'salaryBank': 'Salary Account Bank Name',
+        'netSalary': 'Net Take-Home Salary',
+        'companyName': 'Employer / Company Name',
+        'yearsAtJob': 'Years at Current Job',
+        'totalExperience': 'Total Work Experience',
+        'pincode': '6-digit Pincode',
+        'residentialStatus': 'Residential Status',
+        'address': 'Complete Address (min 10 chars)',
+        'creditScore': 'Credit Score Range'
+      };
+
+      let isValid = true;
+      let emptyFields = [];
+      let elementsToHighlight = [];
+
+      const addFieldErr = (fieldId, label) => {
+        isValid = false;
+        emptyFields.push(label || fieldLabels[fieldId] || fieldId);
+        const el = document.getElementById(fieldId);
+        if (el && !elementsToHighlight.includes(el)) {
+          elementsToHighlight.push(el);
+        }
+      };
+
+      const fields = sectionFields[secKey] || [];
+      fields.forEach(fieldName => {
+        const field = document.getElementById(fieldName);
+        if (field) {
+          if (!field.value || field.value.trim() === '') {
+            addFieldErr(fieldName);
+          } else if (field.tagName === 'SELECT' && field.value === '') {
+            addFieldErr(fieldName);
+          }
+        }
+      });
+
+      // Specific value validations per section
+      if (secKey === 'basic-info') {
+        const inc = parseFloat(document.getElementById('income')?.value) || 0;
+        const loan = parseFloat(document.getElementById('loanAmount')?.value) || 0;
+        if (inc <= 0) {
+          addFieldErr('income', 'Valid Annual Family Income (> 0)');
+        }
+        if (loan <= 0) {
+          addFieldErr('loanAmount', 'Valid Required Loan Amount (> 0)');
+        }
+      }
+
+      // Conditional fields for loan purpose
+      if (secKey === 'loan-purpose') {
+        const loanPurpose = document.getElementById('loanPurpose')?.value;
+        if (loanPurpose === 'education') {
+          const eduCat = document.getElementById('educationCategory');
+          const eduSize = document.getElementById('educationProjectSize');
+          if (eduCat && eduCat.offsetParent !== null && !eduCat.value) {
+            addFieldErr('educationCategory', 'Education Category');
+          }
+          if (!eduSize || !eduSize.value) {
+            addFieldErr('educationProjectSize', 'Education Project Size');
+          }
+        } else if (loanPurpose === 'business') {
+          const bizType = document.getElementById('businessType');
+          const bizSize = document.getElementById('businessProjectSize');
+          if (bizType && bizType.offsetParent !== null && !bizType.value) {
+            addFieldErr('businessType', 'Business Type');
+          }
+          if (!bizSize || !bizSize.value) {
+            addFieldErr('businessProjectSize', 'Business Project Size');
+          }
+        } else if (loanPurpose === 'personal') {
+          const perReason = document.getElementById('personalReason');
+          const perSize = document.getElementById('personalProjectSize');
+          if (perReason && perReason.offsetParent !== null && !perReason.value) {
+            addFieldErr('personalReason', 'Personal Reason');
+          }
+          if (!perSize || !perSize.value) {
+            addFieldErr('personalProjectSize', 'Personal Loan Size');
+          }
+        } else if (loanPurpose === 'other') {
+          const otherText = document.getElementById('otherPurposeText');
+          const otherSize = document.getElementById('otherProjectSize');
+          if (!otherText || !otherText.value.trim()) {
+            addFieldErr('otherPurposeText', 'Purpose Description');
+          }
+          if (!otherSize || !otherSize.value) {
+            addFieldErr('otherProjectSize', 'Project Size');
+          }
+        }
+      }
+
+      if (secKey === 'financial-liabilities') {
+        const emis = parseFloat(document.getElementById('existingEmis')?.value);
+        const netSal = parseFloat(document.getElementById('netSalary')?.value);
+        if (isNaN(emis) || emis < 0) {
+          addFieldErr('existingEmis', 'Valid Existing Monthly EMIs');
+        }
+        if (isNaN(netSal) || netSal <= 0) {
+          addFieldErr('netSalary', 'Valid Net Monthly Salary (> 0)');
+        }
+      }
+
+      if (secKey === 'professional-details') {
+        const jobVal = document.getElementById('yearsAtJob')?.value || '';
+        const expVal = document.getElementById('totalExperience')?.value || '';
+        if (jobVal && expVal && !isJobTenureValid(jobVal, expVal)) {
+          addFieldErr('yearsAtJob', 'Years at Current Job (cannot exceed Total Work Experience)');
+        }
+      }
+
+      if (secKey === 'loan-demographics') {
+        const pin = document.getElementById('pincode')?.value || '';
+        const addr = document.getElementById('address')?.value || '';
+        if (!/^\d{6}$/.test(pin.trim())) {
+          addFieldErr('pincode', 'Valid 6-Digit Pincode');
+        }
+        if (addr.trim().length < 10) {
+          addFieldErr('address', 'Complete Address (min 10 characters)');
+        }
+      }
+
+      // Check any other visible required inputs inside this section's container
+      const secEl = document.getElementById(secKey);
+      if (secEl) {
+        const container = secEl.closest('div.space-y-6, .mb-8, [data-section-content]') || secEl;
+        const requiredInputs = container.querySelectorAll('input[required], select[required], textarea[required]');
+        requiredInputs.forEach(input => {
+          if (input.offsetParent !== null && (!input.value || input.value.trim() === '')) {
+            if (!elementsToHighlight.includes(input)) {
+              addFieldErr(input.id || input.name, input.name || input.id || 'Required field');
+            }
+          }
+        });
+      }
+
+      if (!isValid) {
+        // Show user-friendly error message
+        alert(`⚠️ Please fill all required fields in this section before proceeding.\n\nMissing: ${emptyFields.join(', ')}`);
+
+        // Scroll to and focus first empty field with highlight animation
+        if (elementsToHighlight.length > 0) {
+          const firstField = elementsToHighlight[0];
+          firstField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstField.focus();
+          firstField.classList.add('border-red-500', 'ring-2', 'ring-red-500/50');
+          setTimeout(() => {
+            firstField.classList.remove('border-red-500', 'ring-2', 'ring-red-500/50');
+          }, 3000);
+        }
+      }
+
+      return isValid;
+    }
+
+    const ALL_SECTIONS = [
+      'basic-info',
+      'loan-purpose',
+      'financial-liabilities',
+      'professional-details',
+      'loan-demographics',
+      'credit-score'
+    ];
+
+    const SECTION_TITLES = {
+      'basic-info': 'Basic Financial Info',
+      'loan-purpose': 'Loan Purpose & Scale',
+      'financial-liabilities': 'Financial Liabilities',
+      'professional-details': 'Professional Details',
+      'loan-demographics': 'Loan Demographics',
+      'credit-score': 'Credit Profile'
+    };
+
+    function getCurrentSection() {
+      const activeNav = document.querySelector('[data-section].active') || document.querySelector('.section-link.text-aurora-400');
+      let activeName = 'basic-info';
+      if (activeNav) {
+        const rawSec = activeNav.getAttribute('data-section') || activeNav.getAttribute('href')?.replace('#', '');
+        if (rawSec) activeName = rawSec;
+      } else {
+        // Fallback based on scroll position
+        const sections = document.querySelectorAll('h2[id]');
+        sections.forEach(section => {
+          const rect = section.getBoundingClientRect();
+          if (rect.top <= 280) {
+            activeName = section.getAttribute('id');
+          }
+        });
+      }
+
+      let activeIndex = ALL_SECTIONS.indexOf(activeName);
+      if (activeIndex === -1) {
+        if (activeName === 'personal') activeIndex = 0;
+        else if (activeName === 'loan') activeIndex = 1;
+        else if (activeName === 'financial') activeIndex = 2;
+        else if (activeName === 'employment') activeIndex = 3;
+        else if (activeName === 'credit') activeIndex = 5;
+        else activeIndex = 0;
+      }
+
+      return {
+        name: ALL_SECTIONS[activeIndex],
+        index: activeIndex
+      };
+    }
+
+    function handleNavigationClick(sectionName, sectionIndex) {
+      const norm = (sectionName || '').replace('#', '').trim();
+      let targetIdx = sectionIndex;
+      if (targetIdx === undefined || targetIdx < 0) {
+        targetIdx = ALL_SECTIONS.indexOf(norm);
+        if (targetIdx === -1) {
+          if (norm === 'personal') targetIdx = 0;
+          else if (norm === 'loan') targetIdx = 1;
+          else if (norm === 'financial') targetIdx = 2;
+          else if (norm === 'employment') targetIdx = 3;
+          else if (norm === 'credit') targetIdx = 5;
+          else targetIdx = 0;
+        }
+      }
+
+      const currentSection = getCurrentSection();
+
+      // Allow going backwards freely
+      if (targetIdx < currentSection.index) {
+        navigateToSection(ALL_SECTIONS[targetIdx]);
+        return;
+      }
+
+      // If clicking same section, smooth scroll to it
+      if (targetIdx === currentSection.index) {
+        navigateToSection(ALL_SECTIONS[targetIdx]);
+        return;
+      }
+
+      // If clicking forward, validate current and all preceding sections up to target
+      if (targetIdx > currentSection.index) {
+        for (let i = currentSection.index; i < targetIdx; i++) {
+          const isCurrentValid = validateSection(ALL_SECTIONS[i]);
+          if (!isCurrentValid) {
+            return; // Blocked: validateSection already alerted and focused first empty field
+          }
+        }
+        navigateToSection(ALL_SECTIONS[targetIdx]);
+      }
+    }
+
+    function navigateToSection(sectionName) {
+      const cleanName = sectionName.replace('#', '');
+      const targetId = `#${cleanName}`;
+      const targetSection = document.querySelector(targetId) || document.getElementById(cleanName);
+
+      if (targetSection) {
+        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.pushState(null, null, targetId);
+      }
+
+      // Update Top Nav Steps UI active states
+      const targetIdx = ALL_SECTIONS.indexOf(cleanName);
+      const activeBadge = document.getElementById('activeStepBadge');
+      const activeTitle = document.getElementById('activeStepTitle');
+      if (activeBadge) activeBadge.textContent = (targetIdx + 1);
+      if (activeTitle) activeTitle.textContent = `Step ${targetIdx + 1} of 6: ${SECTION_TITLES[cleanName] || cleanName}`;
+
+      document.querySelectorAll('[data-section]').forEach(nav => {
+        const secAttr = nav.getAttribute('data-section');
+        const isActive = secAttr === cleanName || 
+          (cleanName === 'basic-info' && secAttr === 'personal') ||
+          (cleanName === 'loan-purpose' && secAttr === 'loan') ||
+          (cleanName === 'financial-liabilities' && secAttr === 'financial') ||
+          (cleanName === 'professional-details' && secAttr === 'employment') ||
+          (cleanName === 'credit-score' && secAttr === 'credit');
+
+        const badge = nav.querySelector('.step-num-badge');
+        const statusText = nav.querySelector('.step-status-text');
+
+        if (isActive) {
+          nav.classList.add('active', 'border-aurora-400', 'text-aurora-300', 'bg-aurora-950/40', 'ring-2', 'ring-aurora-500/20');
+          nav.classList.remove('border-navy-800', 'text-muted-foreground', 'bg-navy-900/40');
+          if (badge) {
+            badge.className = 'step-num-badge w-7 h-7 rounded-lg flex items-center justify-center shrink-0 font-bold text-xs bg-aurora-500 text-white';
+          }
+          if (statusText) statusText.textContent = 'Current';
+        } else {
+          nav.classList.remove('active', 'border-aurora-400', 'text-aurora-300', 'bg-aurora-950/40', 'ring-2', 'ring-aurora-500/20');
+          nav.classList.add('border-navy-800', 'text-muted-foreground', 'bg-navy-900/40');
+          if (badge) {
+            badge.className = 'step-num-badge w-7 h-7 rounded-lg flex items-center justify-center shrink-0 font-bold text-xs bg-navy-800 text-slate-400';
+          }
+          if (statusText) statusText.textContent = 'Pending';
+        }
+      });
+
+      // Update sidebar links
+      document.querySelectorAll('.section-link').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === targetId || href === `#${cleanName}`) {
+          link.classList.remove('text-muted-foreground');
+          link.classList.add('bg-aurora-900/30', 'text-aurora-400');
+        } else {
+          link.classList.remove('bg-aurora-900/30', 'text-aurora-400');
+          link.classList.add('text-muted-foreground');
+        }
+      });
+
+      // Update Mobile Dropdown
+      const mobileSelect = document.getElementById('mobileSectionSelector');
+      if (mobileSelect) {
+        mobileSelect.value = targetId;
+      }
+    }
+
+    // Attach click handlers to top navigation steps, sidebar links, and mobile select
+    document.querySelectorAll('[data-section]').forEach((navItem) => {
+      navItem.addEventListener('click', function(e) {
+        e.preventDefault();
+        const sectionName = this.getAttribute('data-section');
+        const indexAttr = this.getAttribute('data-index');
+        const index = indexAttr !== null ? parseInt(indexAttr, 10) : undefined;
+        handleNavigationClick(sectionName, index);
+      });
+    });
+
+    document.querySelectorAll('.section-link').forEach((link, index) => {
       link.addEventListener('click', function(e) {
         e.preventDefault();
-        
         const targetId = this.getAttribute('href');
-        const targetSection = document.querySelector(targetId);
-        
-        if (targetSection) {
-          // Smooth scroll to section
-          targetSection.scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'start'
-          });
-          
-          // Update URL without page jump
-          history.pushState(null, null, targetId);
-        }
+        handleNavigationClick(targetId, index);
       });
     });
 
@@ -1286,10 +1649,7 @@
     document.getElementById('mobileSectionSelector')?.addEventListener('change', function() {
       const targetId = this.value;
       if (targetId) {
-        const targetSection = document.querySelector(targetId);
-        if (targetSection) {
-          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        handleNavigationClick(targetId);
       }
     });
 
@@ -1307,6 +1667,36 @@
         }
       });
       
+      // Update Top Nav Steps and sidebar active link without page jump
+      if (currentSection) {
+        const targetIdx = ALL_SECTIONS.indexOf(currentSection);
+        if (targetIdx !== -1) {
+          const activeBadge = document.getElementById('activeStepBadge');
+          const activeTitle = document.getElementById('activeStepTitle');
+          if (activeBadge) activeBadge.textContent = (targetIdx + 1);
+          if (activeTitle) activeTitle.textContent = `Step ${targetIdx + 1} of 6: ${SECTION_TITLES[currentSection] || currentSection}`;
+
+          document.querySelectorAll('[data-section]').forEach(nav => {
+            const secAttr = nav.getAttribute('data-section');
+            const isActive = secAttr === currentSection;
+            const badge = nav.querySelector('.step-num-badge');
+            const statusText = nav.querySelector('.step-status-text');
+
+            if (isActive) {
+              nav.classList.add('active', 'border-aurora-400', 'text-aurora-300', 'bg-aurora-950/40', 'ring-2', 'ring-aurora-500/20');
+              nav.classList.remove('border-navy-800', 'text-muted-foreground', 'bg-navy-900/40');
+              if (badge) badge.className = 'step-num-badge w-7 h-7 rounded-lg flex items-center justify-center shrink-0 font-bold text-xs bg-aurora-500 text-white';
+              if (statusText) statusText.textContent = 'Current';
+            } else {
+              nav.classList.remove('active', 'border-aurora-400', 'text-aurora-300', 'bg-aurora-950/40', 'ring-2', 'ring-aurora-500/20');
+              nav.classList.add('border-navy-800', 'text-muted-foreground', 'bg-navy-900/40');
+              if (badge) badge.className = 'step-num-badge w-7 h-7 rounded-lg flex items-center justify-center shrink-0 font-bold text-xs bg-navy-800 text-slate-400';
+              if (statusText) statusText.textContent = 'Pending';
+            }
+          });
+        }
+      }
+
       // Remove active class from all links
       sectionLinks.forEach(link => {
         link.classList.remove('bg-aurora-900/30', 'text-aurora-400');

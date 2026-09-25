@@ -7,7 +7,6 @@
     "lat": 28.6328,
     "lng": 77.2197,
     "status": "Active",
-    "npaFlag": false,
     "address": "11 Parliament Street, Connaught Place, New Delhi",
     "city": "Delhi",
     "contact": "011-23374821"
@@ -20,7 +19,6 @@
     "lat": 28.7166,
     "lng": 77.1182,
     "status": "Active",
-    "npaFlag": false,
     "address": "Ambedkar Bhawan, Sector 16, Rohini, New Delhi",
     "city": "Delhi",
     "contact": "011-27854120"
@@ -33,7 +31,6 @@
     "lat": 28.5672,
     "lng": 77.1856,
     "status": "Active",
-    "npaFlag": false,
     "address": "7, Bhikaji Cama Place, Ring Road, New Delhi",
     "city": "Delhi",
     "contact": "011-26194300"
@@ -46,7 +43,6 @@
     "lat": 28.6219,
     "lng": 77.0878,
     "status": "Active",
-    "npaFlag": false,
     "address": "District Centre, Janakpuri, New Delhi",
     "city": "Delhi",
     "contact": "011-25531098"
@@ -59,7 +55,6 @@
     "lat": 28.6924,
     "lng": 77.1518,
     "status": "Inactive",
-    "npaFlag": true,
     "address": "Netaji Subhash Place, Pitampura, New Delhi",
     "city": "Delhi",
     "contact": "011-47029871"
@@ -72,7 +67,6 @@
     "lat": 19.0657,
     "lng": 72.8687,
     "status": "Active",
-    "npaFlag": false,
     "address": "SBI Building, G Block, Bandra Kurla Complex (BKC), Mumbai",
     "city": "Mumbai",
     "contact": "022-26445500"
@@ -85,7 +79,6 @@
     "lat": 18.9438,
     "lng": 72.8333,
     "status": "Active",
-    "npaFlag": false,
     "address": "Jitekar Building, M.V. Road, Near Crawford Market, Fort, Mumbai",
     "city": "Mumbai",
     "contact": "022-22621980"
@@ -98,7 +91,6 @@
     "lat": 19.0178,
     "lng": 72.8478,
     "status": "Active",
-    "npaFlag": false,
     "address": "Dadar Commercial Hub, Senapati Bapat Marg, Mumbai",
     "city": "Mumbai",
     "contact": "022-24387211"
@@ -111,7 +103,6 @@
     "lat": 19.1972,
     "lng": 72.9636,
     "status": "Active",
-    "npaFlag": false,
     "address": "Station Road, Naupada, Thane West, Mumbai MMR",
     "city": "Mumbai",
     "contact": "022-25381122"
@@ -124,7 +115,6 @@
     "lat": 19.1136,
     "lng": 72.8697,
     "status": "Inactive",
-    "npaFlag": true,
     "address": "MIDC Central Road, Andheri East, Mumbai",
     "city": "Mumbai",
     "contact": "022-67129000"
@@ -137,7 +127,6 @@
     "lat": 22.5868,
     "lng": 88.4178,
     "status": "Active",
-    "npaFlag": false,
     "address": "CF-217/A/1, Sector 1, Salt Lake City, Kolkata",
     "city": "Kolkata",
     "contact": "033-23345678"
@@ -150,7 +139,6 @@
     "lat": 22.5726,
     "lng": 88.3499,
     "status": "Active",
-    "npaFlag": false,
     "address": "10, B.T.M. Sarani, Brabourne Road, BBD Bagh, Kolkata",
     "city": "Kolkata",
     "contact": "033-22489012"
@@ -163,7 +151,6 @@
     "lat": 22.5518,
     "lng": 88.3524,
     "status": "Active",
-    "npaFlag": false,
     "address": "Park Street Crossing, Kolkata Central, Kolkata",
     "city": "Kolkata",
     "contact": "033-22271890"
@@ -176,7 +163,6 @@
     "lat": 22.5204,
     "lng": 88.3653,
     "status": "Inactive",
-    "npaFlag": true,
     "address": "Gariahat Commercial Complex, Ballygunge, Kolkata",
     "city": "Kolkata",
     "contact": "033-24608199"
@@ -189,7 +175,6 @@
     "lat": 13.0418,
     "lng": 80.2496,
     "status": "Active",
-    "npaFlag": false,
     "address": "31, Cenotaph Road, Teynampet, Chennai",
     "city": "Chennai",
     "contact": "044-24332155"
@@ -202,7 +187,6 @@
     "lat": 13.0878,
     "lng": 80.2882,
     "status": "Active",
-    "npaFlag": false,
     "address": "254-260, Avvai Shanmugam Salai, George Town, Chennai",
     "city": "Chennai",
     "contact": "044-28134455"
@@ -215,7 +199,6 @@
     "lat": 13.0382,
     "lng": 80.2341,
     "status": "Active",
-    "npaFlag": false,
     "address": "Venkatnarayana Road, T. Nagar, Chennai",
     "city": "Chennai",
     "contact": "044-24341029"
@@ -228,7 +211,6 @@
     "lat": 12.9812,
     "lng": 77.5855,
     "status": "Active",
-    "npaFlag": false,
     "address": "Khanija Bhavan, 4th Floor, Race Course Road, Bangalore",
     "city": "Bangalore",
     "contact": "080-22251144"
@@ -241,7 +223,6 @@
     "lat": 12.9250,
     "lng": 77.5938,
     "status": "Active",
-    "npaFlag": false,
     "address": "112, J.C. Road & 4th Block, Jayanagar, Bangalore",
     "city": "Bangalore",
     "contact": "080-26569080"
@@ -254,7 +235,6 @@
     "lat": 12.9698,
     "lng": 77.7499,
     "status": "Inactive",
-    "npaFlag": true,
     "address": "ITPL Main Road, Whitefield, Bangalore",
     "city": "Bangalore",
     "contact": "080-41129800"

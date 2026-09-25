@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Applications — SchemeBridge</title>
-  <meta name="description" content="View and track all your loan applications submitted through SchemeBridge.">
+  <meta name="description" content="Track and manage your loan applications across all NSFDC schemes.">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -139,22 +139,49 @@
     <div class="container mx-auto px-4 max-w-5xl">
       
       <!-- Header -->
-      <div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div>
-          <h1 class="text-4xl font-bold text-white mb-2">My Applications</h1>
-          <p class="text-slate-400">View and track all your loan applications</p>
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 rounded-full border border-aurora-500/30 bg-aurora-500/10 px-3.5 py-1 text-xs text-aurora-300 mb-3">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>Government Concessional Credit Portal</span>
+        </div>
+        <h1 class="text-4xl font-bold text-white mb-3">My Applications</h1>
+        <p class="text-slate-400 max-w-2xl mx-auto">
+          Track and manage your loan applications across all NSFDC schemes
+        </p>
+      </div>
+
+      <!-- Search & Filter Bar -->
+      <div class="bg-navy-900 border border-navy-800 p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md mb-6">
+        <div class="relative w-full sm:w-72">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by ID, Scheme, Purpose..."
+            oninput="handleSearchFilter()"
+            class="w-full h-10 pl-9 pr-3 rounded-lg border border-navy-700 bg-navy-950 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-aurora-500"
+          />
+        </div>
+
+        <div class="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0" id="statusFilterButtons">
+          <button type="button" onclick="setFilter('All')" class="filter-btn active px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap bg-aurora-600 text-white cursor-pointer" data-filter="All">All</button>
+          <button type="button" onclick="setFilter('approved')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap bg-navy-800 text-slate-400 hover:text-white cursor-pointer" data-filter="approved">Approved</button>
+          <button type="button" onclick="setFilter('pending')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap bg-navy-800 text-slate-400 hover:text-white cursor-pointer" data-filter="pending">Pending</button>
+          <button type="button" onclick="setFilter('Under Review')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap bg-navy-800 text-slate-400 hover:text-white cursor-pointer" data-filter="Under Review">Under Review</button>
         </div>
       </div>
       
-      <!-- Applications List -->
-      <div id="applicationsList" class="space-y-4">
+      <!-- Applications List Container -->
+      <div id="applicationsList" class="space-y-6">
         <!-- Will be populated by JavaScript -->
       </div>
       
       <!-- Empty State (if no applications) -->
-      <div id="emptyState" class="hidden">
-        <div class="bg-navy-800 border border-navy-700 rounded-xl p-12 text-center shadow-xl">
-          <div class="text-6xl mb-4">📋</div>
+      <div id="emptyState" class="hidden mt-4">
+        <div class="bg-navy-900 border border-navy-800 rounded-2xl p-12 text-center shadow-xl">
+          <div class="w-16 h-16 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="clipboard-list" class="w-8 h-8"></i>
+          </div>
           <h3 class="text-2xl font-bold text-white mb-2">No Applications Yet</h3>
           <p class="text-slate-400 mb-6">Apply for a scheme to see it here</p>
           <button onclick="window.location.href='/assessment.html'" class="bg-aurora-600 hover:bg-aurora-700 text-white px-8 py-3 rounded-lg font-medium shadow-lg shadow-aurora-500/25 transition-all cursor-pointer">
@@ -164,9 +191,26 @@
       </div>
       
       <!-- Apply New Button -->
-      <button onclick="window.location.href='/assessment.html'" class="mt-8 w-full bg-aurora-600 hover:bg-aurora-700 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow-lg shadow-aurora-500/25 transition-all cursor-pointer">
-        + Apply for New Scheme
+      <button onclick="window.location.href='/assessment.html'" class="mt-8 w-full bg-aurora-600 hover:bg-aurora-700 text-white px-8 py-4 rounded-xl text-lg font-bold shadow-xl shadow-aurora-500/25 transition-all cursor-pointer flex items-center justify-center gap-2">
+        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+        <span>+ Apply for New Scheme</span>
       </button>
+
+      <!-- Informational Guidance Footer -->
+      <div class="mt-12 p-6 rounded-2xl bg-navy-900/60 border border-navy-800 text-xs text-slate-400 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <p class="font-bold text-white">Direct Lending Security Guarantee</p>
+            <p class="text-slate-400">Applications are dispatched to Ministry of Social Justice & Empowerment verified partner banks.</p>
+          </div>
+        </div>
+        <a href="/partner-network.html" class="text-xs text-teal-400 hover:text-teal-300 font-semibold">
+          Locate Branch →
+        </a>
+      </div>
 
     </div>
   </main>
@@ -192,6 +236,51 @@
   </footer>
 
   <script>
+    let currentFilter = 'All';
+    let currentSearch = '';
+
+    // Calculate total interest percentage
+    function calculateTotalInterestPercent(loanAmount, totalInterest) {
+      if (!loanAmount || loanAmount <= 0) return '0.00';
+      return ((totalInterest / loanAmount) * 100).toFixed(2);
+    }
+
+    // Helper to normalize calculated values
+    function getCalculatedValues(app) {
+      const loanAmount = Number(app.loanAmount || app.amount || 150000);
+      const rawRate = typeof app.interestRate === 'number' 
+        ? app.interestRate 
+        : parseFloat(String(app.interestRate).replace(/[^0-9.]/g, '')) || 4.0;
+      const tenureMonths = Number(app.tenureMonths || 36);
+      const tenureYears = app.tenureYears || Math.round(tenureMonths / 12) || 1;
+
+      const monthlyRate = (rawRate / 12) / 100;
+      let emi = app.emi;
+      let totalPayment = app.totalPayment;
+      let totalInterest = app.totalInterest;
+
+      if (!emi || !totalInterest || !totalPayment) {
+        if (monthlyRate > 0) {
+          const factor = Math.pow(1 + monthlyRate, tenureMonths);
+          emi = Math.round((loanAmount * monthlyRate * factor) / (factor - 1));
+        } else {
+          emi = Math.round(loanAmount / tenureMonths);
+        }
+        totalPayment = emi * tenureMonths;
+        totalInterest = Math.max(0, totalPayment - loanAmount);
+      }
+
+      return {
+        loanAmount,
+        rawRate,
+        tenureMonths,
+        tenureYears,
+        emi,
+        totalPayment,
+        totalInterest
+      };
+    }
+
     // Highlight current page in navbar & initialize
     document.addEventListener('DOMContentLoaded', function() {
       const currentPage = window.location.pathname;
@@ -211,8 +300,7 @@
       });
 
       addMockApplications();
-      loadApplications();
-      lucide.createIcons();
+      renderApplications();
     });
 
     function toggleMobileNav() {
@@ -222,93 +310,205 @@
       }
     }
 
-    function loadApplications() {
-      // Get all applications from sessionStorage
+    function setFilter(status) {
+      currentFilter = status;
+      document.querySelectorAll('#statusFilterButtons .filter-btn').forEach(btn => {
+        if (btn.getAttribute('data-filter') === status) {
+          btn.className = 'filter-btn active px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap bg-aurora-600 text-white cursor-pointer';
+        } else {
+          btn.className = 'filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap bg-navy-800 text-slate-400 hover:text-white cursor-pointer';
+        }
+      });
+      renderApplications();
+    }
+
+    function handleSearchFilter() {
+      currentSearch = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+      renderApplications();
+    }
+
+    function renderApplications() {
       const applications = JSON.parse(sessionStorage.getItem('applications') || '[]');
-      
       const listContainer = document.getElementById('applicationsList');
       const emptyState = document.getElementById('emptyState');
       
       if (applications.length === 0) {
-        // Show empty state
         emptyState.classList.remove('hidden');
         listContainer.innerHTML = '';
         return;
       }
       
-      // Show applications list
       emptyState.classList.add('hidden');
-      
-      const html = `
-        <div class="space-y-4">
-          ${applications.map((app, index) => {
-            const interestDisplay = typeof app.interestRate === 'number' 
-              ? `${app.interestRate}% p.a.` 
-              : (String(app.interestRate).includes('%') ? app.interestRate : `${app.interestRate}% p.a.`);
 
-            return `
-            <div class="bg-navy-800 border border-navy-700 rounded-xl p-6 hover:border-aurora-500 transition-all cursor-pointer shadow-lg" 
-                 onclick="trackApplication('${app.applicationId}')">
-              <div class="flex flex-col sm:flex-row justify-between items-start gap-4">
-                <div class="flex-1">
-                  <div class="flex items-center gap-3 mb-3">
-                    <span class="text-xl font-mono font-bold text-aurora-400">${app.applicationId}</span>
-                    <span class="${getStatusColor(app.status)} text-white px-4 py-1.5 rounded-full text-sm font-medium">
-                      ${app.status}
-                    </span>
-                  </div>
-                  
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <p class="text-slate-400 text-sm mb-1">Scheme</p>
-                      <p class="text-white font-medium">${app.scheme}</p>
-                    </div>
-                    <div>
-                      <p class="text-slate-400 text-sm mb-1">Amount</p>
-                      <p class="text-white font-medium">₹${Number(app.amount).toLocaleString('en-IN')}</p>
-                    </div>
-                    <div>
-                      <p class="text-slate-400 text-sm mb-1">Applied Date</p>
-                      <p class="text-white">${app.submittedDate}</p>
-                    </div>
-                    <div>
-                      <p class="text-slate-400 text-sm mb-1">Interest Rate</p>
-                      <p class="text-white">${interestDisplay}</p>
-                    </div>
-                  </div>
+      // Filter applications
+      const filtered = applications.filter(app => {
+        const matchesFilter = currentFilter === 'All' || (app.status || '').toLowerCase().includes(currentFilter.toLowerCase());
+        const matchesSearch = currentSearch === '' ||
+          (app.applicationId || '').toLowerCase().includes(currentSearch) ||
+          (app.scheme || app.schemeName || '').toLowerCase().includes(currentSearch) ||
+          (app.purpose || '').toLowerCase().includes(currentSearch);
+        return matchesFilter && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        listContainer.innerHTML = `
+          <div class="p-8 text-center bg-navy-900 border border-navy-800 rounded-xl text-slate-400 text-xs">
+            No applications match the selected filter.
+          </div>
+        `;
+        return;
+      }
+      
+      const html = filtered.map((app) => {
+        const calc = getCalculatedValues(app);
+        const schemeTitle = app.schemeName || app.scheme || 'NSFDC Scheme';
+        const formattedDate = app.submittedDate || app.appliedDate || '2026-09-15';
+        const partnerName = app.channelPartner || 'State Bank of India';
+
+        let statusBadge = '';
+        const st = (app.status || '').toLowerCase();
+        if (st.includes('approved') || st.includes('disbursed')) {
+          statusBadge = `
+            <div class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-green-500/15 text-green-400 border border-green-500/30">
+              <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+              <span class="capitalize">${app.status}</span>
+            </div>
+          `;
+        } else if (st.includes('reject')) {
+          statusBadge = `
+            <div class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-red-500/15 text-red-400 border border-red-500/30">
+              <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+              <span class="capitalize">${app.status}</span>
+            </div>
+          `;
+        } else {
+          statusBadge = `
+            <div class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-yellow-500/15 text-yellow-400 border border-yellow-500/30">
+              <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+              <span class="capitalize">${app.status || 'Pending'}</span>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="p-6 bg-navy-900 border border-navy-800 rounded-xl hover:border-navy-700 transition-all shadow-xl">
+            <!-- Header with Status -->
+            <div class="flex items-start justify-between mb-6 flex-wrap gap-3">
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-xs font-mono font-bold text-aurora-400">${app.applicationId}</span>
                 </div>
-                
-                <div class="flex-shrink-0 self-end sm:self-center">
-                  <button class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-md shadow-teal-500/20">
-                    Track Status →
-                  </button>
+                <h3 class="text-xl font-bold text-white mb-1">${schemeTitle}</h3>
+                <p class="text-slate-400 text-sm">${app.purpose || 'Business / Education Scheme'}</p>
+              </div>
+              <div class="flex items-center gap-2">
+                ${statusBadge}
+              </div>
+            </div>
+
+            <!-- Loan Details Grid -->
+            <div class="grid md:grid-cols-3 gap-6 mb-6">
+              <!-- Loan Amount -->
+              <div class="p-4 bg-navy-800/50 rounded-lg border border-navy-700/50">
+                <div class="flex items-center gap-3 mb-3">
+                  <i data-lucide="indian-rupee" class="w-5 h-5 text-aurora-400"></i>
+                  <span class="text-sm text-slate-400">Loan Amount</span>
+                </div>
+                <p class="text-2xl font-bold text-white">₹${calc.loanAmount.toLocaleString('en-IN')}</p>
+              </div>
+
+              <!-- Loan Duration -->
+              <div class="p-4 bg-navy-800/50 rounded-lg border border-navy-700/50">
+                <div class="flex items-center gap-3 mb-3">
+                  <i data-lucide="calendar" class="w-5 h-5 text-aurora-400"></i>
+                  <span class="text-sm text-slate-400">Loan Duration</span>
+                </div>
+                <p class="text-2xl font-bold text-white">${calc.tenureYears} years (${calc.tenureMonths} months)</p>
+                <p class="text-xs text-slate-400 mt-1">Total repayment period</p>
+              </div>
+
+              <!-- Total Interest -->
+              <div class="p-4 bg-navy-800/50 rounded-lg border border-navy-700/50">
+                <div class="flex items-center gap-3 mb-3">
+                  <i data-lucide="percent" class="w-5 h-5 text-aurora-400"></i>
+                  <span class="text-sm text-slate-400">Total Interest</span>
+                </div>
+                <p class="text-2xl font-bold text-white">${calculateTotalInterestPercent(calc.loanAmount, calc.totalInterest)}%</p>
+                <p class="text-xs text-slate-400 mt-1">₹${calc.totalInterest.toLocaleString('en-IN')} over ${calc.tenureYears} years</p>
+              </div>
+            </div>
+
+            <!-- Detailed Breakdown -->
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+              <div class="space-y-3">
+                <div class="flex justify-between items-center py-2 border-b border-navy-800">
+                  <span class="text-sm text-slate-400">Monthly EMI</span>
+                  <span class="text-white font-semibold">₹${calc.emi.toLocaleString('en-IN')}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-navy-800">
+                  <span class="text-sm text-slate-400">Interest Rate (p.a.)</span>
+                  <span class="text-white font-semibold">${calc.rawRate}%</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-navy-800">
+                  <span class="text-sm text-slate-400">Total Payment</span>
+                  <span class="text-aurora-400 font-bold">₹${calc.totalPayment.toLocaleString('en-IN')}</span>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div class="flex justify-between items-center py-2 border-b border-navy-800">
+                  <span class="text-sm text-slate-400">Channel Partner</span>
+                  <span class="text-white font-semibold">${partnerName}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-navy-800">
+                  <span class="text-sm text-slate-400">Applied Date</span>
+                  <span class="text-white font-semibold">${formattedDate}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-navy-800">
+                  <span class="text-sm text-slate-400">Total Interest Amount</span>
+                  <span class="text-yellow-400 font-semibold">₹${calc.totalInterest.toLocaleString('en-IN')}</span>
                 </div>
               </div>
             </div>
-            `;
-          }).join('')}
-        </div>
-      `;
-      
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-6 border-t border-navy-800">
+              <div class="flex items-center gap-3">
+                <button 
+                  onclick="trackApplication('${app.applicationId}')"
+                  class="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-aurora-600 to-teal-600 hover:from-aurora-700 hover:to-teal-700 text-white text-sm font-medium rounded-lg transition-all shadow-md shadow-aurora-500/20 cursor-pointer">
+                  <i data-lucide="file-text" class="w-4 h-4"></i>
+                  <span>View Details</span>
+                </button>
+              </div>
+
+              <button 
+                onclick="deleteApplication('${app.applicationId}')"
+                class="text-slate-400 hover:text-rose-400 p-2 rounded-lg hover:bg-rose-500/10 transition-all cursor-pointer"
+                title="Delete application">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
       listContainer.innerHTML = html;
       lucide.createIcons();
     }
 
-    function getStatusColor(status) {
-      const colors = {
-        "Submitted": "bg-gray-600",
-        "Under Review": "bg-yellow-600",
-        "Documents Verified": "bg-blue-600",
-        "Approved": "bg-teal-600",
-        "Loan Approved": "bg-teal-600",
-        "Disbursed": "bg-aurora-600",
-        "Rejected": "bg-red-600"
-      };
-      return colors[status] || "bg-gray-600";
+
+
+    function deleteApplication(appId) {
+      if (confirm(`Are you sure you want to delete application ${appId}?`)) {
+        const applications = JSON.parse(sessionStorage.getItem('applications') || '[]');
+        const filtered = applications.filter(app => app.applicationId !== appId);
+        sessionStorage.setItem('applications', JSON.stringify(filtered));
+        renderApplications();
+      }
     }
 
     function trackApplication(appId) {
-      // Navigate to application status page
       window.location.href = `/application-status?id=${encodeURIComponent(appId)}`;
     }
 
@@ -317,62 +517,48 @@
       const applications = JSON.parse(sessionStorage.getItem('applications') || '[]');
       
       if (applications.length === 0) {
-        // Add 3 mock applications for testing
         const mockApps = [
           {
             applicationId: "SIH2026-001",
-            scheme: "Term Loan Scheme",
-            amount: 2500000,
-            interestRate: 7.5,
-            purpose: "Business",
-            status: "Under Review",
-            submittedDate: "04 Sep 2026",
-            timeline: [
-              { step: "Submitted", date: "04 Sep 2026", completed: true },
-              { step: "Documents Verified", date: "05 Sep 2026", completed: true },
-              { step: "Loan Approved", date: "07 Sep 2026 (Est.)", completed: false },
-              { step: "Disbursed", date: "10 Sep 2026 (Est.)", completed: false }
-            ]
+            scheme: "Micro Credit Finance (MCF)",
+            schemeName: "Micro Credit Finance (MCF)",
+            amount: 150000,
+            loanAmount: 150000,
+            interestRate: 4.0,
+            tenureMonths: 36,
+            tenureYears: 3,
+            emi: 4423,
+            totalInterest: 9228,
+            totalPayment: 159228,
+            status: "approved",
+            submittedDate: "2026-09-15",
+            appliedDate: "2026-09-15",
+            channelPartner: "State Bank of India",
+            purpose: "Business - Retail Trading"
           },
           {
             applicationId: "SIH2026-002",
-            scheme: "Education Loan Scheme",
-            amount: 1000000,
-            interestRate: 6.5,
-            purpose: "Education",
-            status: "Approved",
-            submittedDate: "01 Sep 2026",
-            timeline: [
-              { step: "Submitted", date: "01 Sep 2026", completed: true },
-              { step: "Documents Verified", date: "02 Sep 2026", completed: true },
-              { step: "Loan Approved", date: "04 Sep 2026", completed: true },
-              { step: "Disbursed", date: "07 Sep 2026 (Est.)", completed: false }
-            ]
-          },
-          {
-            applicationId: "SIH2026-003",
-            scheme: "Micro Finance Scheme",
-            amount: 100000,
-            interestRate: 6.5,
-            purpose: "Small Business",
-            status: "Disbursed",
-            submittedDate: "25 Aug 2026",
-            timeline: [
-              { step: "Submitted", date: "25 Aug 2026", completed: true },
-              { step: "Documents Verified", date: "26 Aug 2026", completed: true },
-              { step: "Loan Approved", date: "28 Aug 2026", completed: true },
-              { step: "Disbursed", date: "30 Aug 2026", completed: true }
-            ]
+            scheme: "Term Loan (NSFDC)",
+            schemeName: "Term Loan (NSFDC)",
+            amount: 500000,
+            loanAmount: 500000,
+            interestRate: 4.0,
+            tenureMonths: 84,
+            tenureYears: 7,
+            emi: 6805,
+            totalInterest: 71620,
+            totalPayment: 571620,
+            status: "pending",
+            submittedDate: "2026-09-20",
+            appliedDate: "2026-09-20",
+            channelPartner: "Punjab National Bank",
+            purpose: "Education - Postgraduate"
           }
         ];
         
         sessionStorage.setItem('applications', JSON.stringify(mockApps));
-        console.log("Mock applications added for demo");
       }
     }
-
-    // Call this function on page load
-    addMockApplications();
   </script>
 </body>
 </html>

@@ -78,17 +78,17 @@ export function HowItWorks() {
   ];
 
   return (
-    <section id="how-it-works" className="py-20 md:py-28 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-navy-900 dark:to-navy-950 border-t border-slate-200 dark:border-navy-800 relative transition-colors">
+    <section id="how-it-works" className="py-20 md:py-28 bg-gradient-to-b from-white via-slate-50/70 to-slate-100/50 dark:from-navy-900 dark:to-navy-950 border-t border-slate-200/80 dark:border-navy-800 relative transition-colors">
       
       {/* Background ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[300px] bg-gradient-to-r from-aurora-500/10 via-purple-500/10 to-teal-500/10 blur-[100px] -z-10 rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[300px] bg-gradient-to-r from-aurora-500/10 via-purple-500/8 to-teal-500/8 dark:from-aurora-500/10 dark:via-purple-500/10 dark:to-teal-500/10 blur-[110px] -z-10 rounded-full pointer-events-none" />
 
       <div className="container px-4 mx-auto max-w-6xl relative">
         {/* Section Header */}
         <div className="text-center space-y-4 max-w-2xl mx-auto mb-16 md:mb-20">
           <Badge
             variant="secondary"
-            className="px-3.5 py-1 text-xs font-semibold text-aurora-700 dark:text-aurora-300 bg-aurora-500/10 border border-aurora-500/25"
+            className="px-3.5 py-1 text-xs font-semibold text-aurora-800 dark:text-aurora-300 bg-aurora-50 dark:bg-aurora-500/10 border border-aurora-200 dark:border-aurora-500/25 shadow-sm"
           >
             <Sparkles className="h-3.5 w-3.5 mr-1.5 inline-block text-aurora-600 dark:text-aurora-400" />
             {t("Simple & Guided Flow")}
@@ -107,10 +107,10 @@ export function HowItWorks() {
         <div className="relative">
           
           {/* Horizontal Connecting Line for Desktop (md and above) */}
-          <div className="hidden md:block absolute top-[52px] left-[10%] right-[10%] h-[3px] bg-gradient-to-r from-aurora-500/40 via-teal-500/40 to-emerald-500/40 -z-0 rounded-full" />
+          <div className="hidden md:block absolute top-[52px] left-[10%] right-[10%] h-[3px] bg-gradient-to-r from-aurora-500/30 via-teal-500/30 to-emerald-500/30 -z-0 rounded-full" />
 
           {/* Vertical Connecting Line for Mobile (below md) */}
-          <div className="md:hidden absolute top-[40px] bottom-[40px] left-[35px] w-[3px] bg-gradient-to-b from-aurora-500/40 via-teal-500/40 to-emerald-500/40 -z-0 rounded-full" />
+          <div className="md:hidden absolute top-[40px] bottom-[40px] left-[35px] w-[3px] bg-gradient-to-b from-aurora-500/30 via-teal-500/30 to-emerald-500/30 -z-0 rounded-full" />
 
           {/* Steps Grid */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-6 relative z-10">
@@ -124,14 +124,14 @@ export function HowItWorks() {
                   {/* Numbered Circle & Step Indicator */}
                   <div className="relative flex-shrink-0">
                     {/* Numbered Outer Glow Ring */}
-                    <div className={`h-16 w-16 md:h-20 md:w-20 rounded-full bg-white dark:bg-navy-900 border-2 border-slate-200 dark:border-navy-700 group-hover:border-aurora-500 shadow-md flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-aurora-500/20`}>
+                    <div className={`h-16 w-16 md:h-20 md:w-20 rounded-full bg-white dark:bg-navy-900 border-2 border-slate-200/90 dark:border-navy-700 group-hover:border-aurora-400 dark:group-hover:border-aurora-500 shadow-md shadow-slate-200/60 dark:shadow-md flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-aurora-500/20`}>
                       <div className={`h-11 w-11 md:h-13 md:w-13 rounded-full bg-gradient-to-tr ${step.color} text-white font-extrabold text-sm md:text-base flex items-center justify-center shadow-md`}>
                         {step.stepNumber}
                       </div>
                     </div>
 
                     {/* Step Micro Tag */}
-                    <span className="hidden md:inline-block absolute -bottom-2 left-1/2 -translate-x-1/2 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 dark:bg-navy-950 border border-slate-200 dark:border-navy-700 text-slate-600 dark:text-slate-400 shadow-sm group-hover:border-aurora-500/40 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                    <span className="hidden md:inline-block absolute -bottom-2 left-1/2 -translate-x-1/2 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white dark:bg-navy-950 border border-slate-200 dark:border-navy-700 text-slate-700 dark:text-slate-400 shadow-sm group-hover:border-aurora-300 group-hover:text-aurora-800 dark:group-hover:text-white transition-colors">
                       {step.badgeText}
                     </span>
                   </div>
@@ -139,10 +139,10 @@ export function HowItWorks() {
                   {/* Step Content Card */}
                   <div className="space-y-2 flex-1 pt-1 md:pt-3">
                     <div className="flex items-center gap-2 md:justify-center">
-                      <div className={`p-1.5 rounded-lg border ${step.iconBg} inline-flex md:hidden`}>
+                      <div className={`p-1.5 rounded-lg border ${step.iconBg} inline-flex md:hidden shadow-sm`}>
                         <Icon className="h-4 w-4" />
                       </div>
-                      <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-aurora-600 dark:group-hover:text-aurora-300 transition-colors">
+                      <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-aurora-700 dark:group-hover:text-aurora-300 transition-colors">
                         {step.title}
                       </h3>
                     </div>
@@ -151,8 +151,8 @@ export function HowItWorks() {
                       {step.description}
                     </p>
 
-                    <div className="pt-1 flex items-center gap-1.5 md:justify-center text-[11px] text-slate-500 dark:text-slate-400">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                    <div className="pt-1 flex items-center gap-1.5 md:justify-center text-[11px] text-slate-600 dark:text-slate-400 font-medium">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400 shrink-0 font-bold" />
                       <span>{step.details}</span>
                     </div>
                   </div>

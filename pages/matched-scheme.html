@@ -322,16 +322,16 @@
         };
       }
 
-      // Rule 3: Purpose is Business & Amount > 140000 & <= 5000000 -> Term Loan Scheme (7.5%)
+      // Rule 3: Purpose is Business & Amount > 140000 & <= 5000000 -> Term Loan Scheme (8.0%)
       if (purpose === 'Business' && loanAmount > 140000) {
         const govtShare = Math.round(loanAmount * 0.90);
         const promoterMargin = Math.round(loanAmount * 0.10);
 
         return {
           isEligible: true,
-          schemeName: 'Term Loan Scheme',
-          interestRate: 7.5,
-          interestRateText: '7.5% p.a.',
+          schemeName: 'National Concessional Term Loan (TL) Scheme',
+          interestRate: 8.0,
+          interestRateText: '8.0% p.a.',
           maxLoanAmount: 5000000,
           maxLoanText: '₹50.00 Lakh',
           govtCoveragePercent: 90,
@@ -340,14 +340,15 @@
           promoterMarginAmount: promoterMargin,
           totalProjectCost: loanAmount,
           fundingRatio: '90:10',
-          moratoriumAvailable: false,
-          description: 'Medium to large capital investment loan scheme designed for business expansion, acquiring machinery, establishing service centers, and commercial production.',
+          moratoriumAvailable: true,
+          moratoriumDetails: '6 Months Moratorium',
+          description: 'Medium to large capital investment loan scheme designed for viable projects in industrial, agricultural, and service sectors, acquiring machinery, and commercial production.',
           keyHighlights: [
-            'Competitive interest rate of 7.5% per annum',
-            '90% government funding coverage (up to ₹50 Lakh)',
-            'Promoter contribution fixed at just 10%',
+            'Concessional interest rate of 8.0% per annum to beneficiaries',
+            '90% government funding coverage (up to ₹45.00 Lakh on ₹50 Lakh project)',
+            'Promoter contribution fixed at minimum 10%',
             'Supported by National Corporations & State Channelising Agencies (SCAs)',
-            'Tenure of up to 5 to 10 years including initial grace period'
+            'Tenure of up to 7 years in quarterly installments with 6-month moratorium'
           ]
         };
       }

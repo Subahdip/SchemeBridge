@@ -1,37 +1,38 @@
 # 🌉 SchemeBridge — AI-Driven Scheme Matching Platform
 
 > Find smarter. Match better. Apply with confidence.
+
 🌐 **Live Demo:** [SchemeBridge](https://sih-ai-xi.vercel.app/)
 
-SchemeBridge is a bilingual digital platform developed by **Team DesiDevs** for **Smart India Hackathon 2026** under the **Ministry of Social Justice and Empowerment (MoSJE)**.
+SchemeBridge is an AI-assisted digital platform developed by **Team DesiDevs_SurTech** for **Smart India Hackathon 2026**, under **Problem Statement SIH26092 — AI-Driven Scheme Matching for Marginalized Entrepreneurs**.
 
-The platform helps entrepreneurs and applicants discover suitable government-backed concessional credit schemes through profile-based matching, financial planning tools, partner discovery, application submission, and application tracking.
+The platform helps entrepreneurs and applicants discover relevant government-backed concessional credit schemes through **AI-powered semantic matching, deterministic eligibility validation, financial planning, partner discovery, secure application submission, and persistent application tracking**.
 
 ---
 
 ## ✨ Features
 
-- 🔍 **Smart Scheme Matcher** — Matches user and project details with suitable government credit schemes using rule-based eligibility criteria.
+- 🧠 **AI-Assisted Scheme Matching** — Uses text embeddings and cosine similarity to identify schemes that are semantically relevant to the user's requirements.
 
-- 🌐 **Bilingual Interface** — Supports **English and Hindi** for improved accessibility.
+- 🔍 **Deterministic Eligibility Validation** — Applies rule-based checks for income, category, loan limits, and other scheme-specific eligibility constraints.
 
-- 📋 **Centralized Scheme Discovery** — Brings relevant government-backed schemes into a single platform.
+- 📊 **Scheme Relevance Ranking** — Combines semantic relevance with eligibility results to present the most suitable eligible schemes.
 
-- 🥧 **90/10 Funding Visualizer** — Clearly visualizes the **90% institutional loan and 10% promoter contribution** structure.
+- 🌐 **Bilingual Interface** — Provides an English and Hindi interface with simplified labels for improved accessibility.
 
-- 🧮 **Dynamic EMI Calculator** — Calculates EMI based on loan amount, interest rate, and repayment tenure.
+- 💰 **Financial Planning & EMI Calculator** — Helps users understand funding contribution, interest, loan amount, repayment period, EMI, and applicable moratorium parameters.
 
-- 📊 **Financial Visualization** — Displays EMI, principal, interest, and funding information through interactive charts.
+- 📈 **Financial Visualization** — Uses interactive charts to present EMI, funding contribution, interest, and repayment information.
 
-- 📍 **NPA-Aware Partner Locator** — Helps users identify nearby channel partners using maps, geolocation, and available partner-status information.
+- 📍 **Data-Driven Partner Discovery** — Helps users identify relevant channel partners using partner type, geographic proximity, scheme availability, and available institutional information.
 
-- 📤 **Application Submission** — Provides a guided workflow for submitting applications through the selected partner.
+- 📤 **Secure Application Submission** — Allows authenticated users to submit applications and persist application details.
 
-- 📑 **Application Tracker** — Tracks application progress through stages such as **Submitted, Verified, Sanctioned, and Disbursed**.
+- 📑 **Persistent Application Timeline** — Stores application records and workflow milestones in PostgreSQL so authenticated users can revisit their application progress.
 
-- 🔐 **Secure Authentication** — Firebase Authentication provides user login and session management.
+- 🔐 **Authenticated APIs** — Uses Firebase Authentication and server-side token verification to protect user-specific application data.
 
-- 📱 **Responsive Design** — Designed for use across desktop and mobile devices.
+- 📱 **Responsive Interface** — Designed for desktop and mobile web access.
 
 ---
 
@@ -39,14 +40,17 @@ The platform helps entrepreneurs and applicants discover suitable government-bac
 
 | Category | Technologies |
 |---|---|
-| **Frontend** | Next.js 14, React, TypeScript |
+| **Frontend** | Next.js 14+, React, TypeScript |
 | **Styling** | Tailwind CSS, shadcn/ui |
-| **UI Icons** | Lucide React |
-| **Authentication** | Firebase Authentication |
+| **AI / Semantic Matching** | OpenRouter Embeddings, Text Embeddings, Cosine Similarity |
+| **Embedding Model** | `openai/text-embedding-3-small` |
+| **API Layer** | Next.js REST API Routes |
+| **Authentication** | Firebase Authentication, Token Verification |
+| **Database** | Supabase PostgreSQL |
 | **Data Visualization** | Recharts |
 | **Maps & GIS** | Leaflet, React-Leaflet, OpenStreetMap |
 | **Geolocation** | Browser Geolocation API |
-| **State & Persistence** | Session Storage API |
+| **State & Client Persistence** | Session Storage API |
 | **Deployment** | GitHub, Vercel |
 
 ---
@@ -54,94 +58,70 @@ The platform helps entrepreneurs and applicants discover suitable government-bac
 ## 🚀 How It Works
 
 ```text
-                         ┌───────────────────┐
-                         │       User        │
-                         └─────────┬─────────┘
-                                   │
-                                   ▼
-                         ┌───────────────────┐
-                         │   SchemeBridge    │
-                         │    Home Page      │
-                         └─────────┬─────────┘
-                                   │
-                                   ▼
-                         ┌───────────────────┐
-                         │  Authentication   │
-                         └─────────┬─────────┘
-                                   │
-                                   ▼
-                         ┌───────────────────┐
-                         │ Language Selection│
-                         │  English / Hindi  │
-                         └─────────┬─────────┘
-                                   │
-                                   ▼
-                         ┌───────────────────┐
-                         │ User & Project    │
-                         │     Details       │
-                         └─────────┬─────────┘
-                                   │
-                                   ▼
-                         ┌───────────────────┐
-                         │  Scheme Matcher   │
-                         │ Rules-Based       │
-                         │ Eligibility       │
-                         └─────────┬─────────┘
-                                   │
-                     ┌─────────────┴─────────────┐
-                     │                           │
-                     ▼                           ▼
-           ┌──────────────────┐       ┌──────────────────┐
-           │   Not Eligible   │       │    Eligible      │
-           └────────┬─────────┘       └────────┬─────────┘
-                    │                          │
-                    ▼                          ▼
-           ┌──────────────────┐       ┌──────────────────┐
-           │ Reason & Next-   │       │ Matched Schemes  │
-           │ Step Suggestions │       └────────┬─────────┘
-           └────────┬─────────┘                │
-                    │                          │
-                    └─────── Try Again ────────┘
-                                               │
-                                               ▼
-                                  ┌──────────────────────┐
-                                  │ 90/10 Funding        │
-                                  │     Visualizer       │
-                                  └──────────┬───────────┘
-                                             │
-                                             ▼
-                                  ┌──────────────────────┐
-                                  │ Dynamic EMI          │
-                                  │     Calculator       │
-                                  └──────────┬───────────┘
-                                             │
-                                             ▼
-                                  ┌──────────────────────┐
-                                  │ EMI & Funding        │
-                                  │    Visualization     │
-                                  └──────────┬───────────┘
-                                             │
-                                             ▼
-                                  ┌──────────────────────┐
-                                  │ NPA-Aware Partner    │
-                                  │      Locator         │
-                                  └──────────┬───────────┘
-                                             │
-                                             ▼
-                                  ┌──────────────────────┐
-                                  │ Application          │
-                                  │     Submission       │
-                                  └──────────┬───────────┘
-                                             │
-                                             ▼
-                                  ┌──────────────────────┐
-                                  │ Application Tracker  │
-                                  └──────────┬───────────┘
-                                             │
-                                             ▼
-                                  ┌──────────────────────┐
-                                  │   Loan Disbursed     │
-                                  └──────────────────────┘
+User Requirements
+        ↓
+AI Semantic Matching
+        ↓
+Text Embedding + Cosine Similarity
+        ↓
+Eligibility Hard Filter
+        ↓
+Top Eligible Schemes
+        ↓
+Financial Planning
+        ↓
+Partner Discovery
+        ↓
+Application Submission
+        ↓
+Supabase PostgreSQL
+        ↓
+Persistent Application Timeline
+```
+
+### 🧠 Hybrid AI + Rules Approach
+
+SchemeBridge uses a two-stage matching architecture:
+
+```text
+User Profile & Requirements
+            ↓
+     Text Embedding
+            ↓
+    Cosine Similarity
+            ↓
+ Semantic Relevance Score
+            ↓
+ Deterministic Eligibility
+        Hard Filter
+            ↓
+    Eligible Schemes
+            ↓
+     Scheme Ranking
+            ↓
+ Top Eligible Recommendations
+```
+
+**Semantic matching identifies relevant schemes, while deterministic rules enforce hard eligibility constraints.**
+
+### 🔄 Application Flow
+
+```text
+User Requirements
+        ↓
+AI Semantic Matching
+        ↓
+Text Embedding + Cosine Similarity
+        ↓
+Eligibility Hard Filter
+        ↓
+Top Eligible Schemes
+        ↓
+Application
+        ↓
+Supabase PostgreSQL
+        ↓
+Persistent Timeline
 ```
 
 ---
@@ -201,16 +181,25 @@ GitHub Repository
 Production Deployment
 ```
 
+### 🌐 Live Application
+
+**SchemeBridge:**  
+https://sih-ai-xi.vercel.app/
+
 ---
 
 ## 👨‍💻 Team DesiDevs
 
-Developed with ❤️ by **Team DesiDevs** for **Smart India Hackathon 2026**.
+Developed with ❤️ by **Team DesiDevs_SurTech** for **Smart India Hackathon 2026**.
 
 ### 🌉 SchemeBridge
 
 > **Bridging Citizens to Government Opportunities.**
-🌐 **Live Demo:** [SchemeBridge](https://sih-ai-xi.vercel.app/)
+
+**Problem Statement:** SIH26092  
+**Theme:** Smart Automation  
+**Category:** Software  
+**Team ID:** 162694
 
 ---
 
@@ -218,6 +207,10 @@ Developed with ❤️ by **Team DesiDevs** for **Smart India Hackathon 2026**.
 
 If you like **SchemeBridge**, consider giving the repository a ⭐ on GitHub.
 
-**GitHub Repository:**
+### 🔗 Project Links
 
+**Live Demo:**  
+https://sih-ai-xi.vercel.app/
+
+**GitHub Repository:**  
 https://github.com/Subahdip/SchemeBridge

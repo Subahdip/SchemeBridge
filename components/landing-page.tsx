@@ -53,16 +53,16 @@ export function LandingPage() {
       {/* ========================================================================= */}
       {/* 3. WHAT PROBLEM WE SOLVE (4 Pain Points) */}
       {/* ========================================================================= */}
-      <section className="py-20 md:py-28 bg-gradient-to-b from-slate-100 to-slate-50 dark:from-navy-950 dark:to-navy-900 border-y border-slate-200 dark:border-navy-800 relative">
+      <section className="py-20 md:py-28 bg-gradient-to-b from-slate-100/60 via-white to-slate-50/70 dark:from-navy-950 dark:to-navy-900 border-y border-slate-200/80 dark:border-navy-800 relative">
         <div className="container px-4 mx-auto max-w-6xl">
           <div className="text-center space-y-4 max-w-2xl mx-auto mb-16">
-            <Badge variant="destructive" className="px-3 py-1 text-xs font-semibold">
+            <Badge variant="destructive" className="px-3.5 py-1 text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 shadow-sm dark:bg-rose-500/20 dark:text-rose-300 dark:border-rose-500/40">
               {t("The Real-World Challenge")}
             </Badge>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white">
               {t("Finding the right government loan scheme shouldn't be complicated")}
             </h2>
-            <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base">
+            <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
               {t("Marginalized entrepreneurs and students face systemic hurdles navigating bureaucratic government welfare credit channels.")}
             </p>
           </div>
@@ -70,10 +70,10 @@ export function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/* Pain Point 1: Too many schemes */}
-            <div className="p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-800/50 backdrop-blur-md space-y-3 relative overflow-hidden group hover:border-aurora-500/50 hover:shadow-aurora-500/10 transition-all shadow-sm">
-              <div className="h-1 w-full bg-red-500/40 absolute top-0 left-0" />
+            <div className="p-6 sm:p-8 rounded-2xl border border-slate-200/90 dark:border-navy-700 bg-white dark:bg-navy-800/50 backdrop-blur-md space-y-3 relative overflow-hidden group hover:border-slate-300 dark:hover:border-aurora-500/50 hover:shadow-xl hover:shadow-slate-200/70 dark:hover:shadow-aurora-500/10 transition-all shadow-sm">
+              <div className="h-1 w-full bg-red-500/50 absolute top-0 left-0" />
               <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 shrink-0">
+                <div className="p-3 rounded-xl bg-rose-50 text-rose-600 border border-rose-200/60 dark:bg-red-500/10 dark:text-red-400 dark:border-transparent shrink-0 shadow-sm">
                   <Layers className="h-6 w-6" />
                 </div>
                 <div className="space-y-1.5">
@@ -88,10 +88,10 @@ export function LandingPage() {
             </div>
 
             {/* Pain Point 2: Complicated eligibility */}
-            <div className="p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-800/50 backdrop-blur-md space-y-3 relative overflow-hidden group hover:border-aurora-500/50 hover:shadow-aurora-500/10 transition-all shadow-sm">
-              <div className="h-1 w-full bg-amber-500/40 absolute top-0 left-0" />
+            <div className="p-6 sm:p-8 rounded-2xl border border-slate-200/90 dark:border-navy-700 bg-white dark:bg-navy-800/50 backdrop-blur-md space-y-3 relative overflow-hidden group hover:border-slate-300 dark:hover:border-aurora-500/50 hover:shadow-xl hover:shadow-slate-200/70 dark:hover:shadow-aurora-500/10 transition-all shadow-sm">
+              <div className="h-1 w-full bg-amber-500/50 absolute top-0 left-0" />
               <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 shrink-0">
+                <div className="p-3 rounded-xl bg-amber-50 text-amber-600 border border-amber-200/60 dark:bg-amber-500/10 dark:text-amber-400 dark:border-transparent shrink-0 shadow-sm">
                   <FileQuestion className="h-6 w-6" />
                 </div>
                 <div className="space-y-1.5">
@@ -106,10 +106,10 @@ export function LandingPage() {
             </div>
 
             {/* Pain Point 3: Difficult EMI calculations */}
-            <div className="p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-800/50 backdrop-blur-md space-y-3 relative overflow-hidden group hover:border-aurora-500/50 hover:shadow-aurora-500/10 transition-all shadow-sm">
-              <div className="h-1 w-full bg-purple-500/40 absolute top-0 left-0" />
+            <div className="p-6 sm:p-8 rounded-2xl border border-slate-200/90 dark:border-navy-700 bg-white dark:bg-navy-800/50 backdrop-blur-md space-y-3 relative overflow-hidden group hover:border-slate-300 dark:hover:border-aurora-500/50 hover:shadow-xl hover:shadow-slate-200/70 dark:hover:shadow-aurora-500/10 transition-all shadow-sm">
+              <div className="h-1 w-full bg-purple-500/50 absolute top-0 left-0" />
               <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 shrink-0">
+                <div className="p-3 rounded-xl bg-purple-50 text-purple-600 border border-purple-200/60 dark:bg-purple-500/10 dark:text-purple-400 dark:border-transparent shrink-0 shadow-sm">
                   <TrendingDown className="h-6 w-6" />
                 </div>
                 <div className="space-y-1.5">
@@ -124,10 +124,10 @@ export function LandingPage() {
             </div>
 
             {/* Pain Point 4: Finding correct bank */}
-            <div className="p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-800/50 backdrop-blur-md space-y-3 relative overflow-hidden group hover:border-aurora-500/50 hover:shadow-aurora-500/10 transition-all shadow-sm">
-              <div className="h-1 w-full bg-teal-500/40 absolute top-0 left-0" />
+            <div className="p-6 sm:p-8 rounded-2xl border border-slate-200/90 dark:border-navy-700 bg-white dark:bg-navy-800/50 backdrop-blur-md space-y-3 relative overflow-hidden group hover:border-slate-300 dark:hover:border-aurora-500/50 hover:shadow-xl hover:shadow-slate-200/70 dark:hover:shadow-aurora-500/10 transition-all shadow-sm">
+              <div className="h-1 w-full bg-teal-500/50 absolute top-0 left-0" />
               <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 shrink-0">
+                <div className="p-3 rounded-xl bg-teal-50 text-teal-600 border border-teal-200/60 dark:bg-teal-500/10 dark:text-teal-400 dark:border-transparent shrink-0 shadow-sm">
                   <Building className="h-6 w-6" />
                 </div>
                 <div className="space-y-1.5">

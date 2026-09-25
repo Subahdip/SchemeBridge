@@ -16,19 +16,16 @@ import {
   Building,
   Filter,
   ShieldCheck,
-  AlertTriangle,
   Layers,
   Search,
   CheckCircle2,
   XCircle,
-  Eye,
   RefreshCw,
   Navigation,
 } from "lucide-react";
 import partnersData from "@/data/partners.json";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 export interface ChannelPartner {
   id: string | number;
@@ -38,7 +35,6 @@ export interface ChannelPartner {
   lat: number;
   lng: number;
   status: "Active" | "Inactive" | string;
-  npaFlag: boolean;
   address: string;
   city: string;
   contact?: string;
@@ -67,11 +63,11 @@ function MapViewController({ center, zoom }: { center: [number, number]; zoom: n
   return null;
 }
 
-// Custom Leaflet DivIcons for Green (Active) and Red (Inactive) pins
-function createCustomPin(status: "Active" | "Inactive" | string, npaFlag: boolean, type: string) {
-  const isGreen = status === "Active" && !npaFlag;
-  const pinColor = isGreen ? "#10b981" : "#ef4444"; // Emerald vs Red
-  const ringColor = isGreen ? "rgba(16, 185, 129, 0.3)" : "rgba(239, 68, 68, 0.3)";
+// Custom Leaflet DivIcons for Active (Emerald) and Inactive (Slate) pins
+function createCustomPin(status: "Active" | "Inactive" | string, type: string) {
+  const isActive = status === "Active";
+  const pinColor = isActive ? "#10b981" : "#64748b"; // Emerald vs Slate
+  const ringColor = isActive ? "rgba(16, 185, 129, 0.3)" : "rgba(100, 116, 139, 0.3)";
 
   const html = `
     <div style="position: relative; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; transform: translate(-50%, -100%);">
@@ -81,7 +77,7 @@ function createCustomPin(status: "Active" | "Inactive" | string, npaFlag: boolea
         height: 34px;
         border-radius: 50%;
         background: ${ringColor};
-        animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+        ${isActive ? 'animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;' : ''}
       "></div>
       <div style="
         position: relative;
@@ -123,7 +119,7 @@ export function PartnerMap({ selectedScheme = "All Schemes", onSchemeFilterChang
   const [partners, setPartners] = useState<ChannelPartner[]>([]);
   const [cityFilter, setCityFilter] = useState<string>("All States");
   const [schemeFilter, setSchemeFilter] = useState<string>(selectedScheme);
-  const [npaFilterActive, setNpaFilterActive] = useState<boolean>(false);
+  const [activeOnlyFilter, setActiveOnlyFilter] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedPartner, setSelectedPartner] = useState<ChannelPartner | null>(null);
 
@@ -139,7 +135,7 @@ export function PartnerMap({ selectedScheme = "All Schemes", onSchemeFilterChang
     setPartners(partnersData as ChannelPartner[]);
   }, []);
 
-  // Filter partners based on city, scheme, NPA toggle, and search query
+  // Filter partners based on city, scheme, active toggle, and search query
   const filteredPartners = useMemo(() => {
     return partners.filter((partner) => {
       // 1. City / State Filter
@@ -152,8 +148,8 @@ export function PartnerMap({ selectedScheme = "All Schemes", onSchemeFilterChang
         return false;
       }
 
-      // 3. NPA Filter Toggle (When ON, hide where npaFlag is true)
-      if (npaFilterActive && partner.npaFlag) {
+      // 3. Active / Authorized Status Filter Toggle (When ON, hide inactive partners)
+      if (activeOnlyFilter && partner.status !== "Active") {
         return false;
       }
 
@@ -168,14 +164,13 @@ export function PartnerMap({ selectedScheme = "All Schemes", onSchemeFilterChang
 
       return true;
     });
-  }, [partners, cityFilter, schemeFilter, npaFilterActive, searchQuery]);
+  }, [partners, cityFilter, schemeFilter, activeOnlyFilter, searchQuery]);
 
   // Current map view target
   const currentView = CITY_COORDINATES[cityFilter] || CITY_COORDINATES["All States"];
 
   // Partner Counts for metrics
-  const activeCount = filteredPartners.filter((p) => p.status === "Active" && !p.npaFlag).length;
-  const npaCount = filteredPartners.filter((p) => p.npaFlag).length;
+  const activeCount = filteredPartners.filter((p) => p.status === "Active").length;
   // View Mode: Map & Cards vs Full Data Table
   const [viewMode, setViewMode] = useState<"map" | "table">("map");
 
@@ -239,11 +234,6 @@ export function PartnerMap({ selectedScheme = "All Schemes", onSchemeFilterChang
                 {t(schemeFilter)}
               </Badge>
             )}
-            {npaCount > 0 && !npaFilterActive && (
-              <Badge variant="destructive" className="text-xs px-3 py-1">
-                {npaCount} {t("Higher NPA Risk")}
-              </Badge>
-            )}
           </div>
         </div>
 
@@ -286,7 +276,7 @@ export function PartnerMap({ selectedScheme = "All Schemes", onSchemeFilterChang
                 onClick={() => {
                   setCityFilter("All States");
                   setSchemeFilter("All Schemes");
-                  setNpaFilterActive(false);
+                  setActiveOnlyFilter(false);
                   setSearchQuery("");
                 }}
                 className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors shrink-0 cursor-pointer"
@@ -339,20 +329,20 @@ export function PartnerMap({ selectedScheme = "All Schemes", onSchemeFilterChang
               </select>
             </div>
 
-            {/* Filter 3: NPA Low-Performing Branches Toggle Switch */}
+            {/* Filter 3: Active / Authorized Branches Only Toggle Switch */}
             <div className="space-y-1.5 sm:col-span-2 lg:col-span-1">
               <span className="text-xs font-semibold text-foreground flex items-center gap-1">
                 <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                <span>{t("NPA risk health indicator filter")}</span>
+                <span>{t("Official channel partner verification")}</span>
               </span>
               <label className="flex items-center justify-between p-2.5 rounded-lg border border-input bg-background cursor-pointer hover:bg-muted/40 transition-colors">
                 <span className="text-xs font-medium text-foreground">
-                  {t("NPA risk health indicator filter")}
+                  {t("Show Active / Authorized Partners Only")}
                 </span>
                 <input
                   type="checkbox"
-                  checked={npaFilterActive}
-                  onChange={(e) => setNpaFilterActive(e.target.checked)}
+                  checked={activeOnlyFilter}
+                  onChange={(e) => setActiveOnlyFilter(e.target.checked)}
                   className="sr-only peer"
                 />
                 <div className="w-10 h-5 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600 relative"></div>
@@ -366,11 +356,11 @@ export function PartnerMap({ selectedScheme = "All Schemes", onSchemeFilterChang
             <div className="flex items-center gap-4">
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-3 w-3 rounded-full bg-emerald-500 inline-block" />
-                <strong className="text-foreground">{t("Active")}:</strong> {t("Healthy")}
+                <strong className="text-foreground">{t("Active")}:</strong> {t("Authorized")}
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <span className="h-3 w-3 rounded-full bg-red-500 inline-block" />
-                <strong className="text-foreground">{t("Higher NPA Risk")}:</strong> {t("Moderate Risk")}
+                <span className="h-3 w-3 rounded-full bg-slate-500 inline-block" />
+                <strong className="text-foreground">{t("Inactive")}:</strong> {t("Under Review")}
               </span>
             </div>
             <span>
@@ -402,7 +392,7 @@ export function PartnerMap({ selectedScheme = "All Schemes", onSchemeFilterChang
                   <Marker
                     key={partner.id}
                     position={[partner.lat, partner.lng]}
-                    icon={createCustomPin(partner.status, partner.npaFlag, partner.type)}
+                    icon={createCustomPin(partner.status, partner.type)}
                     eventHandlers={{
                       click: () => setSelectedPartner(partner),
                     }}
@@ -419,12 +409,12 @@ export function PartnerMap({ selectedScheme = "All Schemes", onSchemeFilterChang
                             </span>
                             <span
                               className={`text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1 ${
-                                partner.status === "Active" && !partner.npaFlag
+                                partner.status === "Active"
                                   ? "bg-emerald-100 text-emerald-800"
-                                  : "bg-red-100 text-red-800"
+                                  : "bg-slate-100 text-slate-700"
                               }`}
                             >
-                              {partner.status === "Active" && !partner.npaFlag ? (
+                              {partner.status === "Active" ? (
                                 <>
                                   <CheckCircle2 className="h-3 w-3" />
                                   {t("Active")}
@@ -432,7 +422,7 @@ export function PartnerMap({ selectedScheme = "All Schemes", onSchemeFilterChang
                               ) : (
                                 <>
                                   <XCircle className="h-3 w-3" />
-                                  {partner.npaFlag ? t("Higher NPA Risk") : t("Rejected")}
+                                  {t("Inactive")}
                                 </>
                               )}
                             </span>
@@ -508,10 +498,10 @@ export function PartnerMap({ selectedScheme = "All Schemes", onSchemeFilterChang
                           {partner.name}
                         </span>
                         <Badge
-                          variant={partner.status === "Active" && !partner.npaFlag ? "success" : "destructive"}
+                          variant={partner.status === "Active" ? "success" : "secondary"}
                           className="text-[10px] py-0 px-1.5 font-bold"
                         >
-                          {partner.status === "Active" && !partner.npaFlag ? t("Active") : partner.npaFlag ? t("Higher NPA Risk") : t("Rejected")}
+                          {partner.status === "Active" ? t("Active") : t("Inactive")}
                         </Badge>
                       </div>
                       <p className="text-muted-foreground line-clamp-1">
@@ -555,8 +545,7 @@ export function PartnerMap({ selectedScheme = "All Schemes", onSchemeFilterChang
                       <th className="py-3 px-3">{t("All Partner Types")}</th>
                       <th className="py-3 px-3">{t("Coverage")}</th>
                       <th className="py-3 px-4">{t("Key Schemes")}</th>
-                      <th className="py-3 px-3">{t("Healthy")}</th>
-                      <th className="py-3 px-3">{t("Current Status")}</th>
+                      <th className="py-3 px-3">{t("Authorization / Status")}</th>
                       <th className="py-3 px-3 text-right">{t("Action")}</th>
                     </tr>
                   </thead>
@@ -587,24 +576,11 @@ export function PartnerMap({ selectedScheme = "All Schemes", onSchemeFilterChang
                           </div>
                         </td>
                         <td className="py-3 px-3">
-                          {p.npaFlag ? (
-                            <span className="inline-flex items-center gap-1 text-red-600 dark:text-red-400 font-bold text-[10px]">
-                              <AlertTriangle className="h-3 w-3" />
-                              {t("Higher NPA Risk")}
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold text-[10px]">
-                              <CheckCircle2 className="h-3 w-3" />
-                              {t("Healthy")}
-                            </span>
-                          )}
-                        </td>
-                        <td className="py-3 px-3">
                           <Badge
-                            variant={p.status === "Active" && !p.npaFlag ? "success" : "destructive"}
+                            variant={p.status === "Active" ? "success" : "secondary"}
                             className="text-[10px] py-0 px-2 font-bold"
                           >
-                            {p.status === "Active" && !p.npaFlag ? t("Active") : p.npaFlag ? t("Higher NPA Risk") : t("Rejected")}
+                            {p.status === "Active" ? t("Active") : t("Inactive")}
                           </Badge>
                         </td>
                         <td className="py-3 px-3 text-right">

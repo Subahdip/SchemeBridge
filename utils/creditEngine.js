@@ -81,7 +81,7 @@ function executeHardKnockouts(applicant) {
   
   // If ANY knockout rule failed, decline immediately
   if (failures.length > 0) {
-    console.log("❌ HARD KNOCKOUT FAILED");
+    console.log("HARD KNOCKOUT FAILED");
     console.log("Failures:", failures);
     
     return {
@@ -92,7 +92,7 @@ function executeHardKnockouts(applicant) {
     };
   }
   
-  console.log("✅ Passed all hard knockout rules");
+  console.log("Passed all hard knockout rules");
   return { 
     decision: "PASS", 
     nextPhase: "PHASE_2_FOIR" 

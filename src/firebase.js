@@ -74,5 +74,28 @@ export const protectRoute = () => {
   return true;
 };
 
+// Get Firebase Auth ID Token for server-side verification
+export const getIdToken = async () => {
+  try {
+    if (auth.currentUser) {
+      return await auth.currentUser.getIdToken();
+    }
+    // Wait for auth initialization if state is resolving
+    await new Promise((resolve) => {
+      const unsubscribe = onAuthStateChanged(auth, (u) => {
+        unsubscribe();
+        resolve(u);
+      });
+      setTimeout(resolve, 1500); // 1.5s timeout fallback
+    });
+    if (auth.currentUser) {
+      return await auth.currentUser.getIdToken();
+    }
+  } catch (err) {
+    console.warn("Failed to get Firebase ID Token:", err);
+  }
+  return null;
+};
+
 // Export app for analytics if needed
 export { app };

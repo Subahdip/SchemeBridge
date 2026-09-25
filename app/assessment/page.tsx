@@ -3,7 +3,35 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Sparkles, ArrowRight, ShieldCheck, Info } from "lucide-react";
+import {
+  Sparkles,
+  ArrowRight,
+  ShieldCheck,
+  Info,
+  Target,
+  CircleCheck,
+  CheckCircle2,
+  CircleX,
+  AlertCircle,
+  AlertTriangle,
+  Lightbulb,
+  TrendingUp,
+  TrendingDown,
+  BarChart3,
+  FileText,
+  IndianRupee,
+  Briefcase,
+  Building2,
+  MapPin,
+  Home,
+  Scissors,
+  Store,
+  GraduationCap,
+  Factory,
+  Scale,
+  Activity,
+  Gauge,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { AppState, AssessmentData } from "@/lib/app-state";
 import { AuthGuard } from "@/components/auth-guard";
@@ -25,6 +53,7 @@ export default function AssessmentPage() {
 
   // Section 2: Loan Purpose & Conditional Categories
   const [loanPurpose, setLoanPurpose] = useState<string>("");
+  const [requirementText, setRequirementText] = useState<string>("");
   const [educationCategory, setEducationCategory] = useState<string>("");
   const [educationProjectSize, setEducationProjectSize] = useState<string>("");
   const [businessType, setBusinessType] = useState<string>("");
@@ -62,6 +91,8 @@ export default function AssessmentPage() {
     if (existing) {
       if (existing.income) setAnnualIncome(existing.income.toString());
       if (existing.loanAmount) setLoanAmount(existing.loanAmount.toString());
+      if (existing.requirementText) setRequirementText(existing.requirementText);
+      else if (existing.purposeDescription) setRequirementText(existing.purposeDescription);
       if (existing.loanPurpose) {
         setLoanPurpose(existing.loanPurpose);
       } else if (existing.primaryPurpose) {
@@ -121,11 +152,227 @@ export default function AssessmentPage() {
     };
   }, []);
 
+  // Section definitions for stepper and navigation validation
+  const SECTIONS = useMemo(() => [
+    { id: "basic-info", name: "personal", label: "Basic Financial Info", icon: IndianRupee, stepNum: 1 },
+    { id: "loan-purpose", name: "loan", label: "Loan Purpose & Scale", icon: Target, stepNum: 2 },
+    { id: "financial-liabilities", name: "financial", label: "Financial Liabilities", icon: Scale, stepNum: 3 },
+    { id: "professional-details", name: "employment", label: "Professional Details", icon: Briefcase, stepNum: 4 },
+    { id: "loan-demographics", name: "demographics", label: "Loan Demographics", icon: MapPin, stepNum: 5 },
+    { id: "credit-score", name: "credit", label: "Credit Profile", icon: Activity, stepNum: 6 },
+  ], []);
+
+  const activeSectionIndex = useMemo(() => {
+    const idx = SECTIONS.findIndex((s) => s.id === activeSection || s.name === activeSection);
+    return idx === -1 ? 0 : idx;
+  }, [activeSection, SECTIONS]);
+
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
       history.pushState(null, "", `#${id}`);
+    }
+  };
+
+  // Helper to compare Years at Current Job vs Total Work Experience
+  const getExperienceRank = (val: string): number => {
+    switch (val) {
+      case "0-1": return 1;
+      case "1-2": return 2;
+      case "1-3": return 2;
+      case "2-5": return 3;
+      case "3-5": return 3;
+      case "5-10": return 4;
+      case "10+": return 5;
+      case "10-15": return 5;
+      case "15+": return 6;
+      default: return 0;
+    }
+  };
+
+  const isJobTenureValid = (jobTenure: string, totalExp: string): boolean => {
+    if (!jobTenure || !totalExp) return true;
+    const jobRank = getExperienceRank(jobTenure);
+    const expRank = getExperienceRank(totalExp);
+    return jobRank <= expRank;
+  };
+
+  // Section completion check for stepper status badges
+  const checkSectionCompletion = (sectionId: string): boolean => {
+    switch (sectionId) {
+      case "basic-info":
+      case "personal":
+        return parseFloat(annualIncome) > 0 && parseFloat(loanAmount) > 0;
+      case "loan-purpose":
+      case "loan":
+        return Boolean(loanPurpose.trim() !== "" && isConditionalValid);
+      case "financial-liabilities":
+      case "financial":
+        return Boolean(
+          existingEmis.trim() !== "" &&
+          parseFloat(existingEmis) >= 0 &&
+          salaryBank.trim() !== "" &&
+          netSalary.trim() !== "" &&
+          parseFloat(netSalary) > 0
+        );
+      case "professional-details":
+      case "employment":
+        return Boolean(
+          companyName.trim() !== "" &&
+          yearsAtJob.trim() !== "" &&
+          totalExperience.trim() !== "" &&
+          isJobTenureValid(yearsAtJob, totalExperience)
+        );
+      case "loan-demographics":
+      case "demographics":
+        return Boolean(
+          /^\d{6}$/.test(pincode.trim()) &&
+          residentialStatus.trim() !== "" &&
+          address.trim().length >= 10
+        );
+      case "credit-score":
+      case "credit":
+        return Boolean(creditScore.trim() !== "");
+      default:
+        return false;
+    }
+  };
+
+  // Validation function for each section before allowing forward navigation
+  const validateSection = (sectionIdOrName: string): boolean => {
+    const norm = (sectionIdOrName || "").toLowerCase().trim();
+    let secKey = norm;
+    if (norm === "personal" || norm === "basic" || norm === "basic-info") secKey = "basic-info";
+    else if (norm === "loan" || norm === "purpose" || norm === "loan-purpose") secKey = "loan-purpose";
+    else if (norm === "financial" || norm === "liabilities" || norm === "financial-liabilities") secKey = "financial-liabilities";
+    else if (norm === "employment" || norm === "professional" || norm === "professional-details") secKey = "professional-details";
+    else if (norm === "demographics" || norm === "address" || norm === "loan-demographics") secKey = "loan-demographics";
+    else if (norm === "credit" || norm === "credit-profile" || norm === "credit-score") secKey = "credit-score";
+
+    let isValid = true;
+    const emptyFields: string[] = [];
+    const elementsToHighlight: HTMLElement[] = [];
+
+    const addError = (fieldId: string, label: string) => {
+      isValid = false;
+      emptyFields.push(label);
+      const el = document.getElementById(fieldId);
+      if (el) {
+        elementsToHighlight.push(el);
+      }
+    };
+
+    if (secKey === "basic-info") {
+      const incomeNum = parseFloat(annualIncome) || 0;
+      const loanNum = parseFloat(loanAmount) || 0;
+      if (incomeNum <= 0) addError("income", t("Annual Family Income"));
+      if (loanNum <= 0) addError("loanAmount", t("Required Loan Amount"));
+    } else if (secKey === "loan-purpose") {
+      if (!loanPurpose.trim()) {
+        addError("loanPurpose", t("Primary Loan Purpose"));
+      } else if (loanPurpose === "education") {
+        if (!educationProjectSize.trim()) addError("educationProjectSize", t("Education Project Size"));
+      } else if (loanPurpose === "business") {
+        if (!businessProjectSize.trim()) addError("businessProjectSize", t("Business Project Size"));
+      } else if (loanPurpose === "personal") {
+        if (!personalProjectSize.trim()) addError("personalProjectSize", t("Personal Loan Size"));
+      } else if (loanPurpose === "other") {
+        if (!otherPurposeText.trim()) addError("otherPurposeText", t("Specify Purpose Description"));
+        if (!otherProjectSize.trim()) addError("otherProjectSize", t("Project Size"));
+      }
+    } else if (secKey === "financial-liabilities") {
+      if (existingEmis.trim() === "" || isNaN(parseFloat(existingEmis)) || parseFloat(existingEmis) < 0) {
+        addError("existingEmis", t("Existing Monthly EMIs"));
+      }
+      if (!salaryBank.trim()) {
+        addError("salaryBank", t("Salary Bank Name"));
+      }
+      const netSalNum = parseFloat(netSalary) || 0;
+      if (netSalNum <= 0) {
+        addError("netSalary", t("Net Take-Home Salary"));
+      }
+    } else if (secKey === "professional-details") {
+      if (!companyName.trim()) addError("companyName", t("Employer / Company Name"));
+      if (!yearsAtJob.trim()) addError("yearsAtJob", t("Years at Job"));
+      if (!totalExperience.trim()) addError("totalExperience", t("Total Experience"));
+      if (yearsAtJob.trim() && totalExperience.trim() && !isJobTenureValid(yearsAtJob, totalExperience)) {
+        addError("yearsAtJob", t("Years at Current Job (must not exceed Total Work Experience)"));
+      }
+    } else if (secKey === "loan-demographics") {
+      if (!/^\d{6}$/.test(pincode.trim())) addError("pincode", t("Valid 6-digit Pincode"));
+      if (!residentialStatus.trim()) addError("residentialStatus", t("Residential Status"));
+      if (!address || address.trim().length < 10) addError("address", t("Complete Address (min 10 characters)"));
+    } else if (secKey === "credit-score") {
+      if (!creditScore.trim()) addError("creditScore", t("Credit Score Range"));
+    }
+
+    // Also check any extra HTML required elements in section if present
+    const secEl = document.getElementById(secKey);
+    if (secEl) {
+      const container = secEl.closest("div") || secEl;
+      const inputs = container.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>("input[required], select[required], textarea[required]");
+      inputs.forEach((input) => {
+        if (input.offsetParent !== null && (!input.value || input.value.trim() === "")) {
+          if (!elementsToHighlight.includes(input)) {
+            isValid = false;
+            const nameOrId = input.name || input.id || "Required field";
+            emptyFields.push(nameOrId);
+            elementsToHighlight.push(input);
+          }
+        }
+      });
+    }
+
+    if (!isValid) {
+      alert(`⚠️ ${t("Please fill all required fields in this section before proceeding.")}\n\n${t("Missing")}: ${emptyFields.join(", ")}`);
+      if (elementsToHighlight.length > 0) {
+        const first = elementsToHighlight[0];
+        first.scrollIntoView({ behavior: "smooth", block: "center" });
+        first.focus();
+        first.classList.add("border-red-500", "ring-2", "ring-red-500/50", "border-rose-500");
+        setTimeout(() => {
+          first.classList.remove("border-red-500", "ring-2", "ring-red-500/50", "border-rose-500");
+        }, 3000);
+      }
+    }
+
+    return isValid;
+  };
+
+  // Safe navigation click handler that prevents skipping unvalidated sections
+  const handleNavigationClick = (targetSectionIdOrName: string, targetIdx?: number) => {
+    const norm = (targetSectionIdOrName || "").replace("#", "").trim();
+    let targetIndex = targetIdx;
+    if (targetIndex === undefined || targetIndex < 0) {
+      targetIndex = SECTIONS.findIndex((s) => s.id === norm || s.name === norm);
+    }
+    if (targetIndex === -1) targetIndex = 0;
+
+    let currentIndex = SECTIONS.findIndex((s) => s.id === activeSection || s.name === activeSection);
+    if (currentIndex === -1) currentIndex = 0;
+
+    // Allow going to previous sections freely
+    if (targetIndex < currentIndex) {
+      scrollToSection(SECTIONS[targetIndex].id);
+      return;
+    }
+
+    // Clicking the same section: smooth scroll to it
+    if (targetIndex === currentIndex) {
+      scrollToSection(SECTIONS[targetIndex].id);
+      return;
+    }
+
+    // Clicking forward: validate current section and any intervening sections
+    if (targetIndex > currentIndex) {
+      for (let i = currentIndex; i < targetIndex; i++) {
+        const isSecValid = validateSection(SECTIONS[i].id);
+        if (!isSecValid) {
+          return; // Validation failed, blocked from proceeding
+        }
+      }
+      scrollToSection(SECTIONS[targetIndex].id);
     }
   };
 
@@ -146,7 +393,7 @@ export default function AssessmentPage() {
     Boolean(salaryBank.trim() !== ""),
     Boolean(netSalary.trim() !== "" && parseFloat(netSalary) > 0),
     Boolean(companyName.trim() !== ""),
-    Boolean(yearsAtJob.trim() !== ""),
+    Boolean(yearsAtJob.trim() !== "" && isJobTenureValid(yearsAtJob, totalExperience)),
     Boolean(totalExperience.trim() !== ""),
     Boolean(/^\d{6}$/.test(pincode.trim())),
     Boolean(residentialStatus.trim() !== ""),
@@ -284,7 +531,7 @@ export default function AssessmentPage() {
         barClass: "bg-gradient-to-r from-red-600 to-red-500 h-2.5 rounded-full transition-all duration-500 ease-out",
         displayColor: "text-red-500 dark:text-red-400",
         labelClass: "text-red-500 dark:text-red-400 text-xs font-medium",
-        icon: "❌",
+        IconComponent: CircleX,
         labelText: "Low Eligibility",
         badge: "Low (0-49)",
         badgeBg: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
@@ -294,7 +541,7 @@ export default function AssessmentPage() {
         barClass: "bg-gradient-to-r from-yellow-600 to-orange-500 h-2.5 rounded-full transition-all duration-500 ease-out",
         displayColor: "text-amber-500 dark:text-yellow-400",
         labelClass: "text-amber-500 dark:text-yellow-400 text-xs font-medium",
-        icon: "⚠️",
+        IconComponent: AlertTriangle,
         labelText: "Moderate Eligibility",
         badge: "Moderate (50-69)",
         badgeBg: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
@@ -304,7 +551,7 @@ export default function AssessmentPage() {
         barClass: "bg-gradient-to-r from-lime-600 to-green-500 h-2.5 rounded-full transition-all duration-500 ease-out",
         displayColor: "text-emerald-500 dark:text-lime-400",
         labelClass: "text-emerald-500 dark:text-lime-400 text-xs font-medium",
-        icon: "✅",
+        IconComponent: CircleCheck,
         labelText: "Good Eligibility",
         badge: "Good (70-84)",
         badgeBg: "bg-emerald-500/10 text-emerald-600 dark:text-lime-400 border-emerald-500/20",
@@ -314,7 +561,7 @@ export default function AssessmentPage() {
         barClass: "bg-gradient-to-r from-aurora-600 to-teal-500 h-2.5 rounded-full transition-all duration-500 ease-out",
         displayColor: "text-teal-600 dark:text-teal-400",
         labelClass: "text-teal-600 dark:text-teal-400 text-xs font-medium",
-        icon: "🎯",
+        IconComponent: Target,
         labelText: "Excellent Eligibility",
         badge: "Excellent (85-100)",
         badgeBg: "bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20",
@@ -385,6 +632,18 @@ export default function AssessmentPage() {
       return;
     }
 
+    // Validate Years at Current Job vs Total Work Experience
+    if (!isJobTenureValid(yearsAtJob, totalExperience)) {
+      alert(`⚠️ ${t("Years at Current Job cannot exceed Total Work Experience. Please correct your selections in Section 4.")}`);
+      const jobEl = document.getElementById("yearsAtJob");
+      if (jobEl) {
+        jobEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        jobEl.focus();
+        jobEl.classList.add("border-red-500", "ring-2", "ring-red-500/50");
+      }
+      return;
+    }
+
     // Conditional validation
     if (loanPurpose === "education") {
       if (!educationProjectSize) {
@@ -439,6 +698,8 @@ export default function AssessmentPage() {
       loanAmount: loanNum,
       loanPurpose,
       primaryPurpose: loanPurpose,
+      requirementText: requirementText.trim() || otherPurposeText || "",
+      purposeDescription: requirementText.trim() || otherPurposeText || "",
       educationCategory: isEducation ? educationCategory : undefined,
       educationProjectSize: isEducation ? educationProjectSize : undefined,
       businessProjectSize: loanPurpose === "business" ? businessProjectSize : undefined,
@@ -505,150 +766,175 @@ export default function AssessmentPage() {
       {/* Body Wrapper below Navbar */}
       <div className="min-h-[calc(100vh-4rem)] flex w-full relative bg-slate-50 dark:bg-[#070b14] text-foreground transition-colors duration-200">
 
-        {/* Fixed Top-Right Dynamic Eligibility Score HUD Widget */}
-        <div className="fixed top-20 right-4 sm:right-6 lg:right-8 z-40 w-[280px] sm:w-[320px] bg-white/90 dark:bg-navy-900/90 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-2xl p-4 shadow-xl dark:shadow-2xl transition-all duration-300 animate-fade-in">
-          <div className="flex items-center justify-between gap-2 mb-2">
-            <div className="flex items-center gap-1.5">
-              <span className="text-base">🎯</span>
-              <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                {t("Eligibility Score")}
-              </span>
-            </div>
-            <div id="creditScoreDisplay" className={`text-xl font-extrabold font-mono ${scoreConfig.displayColor}`}>
-              {calculatedEligibilityScore}/100
-            </div>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="relative h-2.5 w-full bg-slate-200 dark:bg-navy-950 rounded-full overflow-hidden mb-2">
-            <div 
-              id="creditScoreBar" 
-              className={scoreConfig.barClass}
-              style={{ width: `${calculatedEligibilityScore}%` }}
-            />
-          </div>
-
-          <div className="flex items-center justify-between text-[11px] gap-2">
-            <span id="creditScoreLabel" className={`${scoreConfig.labelClass} truncate font-medium flex items-center gap-1`}>
-              <span>{scoreConfig.icon}</span>
-              <span>{t(scoreConfig.labelText)}</span>
-            </span>
-            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0 ${scoreConfig.badgeBg}`}>
-              {t(scoreConfig.badge)}
-            </span>
-          </div>
-
-          {/* Collapsible Score Breakdown & Quick Tips */}
-          <details className="mt-2.5 pt-2 border-t border-slate-200 dark:border-navy-800 text-[11px] group">
-            <summary className="cursor-pointer text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-aurora-300 font-medium flex items-center justify-between select-none py-0.5">
-              <span className="flex items-center gap-1">
-                <span>💡</span>
-                <span>{t("How to improve score")}</span>
-              </span>
-              <span className="text-[10px] text-slate-400 group-open:rotate-180 transition-transform">▼</span>
-            </summary>
-            <div className="mt-2 space-y-1.5 text-[11px] text-slate-600 dark:text-slate-400 max-h-48 overflow-y-auto pr-1">
-              <div className="flex justify-between items-center py-0.5 border-b border-slate-100 dark:border-navy-800/50">
-                <span>{t("Income ₹2.5L-₹5L:")}</span>
-                <span className="text-teal-600 dark:text-teal-400 font-mono font-semibold">{t("+20 pts")}</span>
-              </div>
-              <div className="flex justify-between items-center py-0.5 border-b border-slate-100 dark:border-navy-800/50">
-                <span>{t("Loan ≤ 2x Income:")}</span>
-                <span className="text-teal-600 dark:text-teal-400 font-mono font-semibold">{t("+15 pts")}</span>
-              </div>
-              <div className="flex justify-between items-center py-0.5 border-b border-slate-100 dark:border-navy-800/50">
-                <span>{t("Credit Score 775+:")}</span>
-                <span className="text-teal-600 dark:text-teal-400 font-mono font-semibold">{t("+25 pts")}</span>
-              </div>
-              <div className="flex justify-between items-center py-0.5 border-b border-slate-100 dark:border-navy-800/50">
-                <span>{t("DTI Ratio ≤ 30%:")}</span>
-                <span className="text-teal-600 dark:text-teal-400 font-mono font-semibold">{t("+20 pts")}</span>
-              </div>
-              <div className="flex justify-between items-center py-0.5 border-b border-slate-100 dark:border-navy-800/50">
-                <span>{t("Experience 5+ yrs:")}</span>
-                <span className="text-teal-600 dark:text-teal-400 font-mono font-semibold">{t("+10 pts")}</span>
-              </div>
-              <div className="flex justify-between items-center py-0.5">
-                <span>{t("Owned Home:")}</span>
-                <span className="text-teal-600 dark:text-teal-400 font-mono font-semibold">{t("+10 pts")}</span>
-              </div>
-            </div>
-          </details>
-        </div>
-
         {/* Left Sidebar ("Assessment Sections"): Fixed to the left */}
-        <aside className="w-64 shrink-0 fixed top-16 left-0 bottom-0 h-[calc(100vh-4rem)] overflow-y-auto border-r border-slate-200 dark:border-navy-800 p-5 hidden md:flex flex-col gap-6 bg-white dark:bg-navy-900 z-30 shadow-xs">
+        <aside className="w-64 shrink-0 fixed top-16 left-0 bottom-0 h-[calc(100vh-4rem)] border-r border-slate-200 dark:border-navy-800 p-4 hidden md:flex flex-col justify-between bg-white dark:bg-navy-900 z-30 shadow-xs">
           
-          {/* Real-time Sidebar Progress Indicator (Fixed at Top of Sidebar) */}
-          <div className="p-4 bg-slate-50 dark:bg-navy-800/90 border border-slate-200 dark:border-navy-700 rounded-xl shadow-xs">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-slate-900 dark:text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-                <span>📊</span>
-                <span>{t("Form Progress")}</span>
+          {/* Scrollable Upper Section: Progress & Section Navigation */}
+          <div className="overflow-y-auto flex-1 space-y-4 pr-1">
+            {/* Real-time Sidebar Progress Indicator */}
+            <div className="p-3.5 bg-slate-50 dark:bg-navy-800/90 border border-slate-200 dark:border-navy-700 rounded-xl shadow-xs">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-slate-900 dark:text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <BarChart3 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                  <span>{t("Form Progress")}</span>
+                </p>
+                <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
+                  {filledRequiredFields}/{totalRequiredFields}
+                </span>
+              </div>
+              <div className="w-full bg-slate-200 dark:bg-navy-700 rounded-full h-2 overflow-hidden">
+                <div
+                  id="progressBar"
+                  className={`bg-gradient-to-r ${progressBarGradient} h-2 rounded-full transition-all duration-300`}
+                  style={{ width: `${realTimeProgress}%` }}
+                />
+              </div>
+              <p id="progressText" className="text-slate-500 dark:text-muted-foreground text-[11px] mt-2 font-medium">
+                {t("{{progress}}% Complete ({{filled}}/{{total}} fields)", {
+                  progress: realTimeProgress,
+                  filled: filledRequiredFields,
+                  total: totalRequiredFields,
+                })}
               </p>
-              <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
-                {filledRequiredFields}/{totalRequiredFields}
-              </span>
             </div>
-            <div className="w-full bg-slate-200 dark:bg-navy-700 rounded-full h-2 overflow-hidden">
-              <div
-                id="progressBar"
-                className={`bg-gradient-to-r ${progressBarGradient} h-2 rounded-full transition-all duration-300`}
-                style={{ width: `${realTimeProgress}%` }}
-              />
+
+            {/* Assessment Sections Navigation */}
+            <div>
+              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                <span>{t("Assessment Sections")}</span>
+              </h3>
+              
+              <nav className="space-y-1">
+                {SECTIONS.map((item, index) => {
+                  const ItemIcon = item.icon;
+                  const isItemComplete = checkSectionCompletion(item.id);
+                  return (
+                    <a
+                      key={item.id}
+                      href={`#${item.id}`}
+                      data-section={item.id}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleNavigationClick(item.id, index);
+                      }}
+                      className={`section-link block px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                        activeSection === item.id
+                          ? "bg-teal-50 dark:bg-aurora-900/30 text-teal-700 dark:text-aurora-400 font-semibold border-l-2 border-teal-600 dark:border-aurora-400 shadow-xs"
+                          : "text-slate-600 dark:text-muted-foreground hover:bg-slate-100 dark:hover:bg-aurora-900/20 hover:text-slate-900 dark:hover:text-aurora-300"
+                      }`}
+                    >
+                      <span className="flex items-center justify-between">
+                        <span className="flex items-center gap-2">
+                          <ItemIcon className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                          <span>{t(item.label)}</span>
+                        </span>
+                        {isItemComplete && activeSection !== item.id && (
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        )}
+                      </span>
+                    </a>
+                  );
+                })}
+              </nav>
             </div>
-            <p id="progressText" className="text-slate-500 dark:text-muted-foreground text-[11px] mt-2 font-medium">
-              {t("{{progress}}% Complete ({{filled}}/{{total}} fields)", {
-                progress: realTimeProgress,
-                filled: filledRequiredFields,
-                total: totalRequiredFields,
-              })}
-            </p>
           </div>
 
-          {/* Assessment Sections Navigation */}
-          <div className="flex-1">
-            <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-              <span>📑</span>
-              <span>{t("Assessment Sections")}</span>
-            </h3>
-            
-            <nav className="space-y-1.5">
-              {[
-                { id: "basic-info", icon: "💰", label: "Basic Financial Info" },
-                { id: "loan-purpose", icon: "🎯", label: "Loan Purpose & Scale" },
-                { id: "financial-liabilities", icon: "💡", label: "Financial Liabilities" },
-                { id: "professional-details", icon: "🏢", label: "Professional Details" },
-                { id: "loan-demographics", icon: "📌", label: "Loan Demographics" },
-                { id: "credit-score", icon: "📊", label: "Credit Profile" },
-              ].map((item) => (
-                <a
-                  key={item.id}
-                  href={`#${item.id}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    scrollToSection(item.id);
-                  }}
-                  className={`section-link block px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                    activeSection === item.id
-                      ? "bg-teal-50 dark:bg-aurora-900/30 text-teal-700 dark:text-aurora-400 font-semibold border-l-2 border-teal-600 dark:border-aurora-400 shadow-xs"
-                      : "text-slate-600 dark:text-muted-foreground hover:bg-slate-100 dark:hover:bg-aurora-900/20 hover:text-slate-900 dark:hover:text-aurora-300"
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <span className="text-base">{item.icon}</span>
-                    <span>{t(item.label)}</span>
+          {/* Fixed Bottom of Sidebar: Dynamic Eligibility Score Card */}
+          <div className="shrink-0 pt-3 border-t border-slate-200 dark:border-navy-800">
+            <div className="bg-slate-50 dark:bg-navy-800/90 border border-slate-200 dark:border-navy-700 rounded-xl p-3 shadow-xs space-y-2">
+              <div className="flex items-center justify-between gap-1.5">
+                <div className="flex items-center gap-1.5">
+                  <Target className="w-4 h-4 text-teal-600 dark:text-aurora-400 shrink-0" />
+                  <span className="text-[11px] font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                    {t("Eligibility Score")}
                   </span>
-                </a>
-              ))}
-            </nav>
+                </div>
+                <div id="creditScoreDisplay" className={`text-base font-extrabold font-mono ${scoreConfig.displayColor}`}>
+                  {calculatedEligibilityScore}/100
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="relative h-2 w-full bg-slate-200 dark:bg-navy-950 rounded-full overflow-hidden">
+                <div 
+                  id="creditScoreBar" 
+                  className={scoreConfig.barClass}
+                  style={{ width: `${calculatedEligibilityScore}%` }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between text-[10px] gap-1">
+                <span id="creditScoreLabel" className={`${scoreConfig.labelClass} truncate font-medium flex items-center gap-1`}>
+                  <scoreConfig.IconComponent className="w-3 h-3 shrink-0" />
+                  <span className="truncate">{t(scoreConfig.labelText)}</span>
+                </span>
+                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border shrink-0 ${scoreConfig.badgeBg}`}>
+                  {t(scoreConfig.badge)}
+                </span>
+              </div>
+
+              {/* Collapsible Score Breakdown & Quick Tips */}
+              <details className="pt-1.5 border-t border-slate-200 dark:border-navy-700 text-[10px] group">
+                <summary className="cursor-pointer text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-aurora-300 font-medium flex items-center justify-between select-none py-0.5">
+                  <span className="flex items-center gap-1.5">
+                    <Lightbulb className="w-3 h-3 text-amber-500 shrink-0" />
+                    <span>{t("How to improve score")}</span>
+                  </span>
+                  <span className="text-[9px] text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <div className="mt-1.5 space-y-1 text-[10px] text-slate-600 dark:text-slate-400 max-h-36 overflow-y-auto pr-1">
+                  <div className="flex justify-between items-center py-0.5 border-b border-slate-100 dark:border-navy-800/50">
+                    <span>{t("Income ₹2.5L-₹5L:")}</span>
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-semibold">{t("+20 pts")}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-0.5 border-b border-slate-100 dark:border-navy-800/50">
+                    <span>{t("Loan ≤ 2x Income:")}</span>
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-semibold">{t("+15 pts")}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-0.5 border-b border-slate-100 dark:border-navy-800/50">
+                    <span>{t("Credit Score 775+:")}</span>
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-semibold">{t("+25 pts")}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-0.5 border-b border-slate-100 dark:border-navy-800/50">
+                    <span>{t("DTI Ratio ≤ 30%:")}</span>
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-semibold">{t("+20 pts")}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-0.5 border-b border-slate-100 dark:border-navy-800/50">
+                    <span>{t("Experience 5+ yrs:")}</span>
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-semibold">{t("+10 pts")}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-0.5">
+                    <span>{t("Owned Home:")}</span>
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-semibold">{t("+10 pts")}</span>
+                  </div>
+                </div>
+              </details>
+            </div>
           </div>
         </aside>
 
         {/* Main Assessment Area */}
         <div id="mainScrollContainer" className="flex-1 w-full md:pl-64 px-4 sm:px-8 py-8 flex flex-col items-center">
-          {/* Mobile Section Selector (only visible on mobile) */}
-          <div className="md:hidden w-full max-w-4xl mb-4 sticky top-20 z-20 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 rounded-xl p-3 shadow-md">
+          {/* Mobile Section Selector & Score Header (only visible on mobile) */}
+          <div className="md:hidden w-full max-w-4xl mb-4 sticky top-20 z-20 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 rounded-xl p-3 shadow-md space-y-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5">
+                <Target className="w-3.5 h-3.5 text-teal-600 dark:text-aurora-400" />
+                <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                  {t("Eligibility Score")}:
+                </span>
+              </div>
+              <div className={`text-sm font-extrabold font-mono ${scoreConfig.displayColor}`}>
+                {calculatedEligibilityScore}/100
+              </div>
+            </div>
+            <div className="relative h-1.5 w-full bg-slate-200 dark:bg-navy-950 rounded-full overflow-hidden">
+              <div 
+                className={scoreConfig.barClass}
+                style={{ width: `${calculatedEligibilityScore}%` }}
+              />
+            </div>
             <select
               id="mobileSectionSelector"
               value={`#${activeSection}`}
@@ -656,94 +942,23 @@ export default function AssessmentPage() {
                 const val = e.target.value;
                 if (val) {
                   const targetId = val.replace("#", "");
-                  scrollToSection(targetId);
+                  const idx = SECTIONS.findIndex((s) => s.id === targetId || s.name === targetId);
+                  handleNavigationClick(targetId, idx);
                 }
               }}
-              className="w-full bg-slate-50 dark:bg-navy-800 border border-slate-300 dark:border-navy-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white text-sm"
+              className="w-full bg-slate-50 dark:bg-navy-800 border border-slate-300 dark:border-navy-700 rounded-lg px-3 py-1.5 text-slate-900 dark:text-white text-xs"
             >
               <option value="">{t("Jump to section...")}</option>
-              <option value="#basic-info">💰 {t("Basic Financial Info")}</option>
-              <option value="#loan-purpose">🎯 {t("Loan Purpose & Scale")}</option>
-              <option value="#financial-liabilities">💡 {t("Financial Liabilities")}</option>
-              <option value="#professional-details">🏢 {t("Professional Details")}</option>
-              <option value="#loan-demographics">📌 {t("Loan Demographics")}</option>
-              <option value="#credit-score">📊 {t("Credit Profile")}</option>
+              {SECTIONS.map((sec) => (
+                <option key={sec.id} value={`#${sec.id}`}>
+                  {t(sec.label)}
+                </option>
+              ))}
             </select>
           </div>
 
           {/* Centered Inner Form Container */}
           <div className="w-full max-w-4xl mx-auto flex flex-col gap-6">
-
-            {/* Stepper Progress */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span className="font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-                  {t("Step 1 of 4: Applicant Profile")}
-                </span>
-                <span className="font-mono text-slate-700 dark:text-slate-300 font-semibold">
-                  {t("{{progress}}% Complete ({{filled}}/{{total}} fields)", {
-                    progress: realTimeProgress,
-                    filled: filledRequiredFields,
-                    total: totalRequiredFields,
-                  })}
-                </span>
-              </div>
-
-              <div className="h-2 w-full bg-slate-200 dark:bg-navy-800 rounded-full overflow-hidden flex">
-                <div 
-                  className={`h-full bg-gradient-to-r ${progressBarGradient} rounded-full transition-all duration-300`} 
-                  style={{ width: `${realTimeProgress}%` }}
-                />
-              </div>
-            </div>
-
-
-            {/* Quick Jump Navigation Bar */}
-            <div className="rounded-xl p-2.5 border border-slate-200/80 dark:border-border/80 bg-white/80 dark:bg-card/70 backdrop-blur-md flex flex-wrap items-center justify-between gap-2 shadow-sm dark:shadow-lg relative z-20">
-              <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-muted-foreground font-semibold px-2">
-                <Sparkles className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-                <span>{t("Quick Jump:")}</span>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-1.5 text-xs font-medium">
-                {/* 1. Assessment button -> stays on current page / scrolls to top (active) */}
-                <button
-                  type="button"
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                  className="px-3 py-1.5 rounded-lg bg-teal-50 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 font-bold border border-teal-200 dark:border-teal-500/40 shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
-                >
-                  <span className="h-1.5 w-1.5 rounded-full bg-teal-600 dark:bg-teal-500 animate-pulse" />
-                  <span>{t("Assessment")}</span>
-                </button>
-
-                {/* 2. Matched Scheme button -> navigates to /matched-scheme */}
-                <Link
-                  href="/matched-scheme"
-                  className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-muted/50 hover:bg-indigo-50 dark:hover:bg-indigo-500/20 hover:text-indigo-600 dark:hover:text-indigo-300 text-slate-700 dark:text-muted-foreground border border-slate-200 dark:border-border/60 flex items-center gap-1.5 transition-all cursor-pointer group"
-                >
-                  <span>{t("Matched Scheme")}</span>
-                  <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-transform" />
-                </Link>
-
-                {/* 3. EMI Calculator button -> navigates to /emi-calculator */}
-                <Link
-                  href="/emi-calculator"
-                  className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-muted/50 hover:bg-purple-50 dark:hover:bg-purple-500/20 hover:text-purple-600 dark:hover:text-purple-300 text-slate-700 dark:text-muted-foreground border border-slate-200 dark:border-border/60 flex items-center gap-1.5 transition-all cursor-pointer group"
-                >
-                  <span>{t("EMI Calculator")}</span>
-                  <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-purple-500 group-hover:translate-x-0.5 transition-transform" />
-                </Link>
-
-                {/* 4. Partner Network button -> navigates to /partner-network */}
-                <Link
-                  href="/partner-network"
-                  className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-muted/50 hover:bg-teal-50 dark:hover:bg-teal-500/20 hover:text-teal-600 dark:hover:text-teal-300 text-slate-700 dark:text-muted-foreground border border-slate-200 dark:border-border/60 flex items-center gap-1.5 transition-all cursor-pointer group"
-                >
-                  <span>{t("Partner Network")}</span>
-                  <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-teal-500 group-hover:translate-x-0.5 transition-transform" />
-                </Link>
-              </div>
-            </div>
 
             {/* Heading Area */}
             <div className="space-y-2 text-center sm:text-left">
@@ -767,8 +982,9 @@ export default function AssessmentPage() {
 
                 {/* SECTION 1: Basic Financial Information */}
                 <div className="mb-8 p-6 bg-slate-50/70 dark:bg-navy-800/50 border border-slate-200/80 dark:border-navy-700 rounded-xl space-y-6">
-                  <h2 id="basic-info" className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6 scroll-mt-24">
-                    💰 {t("Basic Financial Information")}
+                  <h2 id="basic-info" className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6 scroll-mt-24 flex items-center gap-2.5">
+                    <IndianRupee className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+                    <span>{t("Basic Financial Information")}</span>
                   </h2>
 
                   {/* 1. Annual Family Income */}
@@ -863,8 +1079,9 @@ export default function AssessmentPage() {
 
                 {/* SECTION 2: Loan Purpose */}
                 <div className="mb-8 p-6 bg-slate-50/70 dark:bg-navy-800/50 border border-slate-200/80 dark:border-navy-700 rounded-xl space-y-6">
-                  <h2 id="loan-purpose" className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2 scroll-mt-24">
-                    🎯 {t("Loan Purpose & Scale")}
+                  <h2 id="loan-purpose" className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2 scroll-mt-24 flex items-center gap-2.5">
+                    <Target className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+                    <span>{t("Loan Purpose & Scale")}</span>
                   </h2>
                   
                   {/* Primary Loan Purpose */}
@@ -881,11 +1098,65 @@ export default function AssessmentPage() {
                       className="w-full px-4 py-3 bg-white dark:bg-navy-900 border border-slate-300 dark:border-navy-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:focus:ring-aurora-500 focus:border-teal-500 dark:focus:border-transparent transition-all cursor-pointer text-sm shadow-xs"
                     >
                       <option value="">{t("Select Purpose")}</option>
-                      <option value="education">{t("Education")}</option>
                       <option value="business">{t("Business / Self-Employment")}</option>
+                      <option value="education">{t("Education")}</option>
                       <option value="personal">{t("Personal Reasons")}</option>
                       <option value="other">{t("Other")}</option>
                     </select>
+                  </div>
+
+                  {/* AI Semantic Requirement & Business Purpose Input */}
+                  <div className="p-4 bg-teal-500/5 dark:bg-teal-950/20 border border-teal-500/20 rounded-xl space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="requirementText" className="text-sm font-bold text-teal-900 dark:text-teal-300 flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                        <span>{t("Describe your Business Idea or Need in Detail")} ({t("AI Semantic Match")})</span>
+                      </label>
+                      <span className="text-[11px] font-mono text-teal-600 dark:text-teal-400 bg-teal-500/10 px-2 py-0.5 rounded-md border border-teal-500/20">
+                        OpenRouter Embeddings
+                      </span>
+                    </div>
+                    <textarea
+                      id="requirementText"
+                      name="requirementText"
+                      rows={3}
+                      placeholder={t("e.g., I want to start a tailoring business and need money for sewing machines...")}
+                      value={requirementText}
+                      onChange={(e) => setRequirementText(e.target.value)}
+                      className="w-full px-4 py-3 bg-white dark:bg-navy-900 border border-teal-300 dark:border-teal-800 rounded-lg text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/30 text-sm shadow-xs resize-none"
+                    />
+                    
+                    {/* Quick Preset Prompts */}
+                    <div className="space-y-1.5 pt-1">
+                      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                        {t("Quick Test Presets:")}
+                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { icon: Scissors, label: "Tailoring & Sewing Machines", text: "I want to start a tailoring business and need money for sewing machines.", purpose: "business", loan: "120000" },
+                          { icon: Store, label: "Dairy Business Assistance", text: "I need financial assistance to start a small dairy business.", purpose: "business", loan: "250000" },
+                          { icon: GraduationCap, label: "Higher Education Funding", text: "I want funding for my higher education.", purpose: "education", loan: "1000000" },
+                          { icon: Factory, label: "Factory Machinery Expansion", text: "I want to expand my commercial manufacturing unit with heavy machinery.", purpose: "business", loan: "2500000" }
+                        ].map((preset, idx) => {
+                          const PresetIcon = preset.icon;
+                          return (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => {
+                                setRequirementText(preset.text);
+                                setLoanPurpose(preset.purpose);
+                                if (preset.loan) setLoanAmount(preset.loan);
+                              }}
+                              className="text-[11px] px-2.5 py-1 rounded-lg bg-white dark:bg-navy-800 border border-slate-200 dark:border-navy-700 hover:border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-900/30 text-slate-700 dark:text-slate-300 transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
+                            >
+                              <PresetIcon className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                              <span>{t(preset.label)}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
                   
                   {/* Education Project Size (Conditional) */}
@@ -909,8 +1180,9 @@ export default function AssessmentPage() {
                           <option value="medium">{t("Medium (₹1.40 Lakh - ₹10 Lakh) - Undergraduate, Postgraduate, Professional Courses")}</option>
                           <option value="large">{t("Large (₹10 Lakh - ₹50 Lakh) - Ph.D., Study Abroad, Research Programs")}</option>
                         </select>
-                        <p className="text-xs text-slate-500 dark:text-muted-foreground mt-2">
-                          💡 {t("Select based on your total education expense requirement")}
+                        <p className="text-xs text-slate-500 dark:text-muted-foreground mt-2 flex items-center gap-1.5">
+                          <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                          <span>{t("Select based on your total education expense requirement")}</span>
                         </p>
                       </div>
                     </div>
@@ -937,8 +1209,9 @@ export default function AssessmentPage() {
                           <option value="medium">{t("Medium (₹1.40 Lakh - ₹10 Lakh) - Business expansion, machinery, inventory")}</option>
                           <option value="large">{t("Large (₹10 Lakh - ₹50 Lakh) - Large-scale manufacturing, infrastructure, franchise")}</option>
                         </select>
-                        <p className="text-xs text-slate-500 dark:text-muted-foreground mt-2">
-                          💡 {t("Micro: Small projects (Micro Finance Scheme) | Medium/Large: Term Loan Scheme")}
+                        <p className="text-xs text-slate-500 dark:text-muted-foreground mt-2 flex items-center gap-1.5">
+                          <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                          <span>{t("Micro: Small projects (Micro Finance Scheme) | Medium/Large: Term Loan Scheme")}</span>
                         </p>
                       </div>
                     </div>
@@ -965,8 +1238,9 @@ export default function AssessmentPage() {
                           <option value="medium">{t("Medium (₹1 Lakh - ₹5 Lakh) - Medical, wedding, vehicle purchase")}</option>
                           <option value="large">{t("Large (₹5 Lakh+) - Major expenses, debt consolidation, home renovation")}</option>
                         </select>
-                        <p className="text-xs text-slate-500 dark:text-muted-foreground mt-2">
-                          💡 {t("Select based on your total loan requirement")}
+                        <p className="text-xs text-slate-500 dark:text-muted-foreground mt-2 flex items-center gap-1.5">
+                          <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                          <span>{t("Select based on your total loan requirement")}</span>
                         </p>
                       </div>
                     </div>
@@ -1009,8 +1283,9 @@ export default function AssessmentPage() {
                           <option value="medium">{t("Medium (₹1.40 Lakh - ₹10 Lakh) - Medium-scale projects")}</option>
                           <option value="large">{t("Large (₹10 Lakh - ₹50 Lakh) - Large-scale projects")}</option>
                         </select>
-                        <p className="text-xs text-slate-500 dark:text-muted-foreground mt-2">
-                          💡 {t("Select based on your total project cost")}
+                        <p className="text-xs text-slate-500 dark:text-muted-foreground mt-2 flex items-center gap-1.5">
+                          <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                          <span>{t("Select based on your total project cost")}</span>
                         </p>
                       </div>
                     </div>
@@ -1019,8 +1294,9 @@ export default function AssessmentPage() {
 
                 {/* SECTION 3: Financial Liabilities & Banking Profile */}
                 <div className="mb-8 p-6 bg-slate-50/70 dark:bg-navy-800/50 border border-slate-200/80 dark:border-navy-700 rounded-xl">
-                  <h2 id="financial-liabilities" className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6 scroll-mt-24">
-                    💡 {t("Financial Liabilities & Banking Profile")}
+                  <h2 id="financial-liabilities" className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6 scroll-mt-24 flex items-center gap-2.5">
+                    <Scale className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+                    <span>{t("Financial Liabilities & Banking Profile")}</span>
                   </h2>
                   
                   {/* Existing Monthly EMIs */}
@@ -1040,8 +1316,9 @@ export default function AssessmentPage() {
                       onChange={(e) => setExistingEmis(e.target.value)}
                       className="w-full bg-white dark:bg-navy-900 border border-slate-300 dark:border-navy-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-muted-foreground focus:border-teal-500 dark:focus:border-aurora-500 focus:ring-2 focus:ring-teal-500/20 dark:focus:ring-aurora-500/20 transition-all font-mono"
                     />
-                    <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2">
-                      ℹ️ {t("Include home loan, car loan, personal loan, credit card EMIs, etc.")}
+                    <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2 flex items-center gap-1.5">
+                      <Info className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                      <span>{t("Include home loan, car loan, personal loan, credit card EMIs, etc.")}</span>
                     </p>
                   </div>
                   
@@ -1073,8 +1350,9 @@ export default function AssessmentPage() {
                       <option value="other-psb">{t("Other Public Sector Bank")}</option>
                       <option value="other">{t("Other Bank")}</option>
                     </select>
-                    <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2">
-                      💡 {t("Some banks offer pre-approved corporate offers for salary account holders")}
+                    <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2 flex items-center gap-1.5">
+                      <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                      <span>{t("Some banks offer pre-approved corporate offers for salary account holders")}</span>
                     </p>
                   </div>
                   
@@ -1095,8 +1373,9 @@ export default function AssessmentPage() {
                       onChange={(e) => setNetSalary(e.target.value)}
                       className="w-full bg-white dark:bg-navy-900 border border-slate-300 dark:border-navy-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-muted-foreground focus:border-teal-500 dark:focus:border-aurora-500 focus:ring-2 focus:ring-teal-500/20 dark:focus:ring-aurora-500/20 transition-all font-mono"
                     />
-                    <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2">
-                      ℹ️ {t("This is the actual amount credited to your bank account monthly (not CTC)")}
+                    <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2 flex items-center gap-1.5">
+                      <Info className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                      <span>{t("This is the actual amount credited to your bank account monthly (not CTC)")}</span>
                     </p>
                   </div>
 
@@ -1110,8 +1389,9 @@ export default function AssessmentPage() {
                         : "bg-emerald-50 dark:bg-teal-950/40 border-emerald-200 dark:border-teal-500/50 text-emerald-900 dark:text-teal-200"
                     }`}>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                          📊 {t("Debt-to-Income (DTI) Ratio:")}
+                        <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                          <Activity className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                          <span>{t("Debt-to-Income (DTI) Ratio:")}</span>
                         </span>
                         <span className="text-sm font-mono font-extrabold text-slate-900 dark:text-white">
                           {computedDti.toFixed(1)}%
@@ -1151,8 +1431,9 @@ export default function AssessmentPage() {
 
                 {/* SECTION 4: Professional Stability & Employment Details */}
                 <div className="mb-8 p-6 bg-slate-50/70 dark:bg-navy-800/50 border border-slate-200/80 dark:border-navy-700 rounded-xl">
-                  <h2 id="professional-details" className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6 scroll-mt-24">
-                    🏢 {t("Professional Stability & Employment Details")}
+                  <h2 id="professional-details" className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6 scroll-mt-24 flex items-center gap-2.5">
+                    <Briefcase className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+                    <span>{t("Professional Stability & Employment Details")}</span>
                   </h2>
                   
                   {/* Current Employer/Company Name */}
@@ -1171,8 +1452,9 @@ export default function AssessmentPage() {
                       onChange={(e) => setCompanyName(e.target.value)}
                       className="w-full bg-white dark:bg-navy-900 border border-slate-300 dark:border-navy-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-muted-foreground focus:border-teal-500 dark:focus:border-aurora-500 focus:ring-2 focus:ring-teal-500/20 dark:focus:ring-aurora-500/20 transition-all"
                     />
-                    <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2">
-                      💼 {t("Lenders offer better rates for Tier-1 companies (MNCs, Govt, etc.)")}
+                    <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2 flex items-center gap-1.5">
+                      <Briefcase className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                      <span>{t("Lenders offer better rates for Tier-1 companies (MNCs, Govt, etc.)")}</span>
                     </p>
                   </div>
                   
@@ -1188,18 +1470,41 @@ export default function AssessmentPage() {
                       required 
                       value={yearsAtJob}
                       onChange={(e) => setYearsAtJob(e.target.value)}
-                      className="w-full bg-white dark:bg-navy-900 border border-slate-300 dark:border-navy-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white focus:border-teal-500 dark:focus:border-aurora-500 focus:ring-2 focus:ring-teal-500/20 dark:focus:ring-aurora-500/20 transition-all cursor-pointer"
+                      className={`w-full bg-white dark:bg-navy-900 border rounded-lg px-4 py-3 text-slate-900 dark:text-white focus:ring-2 transition-all cursor-pointer ${
+                        yearsAtJob && totalExperience && !isJobTenureValid(yearsAtJob, totalExperience)
+                          ? "border-red-500 ring-2 ring-red-500/30 dark:border-rose-500"
+                          : "border-slate-300 dark:border-navy-700 focus:border-teal-500 dark:focus:border-aurora-500 focus:ring-teal-500/20 dark:focus:ring-aurora-500/20"
+                      }`}
                     >
                       <option value="">{t("Select duration")}</option>
-                      <option value="0-1">{t("Less than 1 year")}</option>
-                      <option value="1-2">{t("1-2 years")}</option>
-                      <option value="2-5">{t("2-5 years")}</option>
-                      <option value="5-10">{t("5-10 years")}</option>
-                      <option value="10+">{t("10+ years")}</option>
+                      <option value="0-1" disabled={totalExperience !== "" && !isJobTenureValid("0-1", totalExperience)}>
+                        {t("Less than 1 year")}
+                      </option>
+                      <option value="1-2" disabled={totalExperience !== "" && !isJobTenureValid("1-2", totalExperience)}>
+                        {t("1-2 years")} {totalExperience !== "" && !isJobTenureValid("1-2", totalExperience) ? `(${t("Exceeds total experience")})` : ""}
+                      </option>
+                      <option value="2-5" disabled={totalExperience !== "" && !isJobTenureValid("2-5", totalExperience)}>
+                        {t("2-5 years")} {totalExperience !== "" && !isJobTenureValid("2-5", totalExperience) ? `(${t("Exceeds total experience")})` : ""}
+                      </option>
+                      <option value="5-10" disabled={totalExperience !== "" && !isJobTenureValid("5-10", totalExperience)}>
+                        {t("5-10 years")} {totalExperience !== "" && !isJobTenureValid("5-10", totalExperience) ? `(${t("Exceeds total experience")})` : ""}
+                      </option>
+                      <option value="10+" disabled={totalExperience !== "" && !isJobTenureValid("10+", totalExperience)}>
+                        {t("10+ years")} {totalExperience !== "" && !isJobTenureValid("10+", totalExperience) ? `(${t("Exceeds total experience")})` : ""}
+                      </option>
                     </select>
-                    <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2">
-                      ✓ {t("Longer tenure shows job stability and improves approval chances")}
-                    </p>
+
+                    {yearsAtJob && totalExperience && !isJobTenureValid(yearsAtJob, totalExperience) ? (
+                      <p className="text-red-500 dark:text-rose-400 text-xs mt-2 flex items-center gap-1.5 font-medium animate-pulse">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{t("Years at Current Job cannot exceed Total Work Experience")}</span>
+                      </p>
+                    ) : (
+                      <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        <span>{t("Longer tenure shows job stability and improves approval chances")}</span>
+                      </p>
+                    )}
                   </div>
                   
                   {/* Total Work Experience */}
@@ -1213,7 +1518,13 @@ export default function AssessmentPage() {
                       name="totalExperience"
                       required 
                       value={totalExperience}
-                      onChange={(e) => setTotalExperience(e.target.value)}
+                      onChange={(e) => {
+                        const newExp = e.target.value;
+                        setTotalExperience(newExp);
+                        if (yearsAtJob && !isJobTenureValid(yearsAtJob, newExp)) {
+                          setYearsAtJob("");
+                        }
+                      }}
                       className="w-full bg-white dark:bg-navy-900 border border-slate-300 dark:border-navy-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white focus:border-teal-500 dark:focus:border-aurora-500 focus:ring-2 focus:ring-teal-500/20 dark:focus:ring-aurora-500/20 transition-all cursor-pointer"
                     >
                       <option value="">{t("Select experience")}</option>
@@ -1224,16 +1535,18 @@ export default function AssessmentPage() {
                       <option value="10-15">{t("10-15 years")}</option>
                       <option value="15+">{t("15+ years")}</option>
                     </select>
-                    <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2">
-                      📈 {t("More experience = better career stability = higher loan eligibility")}
+                    <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2 flex items-center gap-1.5">
+                      <TrendingUp className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      <span>{t("More experience = better career stability = higher loan eligibility")}</span>
                     </p>
                   </div>
                 </div>
 
                 {/* SECTION 5: Residential Demographics */}
                 <div className="mb-8 p-6 bg-slate-50/70 dark:bg-navy-800/50 border border-slate-200/80 dark:border-navy-700 rounded-xl">
-                  <h2 id="loan-demographics" className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6 scroll-mt-24">
-                    📌 {t("Residential Demographics")}
+                  <h2 id="loan-demographics" className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6 scroll-mt-24 flex items-center gap-2.5">
+                    <MapPin className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+                    <span>{t("Residential Demographics")}</span>
                   </h2>
                   
                   {/* Current Pincode */}
@@ -1254,8 +1567,9 @@ export default function AssessmentPage() {
                       onChange={(e) => setPincode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                       className="w-full bg-white dark:bg-navy-900 border border-slate-300 dark:border-navy-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-muted-foreground focus:border-teal-500 dark:focus:border-aurora-500 focus:ring-2 focus:ring-teal-500/20 dark:focus:ring-aurora-500/20 transition-all font-mono"
                     />
-                    <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2">
-                      📍 {t("Helps find nearest channel partners and location-specific schemes")}
+                    <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2 flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                      <span>{t("Helps find nearest channel partners and location-specific schemes")}</span>
                     </p>
                   </div>
                   
@@ -1281,8 +1595,9 @@ export default function AssessmentPage() {
                       <option value="company-provided">{t("Company Provided Accommodation")}</option>
                       <option value="other">{t("Other")}</option>
                     </select>
-                    <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2">
-                      🏠 {t("Home ownership indicates asset stability and may improve approval")}
+                    <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2 flex items-center gap-1.5">
+                      <Home className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                      <span>{t("Home ownership indicates asset stability and may improve approval")}</span>
                     </p>
                   </div>
 
@@ -1302,16 +1617,18 @@ export default function AssessmentPage() {
                       onChange={(e) => setAddress(e.target.value)}
                       className="w-full bg-white dark:bg-navy-900 border border-slate-300 dark:border-navy-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-muted-foreground focus:border-teal-500 dark:focus:border-aurora-500 focus:ring-2 focus:ring-teal-500/20 dark:focus:ring-aurora-500/20 transition-all resize-none"
                     />
-                    <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2">
-                      📍 {t("Your complete residential address for loan processing")}
+                    <p className="text-slate-500 dark:text-muted-foreground text-xs mt-2 flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                      <span>{t("Your complete residential address for loan processing")}</span>
                     </p>
                   </div>
                 </div>
 
                 {/* SECTION 6: Credit Profile & Score Assessment */}
                 <div className="mb-8 p-6 bg-slate-50/70 dark:bg-navy-800/50 border border-slate-200/80 dark:border-navy-700 rounded-xl">
-                  <h2 id="credit-score" className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6 scroll-mt-24">
-                    📊 {t("Credit Profile & Score Assessment")}
+                  <h2 id="credit-score" className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6 scroll-mt-24 flex items-center gap-2.5">
+                    <Gauge className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+                    <span>{t("Credit Profile & Score Assessment")}</span>
                   </h2>
                   
                   {/* Credit Score Range */}
@@ -1336,7 +1653,10 @@ export default function AssessmentPage() {
                       <option value="no-history">{t("I don't know / First time borrowing (No History)")}</option>
                     </select>
                     <div className="mt-3 p-3.5 bg-indigo-50/80 dark:bg-aurora-900/20 border border-indigo-200/80 dark:border-aurora-700/50 rounded-lg">
-                      <p className="text-slate-900 dark:text-white text-sm font-semibold mb-2">💡 {t("Credit Score Impact:")}</p>
+                      <p className="text-slate-900 dark:text-white text-sm font-semibold mb-2 flex items-center gap-1.5">
+                        <Lightbulb className="w-4 h-4 text-amber-500 shrink-0" />
+                        <span>{t("Credit Score Impact:")}</span>
+                      </p>
                       <ul className="text-slate-600 dark:text-muted-foreground text-xs space-y-1">
                         <li>-  {t("Excellent (775+): Best interest rates, highest approval chance")}</li>
                         <li>-  {t("Good (700-774): Competitive rates, good approval chance")}</li>
@@ -1356,7 +1676,8 @@ export default function AssessmentPage() {
                       disabled
                       className="w-full h-14 py-3 px-4 bg-slate-100 dark:bg-navy-800/80 border border-slate-300 dark:border-navy-700 text-slate-400 dark:text-muted-foreground rounded-xl font-bold flex items-center justify-center gap-2 cursor-not-allowed transition-all opacity-80"
                     >
-                      <span>❌ {t("Improve Eligibility Score (Min 40 Required)")}</span>
+                      <CircleX className="w-5 h-5 text-red-400" />
+                      <span>{t("Improve Eligibility Score (Min 40 Required)")}</span>
                     </button>
                   ) : (
                     <button

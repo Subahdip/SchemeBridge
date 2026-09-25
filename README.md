@@ -2,9 +2,9 @@
 
 > Find smarter. Match better. Apply with confidence.
 
-🌐 **Live Demo:** [SchemeBridge](https://sih-ai-xi.vercel.app/)
+🌐 **Live Demo:** [Click here to enjoy Live Demo](https://sih-ai-xi.vercel.app/)
 
-SchemeBridge is an AI-assisted digital platform developed by **Team DesiDevs_SurTech** for **Smart India Hackathon 2026**, under **Problem Statement SIH26092 — AI-Driven Scheme Matching for Marginalized Entrepreneurs**.
+SchemeBridge is an AI-assisted digital platform developed by **Team DesiDevs_SurTech** for **Smart India Hackathon 2026**.
 
 The platform helps entrepreneurs and applicants discover relevant government-backed concessional credit schemes through **AI-powered semantic matching, deterministic eligibility validation, financial planning, partner discovery, secure application submission, and persistent application tracking**.
 
@@ -183,8 +183,7 @@ Production Deployment
 
 ### 🌐 Live Application
 
-**SchemeBridge:**  
-Try[SchemeBridge]https://sih-ai-xi.vercel.app/
+**SchemeBridge:** [Try SchemeBridge](https://sih-ai-xi.vercel.app/)
 
 ---
 
@@ -196,10 +195,8 @@ Developed with ❤️ by **Team DesiDevs_SurTech**.
 
 > **Bridging Citizens to Government Opportunities.**
 
-**Problem Statement:** SIH26092  
 **Theme:** Smart Automation  
 **Category:** Software  
-**Team ID:** 162694
 
 ---
 
@@ -210,7 +207,7 @@ If you like **SchemeBridge**, consider giving the repository a ⭐ on GitHub.
 ### 🔗 Project Links
 
 **Live Demo:**  
-https://sih-ai-xi.vercel.app/
+[Try Prototype](https://sih-ai-xi.vercel.app/)
 
 **GitHub Repository:**  
-https://github.com/Subahdip/SchemeBridge
+[Click here to the see SchemeBridge Repository](https://github.com/Subahdip/SchemeBridge)

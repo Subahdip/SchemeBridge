@@ -184,13 +184,13 @@ Production Deployment
 ### 🌐 Live Application
 
 **SchemeBridge:**  
-https://sih-ai-xi.vercel.app/
+Try[SchemeBridge]https://sih-ai-xi.vercel.app/
 
 ---
 
 ## 👨‍💻 Team DesiDevs
 
-Developed with ❤️ by **Team DesiDevs_SurTech** for **Smart India Hackathon 2026**.
+Developed with ❤️ by **Team DesiDevs_SurTech**.
 
 ### 🌉 SchemeBridge
 
